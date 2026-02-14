@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>{{ company.empresa_nome }}</title>
+
+  <!-- PWA & iOS Meta Tags -->
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#F2F2F7">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-ios.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}");
+      });
+    }
+  </script>
+  {% block head %}{% endblock %}
+</head>
+
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div id="flash-messages" style="position: fixed; top: 20px; right: 20px; z-index: 2000;">
+    {% for category, message in messages %}
+    <div class="flash-message {{ category }}">
+      {{ message }}</div>
+    {% endfor %}
+  </div>
+  <script>
+    setTimeout(() => {
+      const msgs = document.getElementById('flash-messages');
+      if (msgs) msgs.style.display = 'none';
+    }, 4000);
+  </script>
+  {% endif %}
+  {% endwith %}
+
+  {% if request.endpoint != 'login' and request.endpoint != 'auth.login' %}
+  <!-- Desktop Sidebar -->
+  <nav class="sidebar-desktop">
+    <div class="logo-container">
+      <img src="{{ company.empresa_logo_url }}" alt="{{ company.empresa_nome }}">
+    </div>
+    <div class="nav-links">
+      <div class="menu-header">Comercial</div>
+      <a href="/dashboard" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}"><i
+          class="fas fa-chart-pie"></i> Dashboard</a>
+      <a href="/kanban" class="{{ 'active' if request.endpoint == 'kanban' else '' }}"><i class="fas fa-columns"></i>
+        Kanban</a>
+      <a href="/orcamentos" class="{{ 'active' if request.endpoint == 'orcamentos' else '' }}"><i
+          class="fas fa-file-invoice-dollar"></i> Orçamentos</a>
+      <a href="/clientes" class="{{ 'active' if request.endpoint == 'clientes' else '' }}"><i class="fas fa-users"></i>
+        Clientes</a>
+
+      <div class="menu-header">Produção</div>
+      <a href="/estoque" class="{{ 'active' if request.endpoint == 'estoque' else '' }}"><i class="fas fa-boxes"></i>
+        Estoque</a>
+      <a href="/catalogo" class="{{ 'active' if request.endpoint == 'catalogo' else '' }}"><i
+          class="fas fa-book-open"></i> Catálogo</a>
+
+      <div class="menu-header">Administrativo</div>
+      <a href="/financeiro" class="{{ 'active' if request.endpoint == 'financeiro' else '' }}"><i
+          class="fas fa-wallet"></i> Financeiro</a>
+      <a href="/funcionarios" class="{{ 'active' if request.endpoint == 'funcionarios' else '' }}"><i
+          class="fas fa-users-cog"></i> Funcionários</a>
+      <a href="/relatorios" class="{{ 'active' if request.endpoint == 'relatorios' else '' }}"><i
+          class="fas fa-chart-line"></i> Relatórios</a>
+
+      {% if current_user and current_user.role == 'admin' %}
+      <a href="/settings" class="{{ 'active' if request.endpoint == 'settings' else '' }}"><i class="fas fa-cog"></i>
+        Configurações</a>
+      {% endif %}
+    </div>
+    </div>
+    <form action="/api/auth/logout" method="POST" class="logout-form"
+      onsubmit="event.preventDefault(); fetch('/api/auth/logout', {method: 'POST'}).then(() => window.location.href='/login');">
+      <button type="submit"><i class="fas fa-sign-out-alt"></i> Sair</button>
+    </form>
+  </nav>
+  </nav>
+
+  <!-- Mobile Bottom Tab Bar -->
+  <nav class="mobile-tabbar">
+    <a href="/kanban" class="tab-link {{ 'active' if request.endpoint == 'kanban' else '' }}">
+      <i class="fas fa-columns"></i>
+      <span>Início</span>
+    </a>
+    <a href="/orcamentos" class="tab-link {{ 'active' if request.endpoint == 'orcamentos' else '' }}">
+      <i class="fas fa-file-invoice-dollar"></i>
+      <span>Orça..</span>
+    </a>
+    <a href="/estoque" class="tab-link {{ 'active' if request.endpoint == 'estoque' else '' }}">
+      <i class="fas fa-boxes"></i>
+      <span>Estoque</span>
+    </a>
+    <a href="/financeiro" class="tab-link {{ 'active' if request.endpoint == 'financeiro' else '' }}">
+      <i class="fas fa-wallet"></i>
+      <span>Financ.</span>
+    </a>
+    <a href="/settings" class="tab-link {{ 'active' if request.endpoint == 'settings' else '' }}">
+      <i class="fas fa-bars"></i>
+      <span>Mais</span>
+    </a>
+  </nav>
+
+  <div class="main-content">
+    <header class="mobile-header">
+      <h1>{{ company.empresa_nome }}</h1>
+      <img src="{{ company.empresa_logo_url }}" alt="{{ company.empresa_nome }}" class="mobile-logo">
+    </header>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    {% if request.endpoint != 'login' and request.endpoint != 'auth.login' %}
+  </div>
+  {% endif %}
+</body>
+
+</html>

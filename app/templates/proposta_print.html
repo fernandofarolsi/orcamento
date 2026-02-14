@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Proposta Comercial - {{ orcamento.client }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
+    <style>
+        /* Estilos específicos para impressão de proposta */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+            color: var(--primary-color);
+            background: #fff;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .logo-box img {
+            max-width: 200px;
+        }
+
+        .contact-info {
+            text-align: right;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .contact-info a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .title-box {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .title-box h1 {
+            font-size: 1.2em;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .conditions-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 10px;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .condition-label {
+            font-weight: bold;
+            text-align: right;
+            padding-right: 15px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .condition-value {
+            padding-left: 15px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .items-table th {
+            border-bottom: 2px solid var(--primary-color);
+            padding: 10px 5px;
+            text-align: center;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+
+        .items-table td {
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 5px;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .items-table td:nth-child(2) {
+            text-align: left;
+        }
+
+        .miniature img {
+            max-width: 120px;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer-total {
+            text-align: right;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .obs-box {
+            font-size: 0.85em;
+            color: #555;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                padding: 0;
+                margin: 15mm;
+            }
+        }
+
+        .editable:hover {
+            background: #fffcf0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="no-print" style="position: fixed; top: 10px; right: 10px; z-index: 9999; display: flex; gap: 10px;">
+        <button onclick="window.print()"
+            style="padding: 10px 20px; background: #333; color: #fff; border: none; cursor: pointer; border-radius: 4px;">🖨️
+            Imprimir</button>
+        <button onclick="window.close()"
+            style="padding: 10px 20px; background: #666; color: #fff; border: none; cursor: pointer; border-radius: 4px;">Fechar</button>
+    </div>
+
+    <div class="header">
+        <div class="logo-box">
+            <img src="{{ company.empresa_logo_url }}" alt="{{ company.empresa_nome }}">
+        </div>
+        <div class="contact-info">
+            E-MAIL: <a href="mailto:{{ company.empresa_email }}">{{ company.empresa_email }}</a><br>
+            SITE/INSTA: {{ company.empresa_site }}<br>
+            CONTATO: {{ company.empresa_telefone }}
+        </div>
+    </div>
+
+    <div class="title-box">
+        <h1>Proposta nº: {{ prop_numero }}</h1>
+    </div>
+
+    <div class="section-header">Condições Comerciais</div>
+
+    <div class="conditions-grid">
+        <div class="condition-label">Orçamento em nome de:</div>
+        <div class="condition-value">{{ orcamento.client }}</div>
+
+        <div class="condition-label">Garantia:</div>
+        <div class="condition-value editable" contenteditable="true">1 Ano de garantia</div>
+
+        <div class="condition-label">Condição de pagamento:</div>
+        <div class="condition-value editable" contenteditable="true">A combinar</div>
+
+        <div class="condition-label">Frete:</div>
+        <div class="condition-value editable" contenteditable="true">Incluso nesta cotação</div>
+
+        <div class="condition-label">Impostos:</div>
+        <div class="condition-value editable" contenteditable="true">Inclusos nesta cotação</div>
+
+        <div class="condition-label">Prazo de entrega:</div>
+        <div class="condition-value editable" contenteditable="true">30 dias úteis a contar da medição</div>
+
+        <div class="condition-label">Montagem:</div>
+        <div class="condition-value editable" contenteditable="true">Inclusa nesta cotação</div>
+    </div>
+
+    <div class="section-header">Móveis Sob Medida <span style="font-size: 0.7em; text-transform: none;">*proposta válida
+            por 10 dias</span></div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 60px;">Item</th>
+                <th>Descrição do produto</th>
+                <th style="width: 50px;">Qt</th>
+                <th style="width: 120px;">Unitário</th>
+                <th style="width: 120px;">Total</th>
+                <th style="width: 150px;">Miniatura do móvel</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+            {% set group_total = 0 %}
+            {% for item in group.itens %}{% set group_total = group_total + (item.subtotal | float) %}{% endfor %}
+            {% set unit_price = group_total %}
+            {% set total_item = group_total * (group.qty | int) %}
+            <tr>
+                <td>{{ group.code }}</td>
+                <td>
+                    <strong>{{ group.name }}</strong>
+                    <div style="font-size: 0.85em; color: #555; margin-top: 5px;">
+                        {% for item in group.itens %}
+                        - {{ item.nome }} ({{ item.L }}x{{ item.A }}x{{ item.P }}mm)<br>
+                        {% endfor %}
+                    </div>
+                </td>
+                <td>{{ "%03d"|format(group.qty | int) }}</td>
+                <td>R$ {{ "%.2f"|format(unit_price) }}</td>
+                <td><strong>R$ {{ "%.2f"|format(total_item) }}</strong></td>
+                <td class="miniature">
+                    {% if group.imagem_url %}
+                    <img src="{{ group.imagem_url }}" alt="Miniatura">
+                    {% else %}
+                    <div style="color: #ccc; font-size: 0.8em;">(Sem imagem)</div>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer-total">
+        Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; R$ {{ "%.2f"|format(orcamento.total) }}
+    </div>
+
+    <div class="obs-box">
+        *Obs: os valores acima listados levam em conta somente dias úteis e horário comercial, serão adicionados valores
+        extras caso sejam necessários serviços noturnos, em fins de semana e feriados.
+    </div>
+
+</body>
+
+</html>

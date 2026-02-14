@@ -1,0 +1,347 @@
+/* FIX LOGO SIZE */
+.mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    /* Reduced padding */
+}
+
+.mobile-header h1 {
+    font-size: 24px;
+    /* Slightly smaller to fit logo */
+}
+
+.mobile-header img {
+    height: 40px;
+    /* Constrain height */
+    width: auto;
+    /* Maintain aspect ratio */
+    border-radius: 6px;
+}
+
+/* ========================================
+   MOBILE NAVIGATION (iOS Style)
+   ======================================== */
+
+.mobile-tabbar {
+    display: none;
+    /* Hidden on desktop */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 83px;
+    /* Standard iOS Tab Bar height (49px + 34px safe area) */
+    background: rgba(242, 242, 247, 0.85);
+    /* iOS System Chrome Material */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 0.5px solid rgba(0, 0, 0, 0.2);
+    display: flex;
+    /* Setup flex for children, but keep hidden via media query */
+    justify-content: space-around;
+    padding-bottom: 34px;
+    /* Safe Area for Home Indicator */
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.tab-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 500;
+    margin-top: 5px;
+    /* Visual adjustment */
+}
+
+.tab-link i {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.tab-link.active {
+    color: var(--primary-color);
+}
+
+.mobile-header {
+    display: none;
+    /* Hidden on desktop */
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 900;
+}
+
+.mobile-header h1 {
+    font-size: 34px;
+    /* iOS Large Title */
+    font-weight: 700;
+    margin: 0;
+    color: #000;
+    letter-spacing: -0.5px;
+}
+
+/* Header Logo specific fix */
+.header-logo {
+    height: 32px;
+    width: auto;
+    border-radius: 6px;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+.header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+/* Sidebar Styling Updates */
+/* ... existing desktop sidebar rules ... */
+.sidebar-desktop {
+    width: 250px;
+    background: #2c3e50;
+    position: fixed;
+    height: 100%;
+    left: 0;
+    top: 0;
+    padding: 20px;
+    color: white;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-desktop .nav-links a {
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    text-decoration: none;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.sidebar-desktop .nav-links a:hover,
+.sidebar-desktop .nav-links a.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.sidebar-desktop .nav-links i {
+    width: 25px;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.logout-form {
+    margin-top: auto;
+}
+
+.logout-form button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 10px;
+    text-align: left;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.logout-form button i {
+    width: 25px;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.logout-form button:hover {
+    color: white;
+}
+
+
+/* ========================================
+   RESPONSIVE (Mobile First Logic)
+   ======================================== */
+
+/* Desktop defaults */
+@media (min-width: 769px) {
+    .mobile-tabbar {
+        display: none !important;
+    }
+
+    .mobile-header {
+        display: none !important;
+    }
+
+    .sidebar-desktop {
+        display: flex !important;
+    }
+
+    .main-content {
+        margin-left: 250px;
+        padding: 20px;
+    }
+}
+
+/* Mobile defaults */
+@media (max-width: 768px) {
+    .sidebar-desktop {
+        display: none !important;
+    }
+
+    .mobile-tabbar {
+        display: flex !important;
+    }
+
+    .mobile-header {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .mobile-header h1 {
+        font-size: 22px;
+        /* Reduces size to fit */
+    }
+
+    /* Logo constraint */
+    .mobile-logo {
+        height: 35px;
+        width: auto;
+        border-radius: 8px;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 0 0 100px 0;
+    }
+
+    body {
+        padding: 0;
+        background: #F2F2F7;
+        color: #000;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* iOS Card Style */
+    .card,
+    .tab-content,
+    .kanban-col,
+    .login-card,
+    .filters-section,
+    .kpi-card {
+        background: #FFFFFF;
+        color: #000;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        margin-bottom: 16px;
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    /* Header adjustments inside cards */
+    h1,
+    h2,
+    h3,
+    h4 {
+        color: #000;
+        font-weight: 600;
+    }
+
+    /* Input Styling - iOS Pill Shape */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        background: #E5E5EA;
+        /* iOS System Gray 5/6 */
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 17px;
+        /* Prevent zoom on focus */
+    }
+
+    .form-group label {
+        color: #000;
+        font-size: 13px;
+        text-transform: uppercase;
+        color: #6c757d;
+        margin-left: 4px;
+    }
+
+    /* Buttons */
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 12px 20px;
+        font-size: 16px;
+    }
+
+    .btn-primary {
+        background-color: #007AFF;
+        /* iOS Blue */
+    }
+
+    /* Modals as Sheets */
+    .modal {
+        align-items: flex-end !important;
+        /* Bottom aligned */
+        padding: 0 !important;
+    }
+
+    .modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        border-top-left-radius: 20px !important;
+        border-top-right-radius: 20px !important;
+        margin: 0 !important;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    /* Kanban adjustments */
+    .dashboard-grid {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 20px;
+        gap: 10px;
+        scroll-snap-type: x mandatory;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .kanban-col {
+        min-width: 85vw;
+        scroll-snap-align: center;
+        margin: 0;
+        height: auto;
+    }
+}

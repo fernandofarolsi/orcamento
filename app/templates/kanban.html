@@ -1,0 +1,517 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
+{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<!-- Kanban Grid -->
+<div class="dashboard-grid">
+    <!-- 1. CONTATO -->
+    <div class="kanban-col" id="col-contato">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>Contato</h3>
+            <button class="btn btn-sm btn-success" onclick="openLeadModal()" style="font-size:12px;">+ Lead</button>
+        </div>
+
+        {% for card in cards if card.etapa == 'Contato' %}
+        {% set obs = '' %}
+        {% if card.data_json %}
+        {% set obs = (card.data_json | from_json).get('obs', '') %}
+        {% endif %}
+
+        <div class="kanban-card {{ 'lead-card' if not card.orcamento_id else '' }}" data-id="{{ card.id }}" {% if not
+            card.orcamento_id %} style="cursor:pointer;"
+            onclick="openEditLeadModal('{{ card.id }}', '{{ card.titulo|escape }}', '{{ card.client|escape }}', '{{ obs|escape }}')"
+            {% endif %}>
+
+            <div style="display:flex; justify-content:space-between;">
+                <h4>{{ card.titulo }}</h4>
+                {% if not card.orcamento_id %}
+                <span style="font-size:10px; background:#ffc107; padding:2px 4px; border-radius:4px;">Lead</span>
+                {% endif %}
+            </div>
+            <p>{{ card.client }}</p>
+            {% if not card.orcamento_id %}
+            <!-- Stop propagation to prevent modal open on button click? Actually button inside modal is safer UI now -->
+            <!-- Removing button here to use Modal actions, cleaner -->
+            <div
+                style="font-size:10px; color:#666; margin-top:5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                {{ obs }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 2. MEDIÇÃO -->
+    <div class="kanban-col" id="col-medicao">
+        <h3>Medição</h3>
+        {% for card in cards if card.etapa == 'Medição' %}
+        <div class="kanban-card" data-id="{{ card.id }}">
+            <h4>{{ card.titulo }}</h4>
+            <p>{{ card.client }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 3. PROJETO -->
+    <div class="kanban-col" id="col-projeto">
+        <h3>Projeto</h3>
+        {% for card in cards if card.etapa == 'Projeto' %}
+        <div class="kanban-card" data-id="{{ card.id }}">
+            <h4>{{ card.titulo }}</h4>
+            <p>{{ card.client }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 4. ORÇAMENTO -->
+    <div class="kanban-col" id="col-orcamento">
+        <h3>Orçamento</h3>
+        {% for card in cards if card.etapa == 'Orçamento' %}
+        <div class="kanban-card" data-id="{{ card.id }}">
+            <h4>{{ card.titulo }}</h4>
+            <p>{{ card.client }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 5. PRODUÇÃO -->
+    <div class="kanban-col" id="col-producao">
+        <h3>Produção</h3>
+        {% for card in cards if card.etapa == 'Produção' %}
+        <div class="kanban-card" data-id="{{ card.id }}">
+            <h4>{{ card.titulo }}</h4>
+            <p>{{ card.client }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 6. INSTALAÇÃO -->
+    <div class="kanban-col" id="col-instalacao">
+        <h3>Instalação</h3>
+        {% for card in cards if card.etapa == 'Instalação' %}
+        <div class="kanban-card" data-id="{{ card.id }}">
+            <h4>{{ card.titulo }}</h4>
+            <p>{{ card.client }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 7. CONCLUÍDO -->
+    <div class="kanban-col" id="col-concluido">
+        <h3>Concluído</h3>
+        {% for card in cards if card.etapa == 'Concluído' %}
+        <div class="kanban-card" data-id="{{ card.id }}">
+            <h4>{{ card.titulo }}</h4>
+            <p>{{ card.client }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!--
+    <div class="logs-section">
+        <h3>Audit Logs</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuário</th>
+                    <th>Ação</th>
+                    <th>Data/Hora</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in audits %}
+                <tr>
+                    <td>{{ log.id }}</td>
+                    <td>{{ log.username }}</td>
+                    <td>{{ log.action }}</td>
+                    <td>{{ log.ts }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    -->
+<!-- Fim do Kanban Grid -->
+
+<!-- Calendário Integrado -->
+<div class="kanban-calendar">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>📅 Calendário de Atividades</h2>
+        <div style="font-size: 0.9em; color: #888;">
+            <span style="margin-right: 15px;"><span style="color:#28a745">●</span> Receber</span>
+            <span style="margin-right: 15px;"><span style="color:#dc3545">●</span> Pagar</span>
+            <span style="margin-right: 15px;"><span style="color:#007bff">●</span> Projeto</span>
+            <span style="margin-right: 15px;"><span style="color:#ffc107">●</span> Instalação</span>
+            <span style="margin-right: 15px;"><span style="color:#9c27b0">●</span> Visita</span>
+            <span><span style="color:#4285F4">●</span> Google</span>
+        </div>
+    </div>
+
+    <div class="calendar-months">
+        <div class="calendar-month">
+            <h3 id="prevMonth"></h3>
+            <div class="calendar-grid" id="prevCalendar"></div>
+        </div>
+
+        <div class="calendar-month">
+            <h3 id="currentMonth" style="color: var(--primary-color);"></h3>
+            <div class="calendar-grid" id="currentCalendar"></div>
+        </div>
+
+        <div class="calendar-month">
+            <h3 id="nextMonth"></h3>
+            <div class="calendar-grid" id="nextCalendar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalhes do Dia -->
+<div id="dayModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalDate"></h3>
+            <button onclick="document.getElementById('dayModal').style.display='none'"
+                class="btn btn-secondary">×</button>
+        </div>
+        <div id="modalEvents"></div>
+    </div>
+</div>
+
+<!-- Modal Novo Lead -->
+<div id="leadModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Novo Lead</h3>
+            <button onclick="document.getElementById('leadModal').style.display='none'"
+                class="btn btn-secondary">×</button>
+        </div>
+        <div class="form-group">
+            <label>Nome do Cliente / Lead</label>
+            <input type="text" id="leadName" class="form-control" placeholder="Ex: Maria da Silva">
+        </div>
+        <div class="form-group">
+            <label>Whatsapp / Contato</label>
+            <input type="text" id="leadContact" class="form-control"
+                placeholder="Ex: 5511999999999 (Sente num com DDI)">
+            <small style="color:#666; font-size:10px;">Para link do Whats, use apenas números com DDD (ex:
+                55119...)</small>
+        </div>
+        <div class="form-group">
+            <label>Observações</label>
+            <textarea id="leadObs" class="form-control" rows="3"
+                placeholder="Ex: Quer armário de cozinha..."></textarea>
+        </div>
+        <div class="form-actions">
+            <button onclick="saveLead()" class="btn btn-primary">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Lead -->
+<div id="editLeadModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Detalhes do Lead</h3>
+            <button onclick="document.getElementById('editLeadModal').style.display='none'"
+                class="btn btn-secondary">×</button>
+        </div>
+        <input type="hidden" id="editLeadId">
+        <div class="form-group">
+            <label>Nome</label>
+            <input type="text" id="editLeadName" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Contato (Whatsapp)</label>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="editLeadContact" class="form-control">
+                <a id="btnWhats" href="#" target="_blank" class="btn btn-success"
+                    style="padding:5px 10px; display:none;">📱 Whats</a>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Observações</label>
+            <textarea id="editLeadObs" class="form-control" rows="4"></textarea>
+        </div>
+
+        <div class="form-actions" style="justify-content: space-between;">
+            <button onclick="deleteLead()" class="btn btn-danger">Excluir</button>
+            <div style="display:flex; gap:10px;">
+                <button onclick="updateLead()" class="btn btn-secondary">Salvar Alterações</button>
+                <button onclick="convertLeadCtx()" class="btn btn-primary">⚡ Gerar Orçamento</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Create Mode
+    function openLeadModal() {
+        document.getElementById('leadModal').style.display = 'flex';
+        document.getElementById('leadName').focus();
+    }
+
+    function saveLead() {
+        const nome = document.getElementById('leadName').value;
+        const contato = document.getElementById('leadContact').value;
+        const obs = document.getElementById('leadObs').value;
+
+        if (!nome) return alert("Digite o nome do lead.");
+
+        fetch('/api/kanban/card', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                titulo: nome,
+                client: contato,
+                obs: obs
+            })
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert("Erro ao criar lead");
+                }
+            });
+    }
+
+    // Edit Mode
+    function openEditLeadModal(id, title, client, obs) {
+        document.getElementById('editLeadId').value = id;
+        document.getElementById('editLeadName').value = title;
+        document.getElementById('editLeadContact').value = client;
+        document.getElementById('editLeadObs').value = obs;
+
+        // Setup Whats Link
+        const btnWhats = document.getElementById('btnWhats');
+        // Clean number
+        const nums = client.replace(/\D/g, '');
+        if (nums.length >= 10) {
+            btnWhats.href = `https://wa.me/${nums}`;
+            btnWhats.style.display = 'inline-block';
+        } else {
+            btnWhats.style.display = 'none';
+        }
+
+        document.getElementById('editLeadModal').style.display = 'flex';
+    }
+
+    function updateLead() {
+        const id = document.getElementById('editLeadId').value;
+        const nome = document.getElementById('editLeadName').value;
+        const contato = document.getElementById('editLeadContact').value;
+        const obs = document.getElementById('editLeadObs').value;
+
+        if (!nome) return alert("Nome obrigatório");
+
+        fetch(`/api/kanban/card/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ titulo: nome, client: contato, obs: obs })
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) location.reload();
+                else alert("Erro ao atualizar");
+            });
+    }
+
+    function deleteLead() {
+        const id = document.getElementById('editLeadId').value;
+        if (!confirm("Tem certeza que deseja excluir este Lead?")) return;
+
+        fetch(`/api/kanban/card/${id}`, { method: 'DELETE' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) location.reload();
+                else alert("Erro ao excluir");
+            });
+    }
+
+    function convertLeadCtx() {
+        const id = document.getElementById('editLeadId').value;
+        convertLead(id);
+    }
+
+    function convertLead(id) {
+        if (!confirm("Transformar este Lead em um Orçamento Real?")) return;
+
+        fetch(`/api/kanban/convert/${id}`, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Convertido com sucesso! O card foi movido para 'Orçamento'.");
+                    // Optional: Redirect to edit budget
+                    // window.location.href = '/orcamentos';
+                    location.reload();
+                } else {
+                    alert("Erro ao converter: " + (data.error || 'Desconhecido'));
+                }
+            });
+    }
+
+    // List of columns
+    const columns = [
+        { id: 'col-contato', name: 'Contato' },
+        { id: 'col-medicao', name: 'Medição' },
+        { id: 'col-projeto', name: 'Projeto' },
+        { id: 'col-orcamento', name: 'Orçamento' },
+        { id: 'col-producao', name: 'Produção' },
+        { id: 'col-instalacao', name: 'Instalação' },
+        { id: 'col-concluido', name: 'Concluído' }
+    ];
+
+    columns.forEach(col => {
+        new Sortable(document.getElementById(col.id), {
+            group: 'shared',
+            animation: 150,
+            onEnd: function (evt) {
+                const cardId = evt.item.getAttribute('data-id');
+                const newColId = evt.to.id;
+                const newStageName = columns.find(c => c.id === newColId).name;
+
+                if (!cardId) return;
+
+                fetch('/api/kanban/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: cardId, etapa: newStageName })
+                })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (!res.success) alert("Erro ao salvar mudança de etapa.");
+                    })
+                    .catch(err => console.error("Erro no Kanban:", err));
+            }
+        });
+    });
+
+    // ===== CALENDAR LOGIC =====
+    let calendarEvents = [];
+    let currentDate = new Date();
+
+    async function loadCalendarEvents() {
+        try {
+            const res = await fetch('/api/calendar/events');
+            calendarEvents = await res.json();
+            renderCalendars();
+        } catch (error) {
+            console.error('Erro ao carregar calendário:', error);
+        }
+    }
+
+    function renderCalendars() {
+        const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+
+        renderMonth(prevMonth, 'prevMonth', 'prevCalendar');
+        renderMonth(currentDate, 'currentMonth', 'currentCalendar');
+        renderMonth(nextMonth, 'nextMonth', 'nextCalendar');
+    }
+
+    function renderMonth(date, monthId, calendarId) {
+        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        const dayNames = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+
+        document.getElementById(monthId).textContent = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+
+        const calendar = document.getElementById(calendarId);
+        calendar.innerHTML = '';
+
+        // Headers
+        dayNames.forEach(day => {
+            const header = document.createElement('div');
+            header.className = 'calendar-header';
+            header.textContent = day;
+            calendar.appendChild(header);
+        });
+
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        const prevLastDay = new Date(date.getFullYear(), date.getMonth(), 0);
+
+        const firstDayOfWeek = firstDay.getDay(); // 0 = Sunday
+        const daysInMonth = lastDay.getDate();
+
+        const today = new Date();
+        const isCurrentMonth = date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+
+        // Prev Month filler
+        for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+            const day = prevLastDay.getDate() - i;
+            calendar.appendChild(createDayElement(day, true, false, null));
+        }
+
+        // Current Month
+        for (let day = 1; day <= daysInMonth; day++) {
+            const thisDate = new Date(date.getFullYear(), date.getMonth(), day);
+            // Fix timezone offset for comparison string
+            const dateStr = thisDate.toISOString().split('T')[0];
+
+            const isToday = isCurrentMonth && day === today.getDate();
+            const dayEvents = calendarEvents.filter(e => e.start === dateStr || e.start.startsWith(dateStr));
+
+            calendar.appendChild(createDayElement(day, false, isToday, dayEvents, thisDate));
+        }
+    }
+
+    function createDayElement(day, isGray, isToday, events, dateObj) {
+        const el = document.createElement('div');
+        el.className = 'calendar-day';
+        if (isGray) el.classList.add('other-month');
+        if (isToday) el.classList.add('today');
+
+        el.innerHTML = `<div>${day}</div>`;
+
+        if (events && events.length > 0) {
+            el.classList.add('has-events');
+            const dots = document.createElement('div');
+            dots.className = 'event-dots';
+
+            events.slice(0, 3).forEach(ev => {
+                const dot = document.createElement('div');
+                dot.className = 'event-dot';
+                // Color mapping logic or class
+                if (ev.type === 'receber') dot.style.background = '#28a745';
+                else if (ev.type === 'payable') dot.style.background = '#dc3545';
+                else if (ev.type === 'project') dot.style.background = '#007bff';
+                else if (ev.type === 'install') dot.style.background = '#ffc107';
+                else if (ev.type === 'visit') dot.style.background = '#9c27b0';
+                else if (ev.type === 'google') dot.style.background = '#4285F4';
+                dots.appendChild(dot);
+            });
+            el.appendChild(dots);
+
+            el.onclick = () => showDayDetails(dateObj, events);
+        }
+
+        return el;
+    }
+
+    function showDayDetails(date, events) {
+        const modal = document.getElementById('dayModal');
+        document.getElementById('modalDate').textContent = date.toLocaleDateString('pt-BR');
+
+        const container = document.getElementById('modalEvents');
+        container.innerHTML = events.map(ev => `
+            <div class="event-item ${ev.type}">
+                <strong>${ev.title}</strong><br>
+                <small>${ev.description}</small>
+            </div>
+        `).join('');
+
+        modal.style.display = 'flex';
+    }
+
+    loadCalendarEvents();
+</script>
+{% endblock %}

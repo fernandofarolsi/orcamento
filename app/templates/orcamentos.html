@@ -1,0 +1,1315 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="clientes-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin:0;">Orçamentos</h1>
+        <div style="display: flex; gap: 10px;">
+            {% if showing_all %}
+            <a href="{{ url_for('orcamentos.orcamentos') }}" class="btn"
+                style="background: transparent; border: 1px solid #555; color: #ccc; display: flex; align-items: center; gap: 8px; padding: 8px 16px; text-decoration: none;">
+                <i class="fas fa-eye-slash"></i> Ocultar Histórico
+            </a>
+            {% else %}
+            <a href="{{ url_for('orcamentos.orcamentos', show_all=1) }}" class="btn"
+                style="background: transparent; border: 1px solid #555; color: #ccc; display: flex; align-items: center; gap: 8px; padding: 8px 16px; text-decoration: none;">
+                <i class="fas fa-history"></i> Ver Histórico
+            </a>
+            {% endif %}
+            <button class="btn" onclick="openModal()"
+                style="display: flex; align-items: center; gap: 8px; padding: 8px 16px;">
+                <i class="fas fa-plus"></i> Novo Orçamento
+            </button>
+        </div>
+    </div>
+
+    <div class="logs-section">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ref.</th>
+                    <th>Cliente</th>
+                    <th>Total (R$)</th>
+                    <th>Status</th>
+                    <th>Criado em</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for orc in orcamentos %}
+                <tr>
+                    <td>#{{ orc.id }}</td>
+                    <td>{{ orc.client }}</td>
+                    <td>R$ {{ "%.2f"|format(orc.total) }}</td>
+                    <td><span
+                            style="padding: 4px 8px; border-radius: 4px; background: {{ orc.status | status_color }}; color: #fff; font-size: 0.9em;">{{
+                            orc.status }}</span></td>
+                    <td>{{ orc.created_at | date_format(True) }}</td>
+                    <td>
+                        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em; background: #17a2b8;"
+                                onclick="editOrcamento('{{orc.id}}')">✏️ Editar</button>
+                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em; background: #28a745;"
+                                onclick="window.open('/proposta/{{orc.id}}', '_blank')">📑 Proposta</button>
+                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em; background: #6c757d;"
+                                onclick="window.open('/contrato/{{orc.id}}', '_blank')">📜 Contrato</button>
+                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em; background: #007BFF;"
+                                onclick="faturarOrcamento('{{orc.id}}')">$ Faturar</button>
+                            <button class="btn cancel" style="padding: 5px 10px; font-size: 0.8em;"
+                                onclick="deleteOrcamento('{{orc.id}}')">Excluir</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+<!-- Modal Creation -->
+<div id="orcModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+    <div
+        style="background: var(--card-bg); width: 800px; max-height: 90vh; overflow-y: auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 20px;">
+        <h2 id="modalTitle" style="margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+            Novo Orçamento
+        </h2>
+        <input type="hidden" id="orcamentoId">
+
+        <!-- MODAL NAVIGATION STEPS -->
+        <div class="step-nav"
+            style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px;">
+            <button type="button" class="btn-step active" onclick="switchModalStep('dados')" id="btnStepDados">1.
+                Dados</button>
+            <button type="button" class="btn-step" onclick="switchModalStep('projeto')" id="btnStepProjeto">2.
+                Projeto</button>
+            <button type="button" class="btn-step" onclick="switchModalStep('financeiro')" id="btnStepFinanceiro">3.
+                Financeiro & Fechamento</button>
+        </div>
+
+        <!-- STYLE FOR STEPS -->
+        <style>
+            .btn-step {
+                background: none;
+                border: none;
+                color: #888;
+                font-weight: bold;
+                cursor: pointer;
+                padding: 10px;
+                border-bottom: 2px solid transparent;
+            }
+
+            .btn-step.active {
+                color: #fff;
+                border-bottom-color: var(--primary-color);
+            }
+
+            .step-content {
+                display: none;
+            }
+
+            .step-content.active {
+                display: block;
+                animation: fadeIn 0.3s;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+        </style>
+
+        <!-- STEP 1: DADOS -->
+        <div id="stepDados" class="step-content active">
+            <div class="form-group">
+                <label>Cliente</label>
+                <select id="clientId" required style="padding: 15px; font-size: 1.1em;">
+                    <option value="">Selecione um cliente...</option>
+                </select>
+                <small style="color: #888; font-size: 0.9em; margin-top: 5px; display: block;">
+                    <a href="#" onclick="openQuickClienteModal()" style="color: var(--primary-color);">+ Cadastrar novo
+                        cliente</a>
+                </small>
+            </div>
+
+            <div class="form-group" id="divOrcStatus" style="margin-top: 20px;">
+                <label>Status</label>
+                <select id="orcStatus" style="padding: 15px; font-size: 1.1em;">
+                    <option value="Rascunho">Rascunho</option>
+                    <option value="Enviado">Enviado</option>
+                    <option value="Negociação">Negociação</option>
+                    <option value="Aprovado">Aprovado</option>
+                    <option value="Faturado">Faturado</option>
+                    <option value="Perdido">Perdido</option>
+                </select>
+            </div>
+
+            <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                <h3 style="margin-top:0; color: #aaa;">Data do Orçamento</h3>
+                <input type="date" id="orcDate" class="form-control"
+                    style="background:#333; color:white; border:1px solid #555; padding:10px;">
+            </div>
+
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-primary" onclick="switchModalStep('projeto')">Próximo: Projeto ➡️</button>
+            </div>
+        </div>
+
+        <!-- STEP 2: PROJETO (ITEMS & AMBIENTES) -->
+        <div id="stepProjeto" class="step-content">
+            <!-- Area de Adição de Item -->
+            <div
+                style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color);">
+                <h3 style="margin-top: 0; font-size: 1.1em; color: #5cb85c;">Adicionar Item ao Ambiente Ativo</h3>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label>Item do Catálogo</label>
+                        <select id="catalogoSelect" onchange="fillDims()" style="width: 100%;">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Complexidade</label>
+                        <select id="complexidade" style="width: 100%;" onchange="updateItemPreview()">
+                            <option value="1.0">Baixa (1.0x)</option>
+                            <option value="1.3">Média (1.3x)</option>
+                            <option value="1.8">Alta (1.8x)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                    <div class="form-group">
+                        <label>Largura (mm)</label>
+                        <input type="number" step="1" id="dimL" oninput="updateItemPreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Altura (mm)</label>
+                        <input type="number" step="1" id="dimA" oninput="updateItemPreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Profundidade (mm)</label>
+                        <input type="number" step="1" id="dimP" oninput="updateItemPreview()">
+                    </div>
+                    <div style="grid-column: span 4; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px;">
+                        <h4 style="margin-top:0;">Acessórios do Item (Opcional)</h4>
+                        <div style="display: flex; gap: 10px; align-items: flex-end;">
+                            <div style="flex: 2;">
+                                <label style="font-size:0.8em; display:block;">Acessório (Estoque)</label>
+                                <select id="accSelect" style="width: 100%;">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="font-size:0.8em; display:block;">Qtd</label>
+                                <input type="number" id="accQtd" placeholder="Qtd" step="0.1">
+                            </div>
+                            <button class="btn" onclick="addAccessoryToBuffer()"
+                                style="width: auto; background: #007BFF;">+</button>
+                        </div>
+                        <ul id="accBufferList"
+                            style="list-style: none; padding: 0; margin-top: 10px; font-size: 0.9em; color:#ddd;"></ul>
+                    </div>
+                    <div class="form-group"
+                        style="grid-column: span 4; background: rgba(92, 184, 92, 0.1); border: 1px dashed #5cb85c; border-radius: 4px; padding: 10px; margin-top: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #5cb85c; font-weight: bold;">Preview do Valor:</span>
+                            <span id="itemPreviewValue" style="color: #5cb85c; font-weight: bold; font-size: 1.1em;">R$
+                                0.00</span>
+                        </div>
+                        <div id="itemPreviewDetails" style="font-size: 0.85em; color: #888; margin-top: 5px;">
+                            Selecione um item e ajuste as dimensões para ver o cálculo
+                        </div>
+                    </div>
+                    <div class="form-group" style="grid-column: span 4; text-align: right;">
+                        <button class="btn" onclick="addItemToList()" style="background: #28a745; width: auto;">+
+                            Adicionar
+                            Item ao Ambiente Ativo</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABS / AMBIENTES -->
+            <div style="margin-top: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                    <h3 style="margin: 0; font-size: 1.1em;">Itens/Ambientes do Orçamento</h3>
+                    <button onclick="addNewTab()"
+                        style="background: none; border: 1px dashed #666; color: #888; cursor: pointer; padding: 5px 10px; border-radius: 4px;">+
+                        Novo Item/Ambiente</button>
+                </div>
+
+                <div id="tabsContainer"
+                    style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 0px; min-height: 40px; border-bottom: 1px solid #444;">
+                    <!-- Tabs generated by JS -->
+                </div>
+
+                <div id="tabContentArea"
+                    style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-top: none; padding: 15px; border-radius: 0 0 8px 8px; display: none;">
+                    <!-- Header Fields (Spreadsheet style) -->
+                    <div style="display: grid; grid-template-columns: 1fr 3fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label>Item</label>
+                            <input type="text" id="tabCode" disabled style="background: #333; font-weight: bold;">
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição (Ex: Cozinha)</label>
+                            <input type="text" id="tabDesc" oninput="updateTabData()"
+                                placeholder="Ex: Cozinha, Quarto...">
+                        </div>
+                        <div class="form-group">
+                            <label>Quantidade</label>
+                            <input type="number" id="tabQty" value="1" min="1" oninput="updateTabData()">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label>Ambiente</label>
+                            <input type="text" id="tabAmbient" oninput="updateTabData()" placeholder="Ex: Piso Térreo">
+                        </div>
+                        <div class="form-group">
+                            <label>Material / Cor</label>
+                            <input type="text" id="tabMaterial" oninput="updateTabData()"
+                                placeholder="Ex: MDF Branco TX">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>URL da Imagem / Render do Projeto</label>
+                        <input type="text" id="tabImage" oninput="updateTabData()"
+                            placeholder="https://exemplo.com/render-projeto.jpg">
+                    </div>
+
+                    <hr style="border-color: #444; margin: 15px 0;">
+
+                    <table id="itensTable">
+                        <thead>
+                            <tr>
+                                <th>Subitem (Móvel)</th>
+                                <th>Dimensões</th>
+                                <th>Acessórios</th>
+                                <th>Custo Base</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itensListBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-primary" onclick="switchModalStep('financeiro')">Próximo: Financeiro ➡️</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: FINANCEIRO & FECHAMENTO -->
+        <div id="stepFinanceiro" class="step-content">
+            <!-- CONFIGURAÇÃO DE PREÇO (VALCI GOULART) -->
+            <div
+                style="margin-top: 0; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; border: 1px solid #444;">
+                <h3 style="margin-top: 0; font-size: 1.1em; color: #5cb85c;">Configuração de Preço (Método Valci
+                    Goulart)
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    <div class="form-group">
+                        <label>Lucro (%)</label>
+                        <input type="number" id="valciMargemLucro" step="0.01" oninput="updateGrandTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Negociação (%)</label>
+                        <input type="number" id="valciMargemNegoc" step="0.01" oninput="updateGrandTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Impostos (%)</label>
+                        <input type="number" id="valciMargemImposto" step="0.01" oninput="updateGrandTotal()">
+                    </div>
+                </div>
+
+                <div id="valciBreakdown"
+                    style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px; font-family: monospace; font-size: 0.9em; color: #aaa; white-space: pre-wrap;">
+                    <!-- Breakdown will appear here -->
+                </div>
+            </div>
+
+            <!-- Total Geral -->
+            <div
+                style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; text-align: right; color: white; margin-top: 20px;">
+                <div style="display: flex; justify-content: flex-end; align-items: baseline; gap: 15px;">
+                    <span style="font-size: 1.2em;">Total Geral (Sugerido):</span>
+                    <span id="grandTotal" style="font-size: 2em; font-weight: bold;">R$ 0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div
+            style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; border-top: 1px solid #444; padding-top: 20px;">
+            <button class="btn" onclick="closeModal()" style="background: #d32f2f; width: auto;">Cancelar /
+                Fechar</button>
+            <button class="btn" onclick="saveOrcamento()" style="width: auto; padding: 10px 30px;">💾 Salvar
+                Orçamento</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Faturar Modal -->
+<div id="fatModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: var(--card-bg); width: 400px; padding: 30px; border-radius: 8px;">
+        <h2 style="margin-top:0;">Faturar Orçamento</h2>
+        <input type="hidden" id="fatOrcId">
+
+        <div class="form-group">
+            <label>Valor Total</label>
+            <input type="text" id="fatTotal" disabled>
+        </div>
+
+        <div class="form-group">
+            <label>Forma de Pagamento</label>
+            <select id="fatMetodo">
+                <option value="pix">Pix</option>
+                <option value="boleto">Boleto</option>
+                <option value="cartao_credito">Cartão de Crédito</option>
+                <option value="cartao_debito">Cartão de Débito</option>
+                <option value="cheque">Cheque</option>
+                <option value="dinheiro">Dinheiro</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Valor de Entrada (R$)</label>
+            <input type="number" id="fatEntrada" step="0.01" value="0">
+        </div>
+
+        <div class="form-group">
+            <label>Nº Parcelas (Restante)</label>
+            <input type="number" id="fatParcelas" value="1" min="1">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button class="btn" style="background:#666;"
+                onclick="document.getElementById('fatModal').style.display='none'">Cancelar</button>
+            <button class="btn" onclick="confirmFaturar()">Confirmar & Gerar Contrato</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Cadastro Rápido de Cliente (Moved) -->
+<div id="quickClienteModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <h3>Cadastro Rápido de Cliente</h3>
+        <form id="quickClienteForm" onsubmit="saveQuickCliente(event)">
+            <div class="form-group">
+                <label>Nome Completo *</label>
+                <input type="text" id="quickNome" required placeholder="Ex: João Silva">
+            </div>
+            <div class="form-group">
+                <label>Telefone *</label>
+                <input type="tel" id="quickTelefone" required placeholder="(00) 00000-0000">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="quickEmail" placeholder="joao@email.com">
+            </div>
+            <div class="form-group">
+                <label>Observações</label>
+                <textarea id="quickObservacoes" rows="2" placeholder="Informações adicionais..."></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeQuickClienteModal()"
+                    style="padding: 5px 10px; font-size: 0.8em;">Cancelar</button>
+                <button type="submit" class="btn" style="padding: 5px 10px; font-size: 0.8em;">Salvar e
+                    Selecionar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let catalogoData = [];
+    let budgetTabs = []; // Array of { id, code, name, qty, ambient, material, imagem_url, items: [] }
+    let activeTabId = null;
+    let accBuffer = [];
+    let acessoriosEstoque = [];
+    let valorHoraFabrica = 50.0; // Default
+    let tabCounter = 0;
+
+    function loadSettings() {
+        fetch('/api/settings').then(r => r.json()).then(data => {
+            if (data.valor_hora_fabrica) valorHoraFabrica = parseFloat(data.valor_hora_fabrica);
+        });
+
+        // Load Valci Config Defaults
+        fetch('/api/config-fabrica').then(r => r.json()).then(data => {
+            document.getElementById('valciMargemLucro').value = data.margem_lucro;
+            document.getElementById('valciMargemNegoc').value = data.margem_negociacao;
+            document.getElementById('valciMargemImposto').value = data.margem_impostos;
+            updateGrandTotal();
+        });
+    }
+
+    // Load Catalogs
+    fetch('/api/catalogo').then(r => r.json()).then(data => {
+        catalogoData = data;
+        const sel = document.getElementById('catalogoSelect');
+        data.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.id;
+            opt.textContent = `${item.nome}`;
+            sel.appendChild(opt);
+        });
+    });
+
+    // Load Accessories form Stock
+    fetch('/api/estoque/acessorios').then(r => r.json()).then(data => {
+        acessoriosEstoque = data;
+        const sel = document.getElementById('accSelect');
+        data.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.id;
+            opt.textContent = `${item.nome} (R$ ${item.custo_unitario.toFixed(2)}/${item.unidade})`;
+            sel.appendChild(opt);
+        });
+    });
+
+
+    function switchModalStep(stepId) {
+        console.log('switchModalStep called with:', stepId);
+        // Hide all steps
+        document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.btn-step').forEach(el => el.classList.remove('active'));
+
+        // Show target step
+        if (stepId === 'dados') {
+            document.getElementById('stepDados').classList.add('active');
+            document.getElementById('btnStepDados').classList.add('active');
+        } else if (stepId === 'projeto') {
+            document.getElementById('stepProjeto').classList.add('active');
+            document.getElementById('btnStepProjeto').classList.add('active');
+
+            // Render tabs if not rendered
+            renderTabs();
+        } else if (stepId === 'financeiro') {
+            document.getElementById('stepFinanceiro').classList.add('active');
+            document.getElementById('btnStepFinanceiro').classList.add('active');
+            updateGrandTotal(); // Ensure total is fresh
+        }
+    }
+
+    function openModal() {
+        loadSettings();
+        document.getElementById('orcModal').style.display = 'flex';
+
+        // Reset to first step
+        switchModalStep('dados');
+
+        budgetTabs = [];
+        tabCounter = 0;
+        accBuffer = [];
+        addNewTab(); // Call without name initially
+        updateGrandTotal();
+        updateAccBufferList();
+
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('orcDate').value = today;
+
+        // Hide status field on creation (defaults to Draft)
+        document.getElementById('divOrcStatus').style.display = 'none';
+        document.getElementById('orcStatus').value = 'Rascunho';
+    }
+
+    function closeModal() {
+        document.getElementById('orcModal').style.display = 'none';
+        window.location.reload(); // Refresh to clean up state
+    }
+
+    // --- TAB LOGIC ---
+    function addNewTab(name) {
+        tabCounter++;
+
+        let ambient = "";
+        let material = "";
+        let imagem_url = "";
+
+        // Inherit from previous tab if exists (Auto-fill)
+        if (budgetTabs.length > 0) {
+            const prev = budgetTabs[budgetTabs.length - 1];
+            ambient = prev.ambient || "";
+            material = prev.material || "";
+            // imagem_url = prev.imagem_url || ""; // Removed per user request
+        }
+
+        const newTab = {
+            id: tabCounter,
+            code: "", // Will be set by renumbering
+            name: name || "", // This is the Description field
+            qty: 1,
+            ambient: ambient,
+            material: material,
+            imagem_url: imagem_url,
+            items: []
+        };
+        budgetTabs.push(newTab);
+
+        // Renumber all tabs to ensure sequential order
+        renumberTabs();
+
+        switchTab(newTab.id);
+    }
+
+    function duplicateTab(id) {
+        const original = budgetTabs.find(t => t.id === id);
+        if (!original) return;
+
+        tabCounter++;
+        // Deep copy
+        const newTab = JSON.parse(JSON.stringify(original));
+        newTab.id = tabCounter;
+        newTab.name = (newTab.name || ""); // Removed (Cópia) per user request
+
+        budgetTabs.push(newTab);
+        renumberTabs();
+        switchTab(newTab.id);
+        showToast("Ambiente duplicado!");
+    }
+
+    function renumberTabs() {
+        budgetTabs.forEach((t, i) => {
+            t.code = "." + String(i + 1).padStart(3, '0');
+        });
+    }
+
+    function switchTab(id) {
+        activeTabId = id;
+        const tab = budgetTabs.find(t => t.id === activeTabId);
+
+        // FORÇAR exibição da área de conteúdo
+        const tabContentArea = document.getElementById('tabContentArea');
+        if (tabContentArea) {
+            tabContentArea.style.display = 'block';
+        }
+
+        if (tab) {
+            // Fill header fields
+            document.getElementById('tabCode').value = tab.code;
+            document.getElementById('tabDesc').value = tab.name;
+            document.getElementById('tabQty').value = tab.qty;
+            document.getElementById('tabAmbient').value = tab.ambient || "";
+            document.getElementById('tabMaterial').value = tab.material || "";
+            document.getElementById('tabImage').value = tab.imagem_url || "";
+
+            updateItensTable();
+        }
+
+        renderTabs();
+    }
+
+    function updateTabData() {
+        if (!activeTabId) return;
+        const tab = budgetTabs.find(t => t.id === activeTabId);
+        if (tab) {
+            tab.name = document.getElementById('tabDesc').value;
+            tab.qty = parseInt(document.getElementById('tabQty').value) || 1;
+            tab.ambient = document.getElementById('tabAmbient').value;
+            tab.material = document.getElementById('tabMaterial').value;
+            tab.imagem_url = document.getElementById('tabImage').value;
+            renderTabs();
+            updateGrandTotal();
+        }
+    }
+
+    // ... deleteItem logic ...
+    function deleteTab(id) {
+        if (budgetTabs.length <= 1) return alert("É necessário ter pelo menos um ambiente.");
+        if (!confirm("Excluir ambiente e todos seus itens?")) return;
+
+        budgetTabs = budgetTabs.filter(t => t.id !== id);
+
+        // Renumber remaining tabs
+        renumberTabs();
+
+        if (activeTabId === id) {
+            switchTab(budgetTabs[0].id);
+        } else {
+            switchTab(activeTabId);
+        }
+        updateGrandTotal();
+    }
+
+    function renderTabs() {
+        const container = document.getElementById('tabsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+
+        budgetTabs.forEach(tab => {
+            const isActive = tab.id === activeTabId;
+            const tabEl = document.createElement('div');
+            tabEl.style.cssText = `
+                padding: 10px 15px; 
+                cursor: pointer; 
+                border-radius: 8px 8px 0 0; 
+                background: ${isActive ? '#2c3e50' : '#34495e'};
+                border: 1px solid #555;
+                border-bottom: ${isActive ? '2px solid #5cb85c' : '1px solid #555'};
+                color: ${isActive ? '#fff' : '#ccc'};
+                display: flex; align-items: center; gap: 8px; font-weight: bold;
+                transition: all 0.2s;
+            `;
+
+            const label = tab.name ? `${tab.code} (${tab.name})` : tab.code;
+
+            tabEl.innerHTML = `
+                <span onclick="switchTab(${tab.id})" style="flex-grow:1;">${label}</span>
+                <span onclick="duplicateTab(${tab.id})" title="Duplicar Ambiente" style="font-size:0.8em; color:#17a2b8; padding: 2px 5px; background: rgba(255,255,255,0.1); border-radius:3px; margin-right:5px;">📄</span>
+                <span onclick="deleteTab(${tab.id})" title="Excluir Ambiente" style="font-size:0.8em; color:#ff5252; padding: 2px 5px; background: rgba(255,255,255,0.1); border-radius:3px;">x</span>
+            `;
+            container.appendChild(tabEl);
+        });
+    }
+
+    function fillDims() {
+        const id = document.getElementById('catalogoSelect').value;
+        const item = catalogoData.find(i => i.id == id);
+        if (!item) return;
+
+        item.dims_padrao.split(',').forEach(part => {
+            const [k, v] = part.split(':');
+            const el = document.getElementById(`dim${k}`);
+            if (el) el.value = v;
+        });
+
+        // Atualizar o preview após preencher as dimensões
+        updateItemPreview();
+    }
+
+    function addAccessoryToBuffer() {
+        const id = document.getElementById('accSelect').value;
+        const qtd = parseFloat(document.getElementById('accQtd').value);
+        if (!id || !qtd) return alert("Selecione acessório e quantidade");
+        const item = acessoriosEstoque.find(i => i.id == id);
+        accBuffer.push({
+            id: item.id,
+            nome: item.nome,
+            qtd: qtd,
+            custo: item.custo_unitario,
+            total: qtd * item.custo_unitario
+        });
+        updateAccBufferList();
+        document.getElementById('accQtd').value = '';
+
+        // Atualizar o preview após adicionar acessório
+        updateItemPreview();
+    }
+
+    function updateAccBufferList() {
+        const ul = document.getElementById('accBufferList');
+        ul.innerHTML = '';
+        accBuffer.forEach((acc, idx) => {
+            const li = document.createElement('li');
+            li.innerHTML = `• ${acc.qtd}x ${acc.nome} (R$ ${acc.total.toFixed(2)}) <span onclick="accBuffer.splice(${idx},1); updateAccBufferList(); updateItemPreview();" style="color:red; cursor:pointer; margin-left:10px;">[x]</span>`;
+            ul.appendChild(li);
+        });
+    }
+
+    function addItemToList() {
+        if (!activeTabId) return alert("Selecione ou crie um ambiente primeiro");
+        const id = document.getElementById('catalogoSelect').value;
+        const item = catalogoData.find(i => i.id == id);
+        if (!item) return alert("Selecione um item");
+
+        const L = parseFloat(document.getElementById('dimL').value) || 0;
+        const A = parseFloat(document.getElementById('dimA').value) || 0;
+        const P = parseFloat(document.getElementById('dimP').value) || 0;
+        const complex = parseFloat(document.getElementById('complexidade').value);
+
+        // Conversions to meters for calculation
+        const Lm = L / 1000;
+        const Am = A / 1000;
+        const Pm = P / 1000;
+
+        let areaMovel = (P < 50) ? (Lm * Am) : (2 * (Lm * Am + Lm * Pm + Am * Pm));
+        let matCost = 0;
+        let details = "";
+
+        let totalSavings = 0;
+        if (item.insumos && item.insumos.length > 0) {
+            item.insumos.forEach(ins => {
+                let qtyNeeded = 0;
+                if (ins.tipo_calculo === 'fixo') {
+                    qtyNeeded = ins.quantidade;
+                } else if (ins.tipo_calculo === 'area') {
+                    qtyNeeded = (Lm * Am) * ins.quantidade;
+                } else if (ins.tipo_calculo === 'volume') {
+                    qtyNeeded = (Lm * Am * (Pm || 0.001)) * ins.quantidade;
+                } else if (ins.tipo_calculo === 'perimetro') {
+                    qtyNeeded = 2 * (Lm + Am) * ins.quantidade;
+                }
+
+                matCost += qtyNeeded * ins.custo_unitario;
+
+                // Track potential savings
+                if (ins.custo_minimo && ins.custo_minimo < ins.custo_unitario) {
+                    totalSavings += (ins.custo_unitario - ins.custo_minimo) * qtyNeeded;
+                }
+            });
+            details = `${item.insumos.length} componentes`;
+        } else {
+            // Legacy/Fallback
+            const volume = Lm * Am * (Pm || 0.001);
+            matCost = volume * (item.preco_base || 0);
+            details = `Vol: ${volume.toFixed(4)}m³ (Fallback)`;
+        }
+
+        // Labor Cost: Hours * Factory Rate * Complexity
+        const baseHours = item.horas_mo || 0;
+        const laborCost = baseHours * valorHoraFabrica * complex;
+
+        const accCost = accBuffer.reduce((sum, a) => sum + a.total, 0);
+        const subtotal = matCost + laborCost + accCost;
+
+        const tab = budgetTabs.find(t => t.id === activeTabId);
+        tab.items.push({
+            catalogo_id: id,
+            nome: item.nome,
+            L, A, P, complex,
+            horas_mo: baseHours,
+            acessorios: [...accBuffer],
+            subtotal: subtotal,
+            potentialSavings: totalSavings,
+            details: details + ` + MO: ${baseHours}h (R$ ${laborCost.toFixed(2)})`
+        });
+
+        updateItensTable();
+        updateGrandTotal();
+        accBuffer = [];
+        updateAccBufferList();
+
+        showToast("Item adicionado com sucesso!");
+    }
+
+    function removeItem(index) {
+        const tab = budgetTabs.find(t => t.id === activeTabId);
+        tab.items.splice(index, 1);
+        updateItensTable();
+        updateGrandTotal();
+    }
+
+
+
+    function updateItensTable() {
+        const tbody = document.getElementById('itensListBody');
+        tbody.innerHTML = '';
+        const tab = budgetTabs.find(t => t.id === activeTabId);
+        if (!tab) return;
+
+        tab.items.forEach((it, idx) => {
+            const accDesc = it.acessorios.map(a => `${a.qtd}x ${a.nome}`).join(', ');
+            const savingsIcon = it.potentialSavings > 0 ? `<span style="color:#66bb6a; cursor:help;" title="Oportunidade de economia encontrada! Veja no relatório.">💰</span>` : '';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td>${it.nome} ${savingsIcon}<br><small style="color:#888">${it.details || ''}</small></td>
+            <td>${it.L}x${it.A}x${it.P}mm</td>
+            <td style="font-size:0.85em; color:#ccc;">${accDesc || '-'}</td>
+            <td>R$ ${it.subtotal.toFixed(2)}</td>
+            <td>
+                <button onclick="removeItem(${idx})" title="Remover Item" style="color:red; background:none; border:none; cursor:pointer;">X</button>
+            </td>
+        `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function updateItemPreview() {
+        const id = document.getElementById('catalogoSelect').value;
+        const item = catalogoData.find(i => i.id == id);
+
+        if (!item) {
+            document.getElementById('itemPreviewValue').textContent = 'R$ 0.00';
+            document.getElementById('itemPreviewDetails').textContent = 'Selecione um item para ver o cálculo';
+            return;
+        }
+
+        const L = parseFloat(document.getElementById('dimL').value) || 0;
+        const A = parseFloat(document.getElementById('dimA').value) || 0;
+        const P = parseFloat(document.getElementById('dimP').value) || 0;
+        const complex = parseFloat(document.getElementById('complexidade').value);
+
+        // Conversions to meters for calculation
+        const Lm = L / 1000;
+        const Am = A / 1000;
+        const Pm = P / 1000;
+
+        let matCost = 0;
+        let details = "";
+
+        if (item.insumos && item.insumos.length > 0) {
+            item.insumos.forEach(ins => {
+                let qtyNeeded = 0;
+                if (ins.tipo_calculo === 'fixo') {
+                    qtyNeeded = ins.quantidade;
+                } else if (ins.tipo_calculo === 'area') {
+                    qtyNeeded = (Lm * Am) * ins.quantidade;
+                } else if (ins.tipo_calculo === 'volume') {
+                    qtyNeeded = (Lm * Am * (Pm || 0.001)) * ins.quantidade;
+                } else if (ins.tipo_calculo === 'perimetro') {
+                    qtyNeeded = 2 * (Lm + Am) * ins.quantidade;
+                }
+                matCost += qtyNeeded * (ins.custo_unitario || 0);
+            });
+            details = `${item.insumos.length} componentes`;
+        } else {
+            // Legacy/Fallback
+            const volume = Lm * Am * (Pm || 0.001);
+            matCost = volume * (item.preco_base || 0);
+            details = `Vol: ${volume.toFixed(4)}m³`;
+        }
+
+        // Labor Cost: Hours * Factory Rate * Complexity
+        const baseHours = item.horas_mo || 0;
+        const laborCost = baseHours * valorHoraFabrica * complex;
+
+        const accCost = accBuffer.reduce((sum, a) => sum + a.total, 0);
+        const subtotal = matCost + laborCost + accCost;
+
+        document.getElementById('itemPreviewValue').textContent = `R$ ${subtotal.toFixed(2)}`;
+        document.getElementById('itemPreviewDetails').textContent =
+            `Material: R$ ${matCost.toFixed(2)} + M.O: ${baseHours}h × ${complex}× = R$ ${laborCost.toFixed(2)} + Acessórios: R$ ${accCost.toFixed(2)}`;
+    }
+
+    function updateGrandTotal() {
+        let totalMaterial = 0;
+        let totalHours = 0;
+
+        budgetTabs.forEach(t => {
+            let tabMatSum = 0;
+            let tabHoursSum = 0;
+            t.items.forEach(it => {
+                // We use budget calculations for material cost (from our existing code)
+                // it.subtotal in our current code already includes Labor but we need ONLY Material + Accessories
+                // Actually, let's recalculate based on the items raw data
+
+                // For simplicity, we stored subtotal = matCost + laborCost + accCost
+                // To avoid breaking existing logic, let's re-calculate correctly
+            });
+            // Let's do it clean:
+            t.items.forEach(it => {
+                // Re-calculating material cost and hours for the whole budget
+                // We need to fetch item details if we don't have them, but they are in CatalogoData
+                const catalogoItem = catalogoData.find(c => c.id == it.catalogo_id);
+                if (catalogoItem) {
+                    // Material Cost Calculation (similar to addItemToList)
+                    const Lm = it.L / 1000;
+                    const Am = it.A / 1000;
+                    const Pm = it.P / 1000;
+
+                    let itemMatCost = 0;
+                    if (catalogoItem.insumos && catalogoItem.insumos.length > 0) {
+                        catalogoItem.insumos.forEach(ins => {
+                            let qtyNeeded = 0;
+                            if (ins.tipo_calculo === 'fixo') qtyNeeded = ins.quantidade;
+                            else if (ins.tipo_calculo === 'area') qtyNeeded = (Lm * Am) * ins.quantidade;
+                            else if (ins.tipo_calculo === 'volume') qtyNeeded = (Lm * Am * (Pm || 0.001)) * ins.quantidade;
+                            else if (ins.tipo_calculo === 'perimetro') qtyNeeded = 2 * (Lm + Am) * ins.quantidade;
+
+                            itemMatCost += qtyNeeded * ins.custo_unitario;
+                        });
+                    } else {
+                        const volume = Lm * Am * (Pm || 0.001);
+                        itemMatCost = volume * (catalogoItem.preco_base || 0);
+                    }
+
+                    const accCost = it.acessorios.reduce((sum, a) => sum + a.total, 0);
+                    totalMaterial += (itemMatCost + accCost) * t.qty;
+                    totalHours += (it.horas_mo * it.complex) * t.qty;
+                }
+            });
+        });
+
+        // Config Valci Margins
+        const profit = parseFloat(document.getElementById('valciMargemLucro').value) / 100 || 0;
+        const negoc = parseFloat(document.getElementById('valciMargemNegoc').value) / 100 || 0;
+        const tax = parseFloat(document.getElementById('valciMargemImposto').value) / 100 || 0;
+
+        const hrRate = valorHoraFabrica;
+        const laborCost = totalHours * hrRate;
+        const baseTotal = totalMaterial + laborCost;
+
+        // Cascade Formula: Total * (1+L) * (1+N) * (1+I)
+        const finalPrice = baseTotal * (1 + profit) * (1 + negoc) * (1 + tax);
+
+        document.getElementById('grandTotal').innerText = `R$ ${finalPrice.toFixed(2)}`;
+
+        // Breakdown display
+        const breakdownArea = document.getElementById('valciBreakdown');
+        if (breakdownArea) {
+            breakdownArea.innerText =
+                `Material Total: R$ ${totalMaterial.toFixed(2)}\n` +
+                `Mão de Obra (${totalHours.toFixed(1)}h @ R$ ${hrRate.toFixed(2)}/h): R$ ${laborCost.toFixed(2)}\n` +
+                `Subtotal Fábrica: R$ ${baseTotal.toFixed(2)}\n` +
+                `+ Margem Lucro (${(profit * 100).toFixed(1)}%): R$ ${(baseTotal * profit).toFixed(2)}\n` +
+                `+ Reserva Negoc. (${(negoc * 100).toFixed(1)}%): R$ ${(baseTotal * (1 + profit) * negoc).toFixed(2)}\n` +
+                `+ Impostos (${(tax * 100).toFixed(1)}%): R$ ${(baseTotal * (1 + profit) * (1 + negoc) * tax).toFixed(2)}\n` +
+                `Preço Final: R$ ${finalPrice.toFixed(2)}`;
+        }
+
+        return finalPrice;
+    }
+
+    function saveOrcamento() {
+        const clientId = document.getElementById('clientId').value;
+        if (!clientId) return alert('Selecione um cliente');
+
+        const clientSelect = document.getElementById('clientId');
+        const clientName = clientSelect.options[clientSelect.selectedIndex].text;
+
+        const total = updateGrandTotal();
+        if (total === 0) return alert('Adicione pelo menos um item');
+
+        let totalHours = 0;
+        budgetTabs.forEach(tab => {
+            let tabHours = 0;
+            tab.items.forEach(it => tabHours += (it.horas_mo || 0) * it.complex);
+            totalHours += tabHours * tab.qty;
+        });
+
+        const status = document.getElementById('orcStatus').value || 'Rascunho';
+        const orcamentoId = document.getElementById('orcamentoId').value;
+        const isEdit = orcamentoId !== '';
+
+        const url = isEdit ? `/api/orcamentos/${orcamentoId}` : '/api/orcamentos';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                client_id: parseInt(clientId),
+                client: clientName,
+                itens: budgetTabs,
+                total: total,
+                total_horas_mo: totalHours,
+                status: status
+            })
+        }).then(r => r.json()).then(res => {
+            if (res.success) window.location.href = '/orcamentos';
+            else alert('Erro ao salvar: ' + (res.error || 'Erro desconhecido'));
+        });
+    }
+
+    function openFaturar(id, total) {
+        document.getElementById('fatModal').style.display = 'flex';
+        document.getElementById('fatOrcId').value = id;
+        document.getElementById('fatTotal').value = 'R$ ' + total.toFixed(2);
+        document.getElementById('fatEntrada').value = 0;
+        document.getElementById('fatParcelas').value = 1;
+    }
+
+    function confirmFaturar() {
+        const id = document.getElementById('fatOrcId').value;
+        const body = {
+            metodo: document.getElementById('fatMetodo').value,
+            entrada: parseFloat(document.getElementById('fatEntrada').value) || 0,
+            parcelas: parseInt(document.getElementById('fatParcelas').value) || 1
+        };
+        fetch(`/api/contas/orcamento/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) {
+                alert("Financeiro gerado! Redirecionando para o Contrato...");
+                window.open(`/contrato/${id}`, '_blank');
+                window.location.reload();
+            } else alert("Erro ao faturar.");
+        });
+    }
+
+    function faturarOrcamento(id) {
+        fetch(`/api/orcamentos/${id}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.orcamento && data.orcamento.total !== undefined) {
+                    openFaturar(id, data.orcamento.total);
+                } else {
+                    alert("Erro ao carregar detalhes: " + (data.error || "Resposta inválida"));
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Erro ao buscar detalhes.");
+            });
+    }
+
+    function deleteOrcamento(id) {
+        if (!confirm('Excluir este orçamento?')) return;
+        fetch(`/api/orcamentos/${id}`, { method: 'DELETE' }).then(r => r.json()).then(res => {
+            if (res.success) window.location.reload();
+        });
+    }
+
+    // Carregar clientes no select
+    function loadClientes() {
+        fetch('/api/clientes').then(r => r.json()).then(clientes => {
+            const select = document.getElementById('clientId');
+            select.innerHTML = '<option value="">Selecione um cliente...</option>';
+
+            clientes.forEach(cliente => {
+                const option = document.createElement('option');
+                option.value = cliente.id;
+                option.textContent = `${cliente.nome} (${cliente.cidade || 'Sem cidade'})`;
+                select.appendChild(option);
+            });
+        });
+    }
+
+    // Carregar clientes ao iniciar
+    loadClientes();
+
+    // Modal Cadastro Rápido de Cliente
+    function openQuickClienteModal() {
+        document.getElementById('quickClienteModal').style.display = 'flex';
+        document.getElementById('quickNome').focus();
+    }
+
+    function closeQuickClienteModal() {
+        document.getElementById('quickClienteModal').style.display = 'none';
+        document.getElementById('quickClienteForm').reset();
+    }
+
+    function saveQuickCliente(event) {
+        event.preventDefault();
+        console.log('saveQuickCliente chamado'); // Debug
+
+        const data = {
+            nome: document.getElementById('quickNome').value,
+            telefone: document.getElementById('quickTelefone').value,
+            email: document.getElementById('quickEmail').value,
+            observacoes: document.getElementById('quickObservacoes').value,
+            status: 'ativo' // Clientes rápidos sempre ativos
+        };
+
+        console.log('Dados do cliente:', data); // Debug
+
+        fetch('/api/clientes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(r => {
+            console.log('Response status:', r.status); // Debug
+            return r.json();
+        }).then(res => {
+            console.log('Response data:', res); // Debug
+            if (res.success) {
+                closeQuickClienteModal();
+                // Recarregar lista de clientes
+                loadClientes();
+                // Selecionar o cliente recém-criado
+                setTimeout(() => {
+                    document.getElementById('clientId').value = res.id;
+                }, 100);
+            } else {
+                alert('Erro ao cadastrar cliente: ' + (res.error || 'Erro desconhecido'));
+            }
+        }).catch(error => {
+            console.error('Erro na requisição:', error); // Debug
+            alert('Erro ao cadastrar cliente. Verifique o console.');
+        });
+    }
+
+    // Formatação do telefone no modal rápido
+    document.getElementById('quickTelefone')?.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        e.target.value = value;
+    });
+
+    function editOrcamento(id) {
+        // Carregar clientes primeiro
+        loadClientes();
+
+        fetch(`/api/orcamentos/${id}`).then(r => r.json()).then(data => {
+            if (data.success) {
+                const orc = data.orcamento;
+
+                // Preencher modal com dados do orçamento
+                document.getElementById('orcamentoId').value = orc.id;
+
+                // Selecionar cliente se existir client_id
+                if (orc.client_id) {
+                    document.getElementById('clientId').value = orc.client_id;
+                }
+
+                // Set date
+                if (orc.created_at) {
+                    // Assuming created_at is in a format that can be parsed or is YYYY-MM-DD
+                    // If it's a full timestamp, we need to extract the date part
+                    const datePart = orc.created_at.split(' ')[0]; // Simple split if it's "YYYY-MM-DD HH:MM:SS"
+                    document.getElementById('orcDate').value = datePart;
+                } else {
+                    document.getElementById('orcDate').value = new Date().toISOString().split('T')[0];
+                }
+
+                // Definir status
+                document.getElementById('orcStatus').value = orc.status || 'Rascunho';
+
+                // Carregar itens e abas do orçamento
+                try {
+                    const tabsData = JSON.parse(orc.itens_json);
+                    console.log('Dados carregados:', tabsData); // Debug
+
+                    if (Array.isArray(tabsData)) {
+                        budgetTabs = tabsData;
+                        if (budgetTabs.length > 0) {
+                            activeTabId = budgetTabs[0].id;
+                            console.log('ActiveTabId definido:', activeTabId);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Erro ao carregar itens:', e);
+                    budgetTabs = [];
+                }
+
+                // Renderizar abas e itens
+                renderTabs();
+
+                // FORÇAR exibição da área de conteúdo
+                const tabContentArea = document.getElementById('tabContentArea');
+                if (tabContentArea) {
+                    tabContentArea.style.display = 'block';
+                    console.log('Área de conteúdo exibida');
+                }
+
+                if (budgetTabs.length > 0) {
+                    switchTab(budgetTabs[0].id);
+                    updateItensTable();
+                }
+                updateGrandTotal();
+
+                // Abrir modal
+                document.getElementById('orcModal').style.display = 'flex';
+                // Reset to first step
+                switchModalStep('dados');
+
+                // Show status field on edit
+                document.getElementById('divOrcStatus').style.display = 'block';
+
+                document.getElementById('modalTitle').textContent = 'Editar Orçamento';
+
+                // Show status field on edit
+                document.getElementById('divOrcStatus').style.display = 'block';
+            }
+        }).catch(error => alert("Erro ao carregar orçamento."));
+    }
+
+    function showToast(message) {
+        let toast = document.getElementById("toast-notification");
+        if (!toast) {
+            toast = document.createElement("div");
+            toast.id = "toast-notification";
+            toast.style.cssText = `
+                visibility: hidden;
+                min-width: 250px;
+                margin-left: -125px;
+                background-color: #28a745;
+                color: #fff;
+                text-align: center;
+                border-radius: 4px;
+                padding: 16px;
+                position: fixed;
+                z-index: 2000;
+                left: 50%;
+                bottom: 30px;
+                transform: translateY(100px);
+                transition: transform 0.3s, visibility 0.3s;
+                font-size: 17px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            `;
+            document.body.appendChild(toast);
+        }
+
+        toast.textContent = message;
+        toast.style.visibility = "visible";
+        toast.style.transform = "translateY(0)";
+
+        setTimeout(() => {
+            toast.style.transform = "translateY(100px)";
+            setTimeout(() => {
+                toast.style.visibility = "hidden";
+            }, 300);
+        }, 3000);
+    }
+
+    // --- PASTE LISTENER FOR IMAGE UPLOAD ---
+    document.addEventListener('DOMContentLoaded', function () {
+        const imageInput = document.getElementById('tabImage');
+        if (imageInput) {
+            imageInput.addEventListener('paste', function (e) {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (let index in items) {
+                    const item = items[index];
+                    if (item.kind === 'file') {
+                        e.preventDefault();
+                        const blob = item.getAsFile();
+
+                        const clientSelect = document.getElementById('clientId');
+                        const clientId = clientSelect.value;
+                        const clientText = clientSelect.options[clientSelect.selectedIndex].text;
+
+                        if (!clientId) {
+                            alert('Por favor, selecione um cliente antes de colar a imagem.');
+                            return;
+                        }
+
+                        const formData = new FormData();
+                        formData.append('file', blob);
+                        formData.append('client_name', clientText);
+
+                        const input = this;
+                        const originalPlaceholder = input.placeholder;
+                        input.value = 'Enviando imagem...';
+                        input.disabled = true;
+
+                        fetch('/api/upload', {
+                            method: 'POST',
+                            body: formData
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.url) {
+                                    input.value = data.url;
+                                    input.dispatchEvent(new Event('input'));
+                                    showToast('Imagem enviada com sucesso!');
+                                } else {
+                                    alert('Erro ao enviar imagem: ' + (data.error || 'Erro desconhecido'));
+                                    input.value = '';
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Error:', err);
+                                alert('Erro ao enviar imagem.');
+                                input.value = '';
+                            })
+                            .finally(() => {
+                                input.disabled = false;
+                                input.placeholder = originalPlaceholder;
+                            });
+                    }
+                }
+            });
+        }
+    });
+
+</script>
+{% endblock %}

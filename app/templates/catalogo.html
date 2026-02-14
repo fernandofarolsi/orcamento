@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-20">
+    <h1>Catálogo de Produtos</h1>
+    <button class="btn" onclick="openModal()">+ Novo Produto</button>
+</div>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Categoria</th>
+            <th>Material Principal</th>
+            <th>Custo Material</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody id="listaCatalogo"></tbody>
+</table>
+</div>
+
+<!-- Modal -->
+<div id="catModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+    <div
+        style="background: var(--card-bg); width: 600px; padding: 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <h2 style="margin-top: 0; margin-bottom: 20px;">Produto do Catálogo</h2>
+        <input type="hidden" id="itemId">
+
+        <div class="form-group">
+            <label>Nome do Móvel</label>
+            <input type="text" id="catNome" placeholder="Ex: Armário Duplo" class="form-input">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+            <div class="form-group">
+                <label>Categoria</label>
+                <input type="text" id="catCategoria" placeholder="Ex: Cozinha" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Horas M.O.</label>
+                <input type="number" id="catHoras" step="0.1" placeholder="Ex: 6.5" oninput="updateSuggestedPrice()"
+                    class="form-input">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+            <div class="form-group">
+                <label>L (mm)</label>
+                <input type="number" id="catDimL" step="1" oninput="updateSuggestedPrice()" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>A (mm)</label>
+                <input type="number" id="catDimA" step="1" oninput="updateSuggestedPrice()" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>P (mm)</label>
+                <input type="number" id="catDimP" step="1" oninput="updateSuggestedPrice()" class="form-input">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px; display: flex; gap: 10px; align-items: flex-end;">
+            <div style="flex: 1;">
+                <label>Preço Sugerido (Consumo + M.O.)</label>
+                <div id="catSugeridoText"
+                    style="padding: 8px; background: rgba(92, 184, 92, 0.1); border: 1px dashed #5cb85c; border-radius: 4px; color: #5cb85c; font-weight: bold;">
+                    R$ 0.00
+                </div>
+            </div>
+            <button class="btn btn-success" type="button" onclick="applySuggestedPrice()">Aplicar</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+            <label>Valor Base M.O. (R$)</label>
+            <input type="number" id="catPreco" step="0.01" oninput="updateSuggestedPrice()" class="form-input">
+        </div>
+
+        <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+            <h3 style="font-size: 1em; margin-bottom: 10px; color: #5cb85c;">Componentes / Insumos (Estoque)</h3>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end;">
+                <div style="flex: 2;" class="form-group">
+                    <label>Insumo <span class="tooltip-icon"
+                            data-tooltip="Material do estoque que compõe este produto:\n• MDF, ferragens, fitas, etc\n• Será usado no cálculo do custo">ⓘ</span></label>
+                    <select id="insSelect" class="form-input">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div style="flex: 0.6;" class="form-group">
+                    <label>Qtd <span class="tooltip-icon"
+                            data-tooltip="Quantidade base do material:\n• Fixo: unidades fixas\n• Área/Volume: multiplicador proporcional">ⓘ</span></label>
+                    <input type="number" id="insQty" step="0.01" placeholder="Qtd" class="form-input">
+                </div>
+                <div style="flex: 1;" class="form-group">
+                    <label>Cálculo <span class="tooltip-icon"
+                            data-tooltip="Como o material será calculado:\n• Fixo: não muda com tamanho\n• Área: proporcional a L×A\n• Volume: proporcional a L×A×P\n• Perímetro: proporcional ao contorno">ⓘ</span></label>
+                    <select id="insTipo" class="form-input">
+                        <option value="fixo">Fixo</option>
+                        <option value="area">x Área</option>
+                        <option value="volume">x Vol</option>
+                        <option value="perimetro">x Perím</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-small" onclick="addInsumoToBuffer()">+</button>
+                </div>
+            </div>
+
+            <ul id="insBufferList"
+                style="list-style: none; padding: 0; font-size: 0.85em; max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 4px; padding: 5px;">
+                <!-- JS fills -->
+            </ul>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button class="btn btn-secondary"
+                onclick="document.getElementById('catModal').style.display='none'">Cancelar</button>
+            <button class="btn" onclick="saveItem()">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Tooltip Styles */
+    .tooltip-icon {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        background: #29b6f6;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 14px;
+        font-size: 10px;
+        cursor: help;
+        margin-left: 5px;
+        font-weight: bold;
+    }
+
+    .tooltip-icon:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        background: #333;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: pre-line;
+        z-index: 1000;
+        max-width: 250px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        margin-top: -30px;
+        margin-left: 10px;
+    }
+</style>
+
+<script>
+    let stockItems = [];
+
+    let valorHoraFabrica = 0;
+
+    // Load Settings (Factory Rate)
+    fetch('/api/settings').then(r => r.json()).then(data => {
+        valorHoraFabrica = parseFloat(data.valor_hora_fabrica) || 0;
+    });
+
+    // Load Stock for Select
+    fetch('/api/estoque').then(r => r.json()).then(data => {
+        stockItems = data;
+        const sel = document.getElementById('insSelect');
+        data.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = `${s.nome} (${s.unidade})`;
+            sel.appendChild(opt);
+        });
+    });
+
+    let currentCatalogo = [];
+
+    function loadCatalogo() {
+        fetch('/api/catalogo').then(r => r.json()).then(data => {
+            currentCatalogo = data;
+            const tbody = document.getElementById('listaCatalogo');
+            tbody.innerHTML = '';
+            data.forEach((item, idx) => {
+                const insCount = item.insumos ? item.insumos.length : 0;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.nome}</td>
+                    <td>${item.categoria || '-'}</td>
+                    <td>${insCount} comp. / ${item.horas_mo || 0}h</td>
+                    <td>M.O: R$ ${item.preco_base ? item.preco_base.toFixed(2) : '0.00'}</td>
+                    <td>
+                        <button onclick="editItemByIndex(${idx})" style="color:#29b6f6; background:none; border:none; cursor:pointer;">✏️</button>
+                        <button onclick="deleteItem(${item.id})" style="color:#ef5350; background:none; border:none; cursor:pointer;">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+    }
+
+    let insBuffer = [];
+
+    function addInsumoToBuffer() {
+        const sel = document.getElementById('insSelect');
+        const id = sel.value;
+        const qty = parseFloat(document.getElementById('insQty').value);
+        const tipo = document.getElementById('insTipo').value;
+        if (!id || isNaN(qty)) return alert("Selecione insumo e quantidade");
+
+        const stock = stockItems.find(s => s.id == id);
+        insBuffer.push({
+            estoque_id: id,
+            nome: stock.nome,
+            quantidade: qty,
+            tipo_calculo: tipo,
+            unidade: stock.unidade
+        });
+        renderInsBuffer();
+        document.getElementById('insQty').value = '';
+    }
+
+    function renderInsBuffer() {
+        const ul = document.getElementById('insBufferList');
+        ul.innerHTML = '';
+        insBuffer.forEach((ins, idx) => {
+            const li = document.createElement('li');
+            li.style.cssText = "display:flex; justify-content:space-between; margin-bottom:3px; padding-bottom:3px; border-bottom:1px solid #333;";
+            li.innerHTML = `
+                <span>${ins.quantidade}x ${ins.nome} (${ins.tipo_calculo})</span>
+                <span onclick="insBuffer.splice(${idx},1); renderInsBuffer()" style="color:red; cursor:pointer;">x</span>
+            `;
+            ul.appendChild(li);
+        });
+        updateSuggestedPrice();
+    }
+
+    function updateSuggestedPrice() {
+        const L = parseFloat(document.getElementById('catDimL').value) || 0;
+        const A = parseFloat(document.getElementById('catDimA').value) || 0;
+        const P = parseFloat(document.getElementById('catDimP').value) || 0;
+        const horas = parseFloat(document.getElementById('catHoras').value) || 0;
+
+        const Lm = L / 1000;
+        const Am = A / 1000;
+        const Pm = P / 1000;
+
+        let matCost = 0;
+        insBuffer.forEach(ins => {
+            const stock = stockItems.find(s => s.id == ins.estoque_id);
+            if (!stock) return;
+
+            const cost = stock.custo_seguro || stock.custo_unitario || 0;
+            let qtyNeeded = 0;
+            if (ins.tipo_calculo === 'fixo') {
+                qtyNeeded = ins.quantidade;
+            } else if (ins.tipo_calculo === 'area') {
+                qtyNeeded = (Lm * Am) * ins.quantidade;
+            } else if (ins.tipo_calculo === 'volume') {
+                qtyNeeded = (Lm * Am * (Pm || 0.001)) * ins.quantidade;
+            } else if (ins.tipo_calculo === 'perimetro') {
+                qtyNeeded = 2 * (Lm + Am) * ins.quantidade;
+            }
+            matCost += qtyNeeded * cost;
+        });
+
+        const laborCost = horas * valorHoraFabrica;
+        const total = matCost + laborCost;
+
+        document.getElementById('catSugeridoText').innerText = `R$ ${total.toFixed(2)}`;
+        return total;
+    }
+
+    function applySuggestedPrice() {
+        const value = updateSuggestedPrice();
+        document.getElementById('catPreco').value = value.toFixed(2);
+    }
+
+    function saveItem() {
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = 'Salvando...';
+
+        const id = document.getElementById('itemId').value;
+        const L = document.getElementById('catDimL').value || 0;
+        const A = document.getElementById('catDimA').value || 0;
+        const P = document.getElementById('catDimP').value || 0;
+        const dims = `L:${L},A:${A},P:${P}`;
+
+        const body = {
+            nome: document.getElementById('catNome').value,
+            categoria: document.getElementById('catCategoria').value,
+            horas_mo: parseFloat(document.getElementById('catHoras').value) || 0,
+            preco_base: parseFloat(document.getElementById('catPreco').value) || 0,
+            dims_padrao: dims,
+            insumos: insBuffer,
+            estoque_id: null,
+            fator_consumo: 1.0
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/catalogo/${id}` : '/api/catalogo';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        })
+            .then(r => {
+                if (!r.ok) throw new Error("Erro na resposta do servidor");
+                return r.json();
+            })
+            .then(res => {
+                if (res.success) {
+                    document.getElementById('catModal').style.display = 'none';
+                    loadCatalogo();
+                } else {
+                    alert("Erro ao salvar: " + (res.error || "Erro desconhecido"));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro de conexão ou servidor.");
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.textContent = 'Salvar';
+            });
+    }
+
+    function editItemByIndex(idx) {
+        const item = currentCatalogo[idx];
+        editItem(item);
+    }
+
+    function editItem(item) {
+        document.getElementById('catModal').style.display = 'flex';
+        document.getElementById('itemId').value = item.id;
+        document.getElementById('catNome').value = item.nome;
+        document.getElementById('catCategoria').value = item.categoria || '';
+        document.getElementById('catHoras').value = item.horas_mo || 0;
+        document.getElementById('catPreco').value = item.preco_base || 0;
+
+        // Load insumos into buffer
+        insBuffer = item.insumos ? [...item.insumos] : [];
+        renderInsBuffer();
+
+        // Parse dims
+        if (item.dims_padrao) {
+            const parts = item.dims_padrao.split(',');
+            parts.forEach(p => {
+                const [k, v] = p.split(':');
+                if (k === 'L') document.getElementById('catDimL').value = v;
+                if (k === 'A') document.getElementById('catDimA').value = v;
+                if (k === 'P') document.getElementById('catDimP').value = v;
+            });
+        }
+    }
+
+    function deleteItem(id) {
+        if (confirm('Excluir?')) {
+            fetch(`/api/catalogo/${id}`, { method: 'DELETE' }).then(() => loadCatalogo());
+        }
+    }
+
+    function openModal() {
+        document.getElementById('catModal').style.display = 'flex';
+        document.getElementById('itemId').value = '';
+        document.getElementById('catNome').value = '';
+        document.getElementById('catCategoria').value = '';
+        document.getElementById('catHoras').value = '';
+        document.getElementById('catPreco').value = '';
+        document.getElementById('catDimL').value = '';
+        document.getElementById('catDimA').value = '';
+        document.getElementById('catDimP').value = '';
+        insBuffer = [];
+        renderInsBuffer();
+    }
+
+
+    loadCatalogo();
+</script>
+{% endblock %}

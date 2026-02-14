@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-20">
+    <h1>Financeiro & RH</h1>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+    <button class="tab-btn active" onclick="openTab('receber')">Receber</button>
+    <button class="tab-btn" onclick="openTab('pagar')">Pagar</button>
+    <button class="tab-btn" onclick="openTab('custos_fixos')">Custos Fixos (Fábrica)</button>
+    <button class="tab-btn" onclick="openTab('rh')">Recursos Humanos</button>
+</div>
+
+<!-- TAB: RECEBER -->
+<div id="tab-receber" class="tab-content active">
+    <div class="text-right mb-15">
+        <!-- <button class="btn" onclick="openContaModal('receber')">+ Nova Conta</button> -->
+        <small>Para adicionar Recebimentos, use a tela de Orçamentos ("Faturar")</small>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Descricao</th>
+                <th>Valor</th>
+                <th>Vencimento</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="listaReceber"></tbody>
+    </table>
+</div>
+
+<!-- TAB: PAGAR -->
+<div id="tab-pagar" class="tab-content" style="display:none;">
+    <button class="btn" onclick="openContaModal('pagar')" style="margin-bottom: 15px;">+ Nova Conta Pagar</button>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Descricao</th>
+                <th>Categoria</th>
+                <th>Valor</th>
+                <th>Vencimento</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="listaPagar"></tbody>
+    </table>
+</div>
+
+<!-- TAB: CUSTOS FIXOS -->
+<div id="tab-custos_fixos" class="tab-content" style="display:none;">
+    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 20px;">
+        <div>
+            <h3>Custos Fixos Mensais</h3>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" id="fixDesc" placeholder="Descrição (ex: Aluguel)" style="flex: 2;">
+                    <input type="number" id="fixValor" placeholder="Valor" style="flex: 1;">
+                    <button class="btn" onclick="addCustoFixo()" style="width: auto;">+</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="color: #fff">Item</th>
+                            <th style="color: #fff">Valor</th>
+                            <th style="color: #fff">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaFixosManuais"></tbody>
+                </table>
+            </div>
+
+            <h3>Provisões de Funcionários</h3>
+            <small style="color:#888;">Cálculo: Salário + 1/12 (13º) + 1/12 (Provisão Férias)</small>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="color: #fff">Funcionário</th>
+                            <th style="color: #fff">Salário Base</th>
+                            <th style="color: #fff">Custo Total (c/ Prov.)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaFixosRH"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DASHBOARD SUGGESTION -->
+        <div
+            style="background: #2c3e50; padding: 20px; border-radius: 8px; align-self: start; top: 20px; position: sticky;">
+            <h3 style="margin-top: 0; color: #5cb85c;">Cálculo Valor Hora</h3>
+            <hr style="border-color: #444;">
+            <div style="margin: 15px 0;">
+                <label>Total Custos Fixos</label>
+                <p style="font-size: 1.5em; font-weight: bold;" id="totalCustosFixos">R$ 0,00</p>
+            </div>
+            <div style="margin: 15px 0;">
+                <label>Capacidade Mensal (Horas)</label>
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
+                    <input type="number" id="fixCapacidade" step="1"
+                        style="width: 80px; background: #1a252f; border: 1px solid #34495e; color: white; padding: 5px; border-radius: 4px;">
+                    <button class="btn" onclick="saveCapacidade()"
+                        style="width: auto; padding: 5px 10px; font-size: 0.8em;">Set</button>
+                </div>
+                <small style="color:#aaa;">Ex: 160h/mês</small>
+            </div>
+            <div
+                style="margin-top: 20px; padding: 15px; background: #1a252f; border-radius: 4px; border: 1px dashed #5cb85c;">
+                <label style="color: #5cb85c;">Sugestão de Valor da Hora</label>
+                <p style="font-size: 2em; font-weight: bold; margin: 5px 0;" id="sugestaoHora">R$ 0,00</p>
+                <button class="btn" onclick="applySuggestedRate()"
+                    style="width: 100%; margin-top: 10px; background: #5cb85c;">Aplicar no Orçamento</button>
+                <small style="color:#aaa; display:block; margin-top:10px;">O valor atual é salvo nas
+                    Configurações.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB: RH -->
+<div id="tab-rh" class="tab-content" style="display:none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3>Registro de Colaboradores</h3>
+
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="color: #fff">Nome</th>
+                <th style="color: #fff">Cargo</th>
+                <th style="color: #fff">Salário Base</th>
+                <th style="color: #fff">Ações</th>
+            </tr>
+        </thead>
+        <tbody id="listaFunc"></tbody>
+    </table>
+</div>
+
+
+</div>
+
+<!-- MODAL CONTA -->
+<div id="contaModal" class="modal">
+    <div class="modal-content">
+        <h2 id="contaModalTitle">Nova Conta</h2>
+        <input type="hidden" id="contaTipo">
+
+        <div class="form-group">
+            <label>Descrição</label>
+            <input type="text" id="contaDesc">
+        </div>
+        <div class="form-group">
+            <label>Categoria</label>
+            <select id="contaCat">
+                <option value="material">Material</option>
+                <option value="fixo">Custo Fixo (Luz/Água)</option>
+                <option value="mao_obra">Mão de Obra</option>
+                <option value="outros">Outros</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Valor (R$)</label>
+            <input type="number" step="0.01" id="contaValor">
+        </div>
+        <div class="form-group">
+            <label>Vencimento</label>
+            <input type="date" id="contaVenc">
+        </div>
+
+        <div class="modal-buttons" style="margin-top: 20px;">
+            <button class="btn cancel" onclick="closeContaModal()">Cancelar</button>
+            <button class="btn" onclick="saveConta()">Salvar</button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- MODAL HOLERITE -->
+<div id="holeriteModal" class="modal">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <h2>Prévia Holerite</h2>
+        <div id="holeriteContent"
+            style="background: #222; padding: 15px; border-radius: 4px; text-align: left; margin: 15px 0;">
+            <!-- filled by JS -->
+        </div>
+        <button class="btn cancel"
+            onclick="document.getElementById('holeriteModal').style.display='none'">Fechar</button>
+    </div>
+</div>
+
+<style>
+    .tab-btn {
+        background: none;
+        border: none;
+        color: #888;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 1rem;
+        border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn.active {
+        color: white;
+        border-bottom: 2px solid var(--primary-color);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 8px;
+        width: 400px;
+    }
+</style>
+
+<script>
+    function openTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+        document.getElementById('tab-' + tabName).style.display = 'block';
+        event.target.classList.add('active');
+
+        if (tabName === 'receber') loadContas('receber');
+        if (tabName === 'pagar') loadContas('pagar');
+        if (tabName === 'custos_fixos') loadCustosFixos();
+        if (tabName === 'rh') {
+            loadFuncionarios();
+
+        }
+    }
+
+    // --- CONTAS ---
+    function loadContas(tipo) {
+        fetch(`/api/contas?tipo=${tipo}`).then(r => r.json()).then(data => {
+            const tbody = document.getElementById(tipo === 'receber' ? 'listaReceber' : 'listaPagar');
+            tbody.innerHTML = '';
+            data.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${c.descricao}</td>
+                    ${tipo === 'pagar' ? `<td>${c.categoria}</td>` : ''}
+                    <td>R$ ${c.valor.toFixed(2)}</td>
+                    <td>${c.vencimento}</td>
+                    <td>${c.status}</td>
+                    <td><button onclick="deleteConta(${c.id}, '${tipo}')" style="color:red;border:none;background:none;cursor:pointer;">X</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+    }
+
+    function openContaModal(tipo) {
+        document.getElementById('contaModal').style.display = 'flex';
+        document.getElementById('contaTipo').value = tipo;
+        document.getElementById('contaModalTitle').innerText = tipo === 'receber' ? 'Nova Conta a Receber' : 'Nova Conta a Pagar';
+    }
+    function closeContaModal() { document.getElementById('contaModal').style.display = 'none'; }
+
+    function saveConta() {
+        const body = {
+            tipo: document.getElementById('contaTipo').value,
+            descricao: document.getElementById('contaDesc').value,
+            categoria: document.getElementById('contaCat').value,
+            valor: parseFloat(document.getElementById('contaValor').value),
+            vencimento: document.getElementById('contaVenc').value,
+            status: 'pendente'
+        };
+        fetch('/api/contas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) {
+                closeContaModal();
+                loadContas(body.tipo);
+            }
+        });
+    }
+
+    function deleteConta(id, tipo) {
+        if (confirm('Tem certeza?')) {
+            fetch(`/api/contas/${id}`, { method: 'DELETE' })
+                .then(() => loadContas(tipo));
+        }
+    }
+
+    // --- CUSTOS FIXOS ---
+    let totalFixosGeral = 0;
+
+    function loadCustosFixos() {
+        Promise.all([
+            fetch('/api/custos_fixos').then(r => r.json()),
+            fetch('/api/funcionarios').then(r => r.json()),
+            fetch('/api/settings').then(r => r.json())
+        ]).then(([fixos, funcs, settings]) => {
+            const tbodyManual = document.getElementById('listaFixosManuais');
+            const tbodyRH = document.getElementById('listaFixosRH');
+            tbodyManual.innerHTML = '';
+            tbodyRH.innerHTML = '';
+
+            let somaFixos = 0;
+
+            // Manual Costs
+            fixos.forEach(f => {
+                somaFixos += f.valor;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${f.descricao}</td>
+                    <td>R$ ${f.valor.toFixed(2)}</td>
+                    <td><button onclick="deleteCustoFixo(${f.id})" style="color:red;border:none;background:none;cursor:pointer;">X</button></td>
+                `;
+                tbodyManual.appendChild(tr);
+            });
+
+            // RH Costs (Salary + Provisoes)
+            funcs.forEach(f => {
+                // Cálculo de provisão: Salário + 1/12 (13º) + 1/12 (Férias)
+                const provisao = f.salario_base / 6; // 1/12 + 1/12 = 2/12 = 1/6
+                const custoTotal = f.salario_base + provisao;
+                somaFixos += custoTotal;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${f.nome}</td>
+                    <td>R$ ${f.salario_base.toFixed(2)}</td>
+                    <td>R$ ${custoTotal.toFixed(2)}</td>
+                `;
+                tbodyRH.appendChild(tr);
+            });
+
+            totalFixosGeral = somaFixos;
+            document.getElementById('totalCustosFixos').innerText = `R$ ${totalFixosGeral.toFixed(2)}`;
+
+            if (settings.capacidade_horas_mes) {
+                document.getElementById('fixCapacidade').value = settings.capacidade_horas_mes;
+                const cap = parseFloat(settings.capacidade_horas_mes);
+                if (cap > 0) {
+                    const sugestao = totalFixosGeral / cap;
+                    document.getElementById('sugestaoHora').innerText = `R$ ${sugestao.toFixed(2)}`;
+                }
+            }
+        });
+    }
+
+    function addCustoFixo() {
+        const body = {
+            descricao: document.getElementById('fixDesc').value,
+            valor: parseFloat(document.getElementById('fixValor').value),
+            categoria: 'fixo'
+        };
+        if (!body.descricao || isNaN(body.valor)) return alert("Preencha descrição e valor");
+
+        fetch('/api/custos_fixos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) {
+                document.getElementById('fixDesc').value = '';
+                document.getElementById('fixValor').value = '';
+                loadCustosFixos();
+            }
+        });
+    }
+
+    function deleteCustoFixo(id) {
+        if (confirm('Remover custo fixo?')) {
+            fetch(`/api/custos_fixos/${id}`, { method: 'DELETE' }).then(() => loadCustosFixos());
+        }
+    }
+
+    function saveCapacidade() {
+        const body = {
+            capacidade_horas_mes: document.getElementById('fixCapacidade').value
+        };
+        fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) loadCustosFixos();
+        });
+    }
+
+    function applySuggestedRate() {
+        const rate = document.getElementById('sugestaoHora').innerText.replace('R$ ', '');
+        const body = { valor_hora_fabrica: rate };
+        fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) alert("Valor da hora fábrica atualizado para R$ " + rate);
+        });
+    }
+
+    // --- RH ---
+    function loadFuncionarios() {
+        fetch('/api/funcionarios').then(r => r.json()).then(data => {
+            const tbody = document.getElementById('listaFunc');
+            tbody.innerHTML = '';
+            data.forEach(f => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${f.nome}</td>
+                    <td>${f.cargo}</td>
+                    <td>R$ ${f.salario_base.toFixed(2)}</td>
+                    <td>
+                        <button onclick="gerarHolerite(${f.id})" style="padding:4px 8px; cursor:pointer;">📄 Gerar Holerite</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+    }
+
+
+
+    function gerarHolerite(id) {
+        fetch(`/api/holerite/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+        })
+            .then(r => r.json()).then(data => {
+                const html = `
+                <p><strong>Base:</strong> R$ ${data.salario_base.toFixed(2)}</p>
+                <p style="color:#ef5350;"><strong>INSS (-11%):</strong> - R$ ${data.inss_val.toFixed(2)}</p>
+                <hr style="border-color:#444;">
+                <p style="font-size:1.2em;"><strong>Líquido: R$ ${data.liquido.toFixed(2)}</strong></p>
+                <br>
+                <small style="color:#888;">FGTS (Empresa): R$ ${data.fgts_val.toFixed(2)}</small>
+            `;
+                document.getElementById('holeriteContent').innerHTML = html;
+                document.getElementById('holeriteModal').style.display = 'flex';
+            });
+    }
+
+    // Mark active nav
+
+
+    // Init
+    loadContas('receber');
+    loadCustosFixos();
+    loadFuncionarios();
+</script>
+{% endblock %}

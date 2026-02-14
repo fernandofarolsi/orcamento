@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-20">
+    <h1>Relatórios e Inteligência</h1>
+    <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
+</div>
+
+<!-- TAB NAVIGATION -->
+<div class="tab-container">
+    <button class="tab-btn active" onclick="openTab('visao-geral')">Visão Geral</button>
+    <button class="tab-btn" onclick="openTab('producao')">Produção</button>
+    <button class="tab-btn" onclick="openTab('comercial')">Comercial</button>
+    <button class="tab-btn" onclick="openTab('auditoria')">Auditoria</button>
+</div>
+
+<!-- TAB 1: VISÃO GERAL (FINANCEIRO) -->
+<div id="visao-geral" class="tab-content active">
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Faturamento (Mês Atual)</div>
+            <div class="kpi-value" style="color: var(--success-color);" id="kpi-faturamento">R$ 0,00</div>
+            <small>Orçamentos Aprovados/Entregues</small>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Lucro Estimado (Mês)</div>
+            <div class="kpi-value" style="color: #29b6f6;" id="kpi-lucro">R$ 0,00</div>
+            <small>Receitas Reais - Despesas Reais</small>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Contas a Pagar (Pendentes)</div>
+            <div class="kpi-value" style="color: var(--danger-color);" id="kpi-pendente">R$ 0,00</div>
+            <small>Todas as pendências registras</small>
+        </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="chart-container">
+        <canvas id="cashFlowChart"></canvas>
+    </div>
+</div>
+
+<!-- TAB 2: PRODUÇÃO -->
+<div id="producao" class="tab-content">
+    <div class="flex-between mb-20">
+        <h2 style="color: #66bb6a;">Oportunidades de Compra</h2>
+        <p>Itens com grande variação de preço entre fornecedores.</p>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Material</th>
+                <th>Preço Orç.</th>
+                <th>Preço Oport.</th>
+                <th>Onde Comprar</th>
+            </tr>
+        </thead>
+        <tbody id="bestBuyTableBody"></tbody>
+    </table>
+</div>
+
+<!-- TAB 3: COMERCIAL -->
+<div id="comercial" class="tab-content">
+    <h2 style="color: #ffca28;">Top Clientes</h2>
+    <p>Clientes com maior volume de compras aprovadas.</p>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Orçamentos Aprovados</th>
+                <th>Valor Total</th>
+            </tr>
+        </thead>
+        <tbody id="topClientsTableBody"></tbody>
+    </table>
+</div>
+
+<!-- TAB 4: AUDITORIA (LEGACY) -->
+<div id="auditoria" class="tab-content">
+    <h2>Fluxo de Caixa (Detalhado)</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Tipo</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody id="reportTableBody"></tbody>
+    </table>
+</div>
+
+<script>
+
+    let myChart = null;
+
+    // --- TABS LOGIC ---
+    function openTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+
+        // Trigger loads based on tab
+        if (tabId === 'visao-geral') loadDashboard();
+        if (tabId === 'producao') loadProduction();
+        if (tabId === 'comercial') loadCommercial();
+        if (tabId === 'auditoria') loadAudit();
+    }
+
+    // --- 1. DASHBOARD LOAD ---
+    function loadDashboard() {
+        fetch('/api/relatorios/dashboard').then(r => r.json()).then(data => {
+            // Update KPIs
+            document.getElementById('kpi-faturamento').textContent = formatCurrency(data.faturamento_mes);
+            document.getElementById('kpi-lucro').textContent = formatCurrency(data.lucro_estimado);
+            document.getElementById('kpi-pendente').textContent = formatCurrency(data.contas_pendentes);
+
+            // Render Chart
+            renderChart(data.fluxo_caixa);
+        });
+    }
+
+    function renderChart(fluxoData) {
+        const ctx = document.getElementById('cashFlowChart').getContext('2d');
+        if (myChart) myChart.destroy();
+
+        const labels = fluxoData.map(d => d.label);
+        const receitas = fluxoData.map(d => d.receita);
+        const despesas = fluxoData.map(d => d.despesa);
+
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Receitas',
+                        data: receitas,
+                        backgroundColor: 'rgba(102, 187, 106, 0.6)',
+                        borderColor: '#66bb6a',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Despesas',
+                        data: despesas,
+                        backgroundColor: 'rgba(239, 83, 80, 0.6)',
+                        borderColor: '#ef5350',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Fluxo de Caixa (últimos 6 meses)', color: '#fff' },
+                    legend: { labels: { color: '#fff' } }
+                },
+                scales: {
+                    y: { ticks: { color: '#aaa' }, grid: { color: '#444' } },
+                    x: { ticks: { color: '#aaa' }, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // --- 2. PRODUCTION LOAD ---
+    function loadProduction() {
+        fetch('/api/relatorios/melhor_compra').then(r => r.json()).then(data => {
+            const tbody = document.getElementById('bestBuyTableBody');
+            tbody.innerHTML = '';
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.nome}</td>
+                    <td style="color: #ef5350;">R$ ${row.preco_orcamento.toFixed(2)}</td>
+                    <td style="color: #66bb6a;">R$ ${row.preco_oportunidade.toFixed(2)}</td>
+                    <td>
+                        <span style="font-weight: bold;">${row.site_barato}</span><br>
+                        <small style="color: #66bb6a;">Economia: ${row.economia_percent}%</small>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+    }
+
+    // --- 3. COMMERCIAL LOAD ---
+    function loadCommercial() {
+        fetch('/api/relatorios/comercial').then(r => r.json()).then(data => {
+            const tbody = document.getElementById('topClientsTableBody');
+            tbody.innerHTML = '';
+            data.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${r.nome}</td>
+                    <td>${r.qtd_orcamentos}</td>
+                    <td style="color: var(--success-color); font-weight: bold;">${formatCurrency(r.valor_total)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+    }
+
+    // --- 4. AUDIT LOAD ---
+    function loadAudit() {
+        fetch('/api/relatorios/data').then(r => r.json()).then(data => {
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = '';
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.vencimento}</td>
+                    <td>${row.descricao}</td>
+                    <td><span style="color: ${row.tipo == 'receber' ? '#66bb6a' : '#ef5350'}">${row.tipo.toUpperCase()}</span></td>
+                    <td>${formatCurrency(row.valor)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+    }
+
+    function formatCurrency(val) {
+        return 'R$ ' + parseFloat(val).toFixed(2).replace('.', ',');
+    }
+
+    // Init
+    loadDashboard();
+</script>
+{% endblock %}

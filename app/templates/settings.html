@@ -1,0 +1,845 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-20">
+    <h1>Configurações do Sistema</h1>
+</div>
+
+<div class="grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+    <!-- DADOS DA EMPRESA (CARD RESUMO) -->
+    <div
+        style="background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); grid-column: span 2; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div
+                style="background: #fff; padding: 5px; border-radius: 4px; height: 60px; width: 60px; display: flex; align-items: center; justify-content: center;">
+                <img id="imgLogoSmall" src="/static/logo.jpg" style="max-height: 50px; max-width: 50px;">
+            </div>
+            <div>
+                <h3 style="margin:0; color: var(--primary-color);">Identidade da Empresa</h3>
+                <p style="color:#aaa; font-size: 0.9em; margin: 5px 0 0 0;" id="lblEmpresaNome">Adore Marcenaria</p>
+            </div>
+        </div>
+        <button class="btn" onclick="openCompanyModal()"
+            style="width: auto; padding: 10px 20px; background: #333; border: 1px solid #555;">
+            ⚙️ Configurar Dados
+        </button>
+    </div>
+
+
+
+
+    <!-- CONFIGURAÇÃO DO CONTRATO (EDITOR AVANÇADO) -->
+    <!-- CONFIGURAÇÃO DO CONTRATO (CARD SUMMARY) -->
+    <div
+        style="background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); grid-column: span 2; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin-top:0; color: var(--info-color); margin-bottom: 5px;">Modelo de Contrato</h3>
+            <p style="color:#aaa; font-size: 0.9em; margin: 0;">Configure o layout, cláusulas e variáveis do contrato.
+            </p>
+        </div>
+        <button class="btn" onclick="openContractEditor()"
+            style="width: auto; padding: 10px 20px; background: #333; border: 1px solid #555;">
+            ✏️ Editar Template
+        </button>
+    </div>
+
+    <!-- SCRAPER CONFIG (CARD SUMMARY) -->
+    <div
+        style="background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); grid-column: span 2; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin:0; color: #29b6f6;">Automação de Estoque (Raspagem)</h3>
+            <p style="color:#aaa; font-size: 0.9em; margin: 5px 0 0 0;">Agendamento de atualização automática de preços.
+            </p>
+        </div>
+        <button class="btn" onclick="openScraperModal()"
+            style="width: auto; padding: 10px 20px; background: #333; border: 1px solid #555;">
+            ⚙️ Configurar Horário
+        </button>
+    </div>
+
+    <!-- VALCI GOULART DEFAULT CONFIG -->
+    <!-- VALCI GOULART DEFAULT CONFIG (CARD SUMMARY) -->
+    <div
+        style="background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); grid-column: span 2; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin:0; color: #ffeb3b;">Precificação</h3>
+            <p style="color:#aaa; font-size: 0.9em; margin: 5px 0 0 0;">Margens padrão para orçamento.</p>
+        </div>
+        <button class="btn" onclick="openValciModal()"
+            style="width: auto; padding: 10px 20px; background: #333; border: 1px solid #555;">
+            ⚙️ Configurar Margens
+        </button>
+    </div>
+
+    <!-- LOGS DO SISTEMA (CARD SUMMARY) -->
+    <div
+        style="background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); grid-column: span 2; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin:0; color: #9c27b0;">Logs do Sistema</h3>
+            <p style="color:#aaa; font-size: 0.9em; margin: 5px 0 0 0;">Histórico de ações e auditoria.</p>
+        </div>
+        <button class="btn" onclick="openLogsModal()"
+            style="width: auto; padding: 10px 20px; background: #333; border: 1px solid #555;">
+            📂 Ver Logs
+        </button>
+    </div>
+
+    <!-- USERS CONFIG (CARD SUMMARY) -->
+    <div
+        style="background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); grid-column: span 2; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin:0; color: #ff9800;">Gestão de Usuários</h3>
+            <p style="color:#aaa; font-size: 0.9em; margin: 5px 0 0 0;">Gerencie o acesso ao sistema.</p>
+        </div>
+        <button class="btn" onclick="openUsersModal()"
+            style="width: auto; padding: 10px 20px; background: #333; border: 1px solid #555;">
+            👥 Gerenciar
+        </button>
+    </div>
+</div>
+
+<!-- CONTRACT EDITOR MODAL -->
+<div id="contractModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center;">
+    <div
+        style="background: #1e1e1e; width: 90%; height: 90%; max-width: 1200px; border-radius: 4px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333;">
+
+        <!-- HEADER -->
+        <div
+            style="padding: 15px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #252526;">
+            <div style="display: flex; flex-direction: column;">
+                <h3 style="margin: 0; color: #fff;">Editor de Contrato</h3>
+                <span style="font-size: 0.8em; color: #888;">Use HTML para formatar o documento.</span>
+            </div>
+            <button class="btn btn-secondary" onclick="closeContractEditor()" style="padding: 5px 10px;">✕
+                Fechar</button>
+        </div>
+
+        <!-- TOOLBAR (VARIABLES) -->
+        <div
+            style="padding: 10px 20px; background: #2d2d2d; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 10px; overflow-x: auto; white-space: nowrap;">
+            <span style="color: #888; font-size: 0.9em; font-weight: bold; margin-right: 5px;">Inserir:</span>
+
+            <button class="chip-var" onclick="insertVar('[CLIENTE]')">👤 Cliente</button>
+            <button class="chip-var" onclick="insertVar('[CPF_CNPJ]')">📄 CPF/CNPJ</button>
+            <div class="v-divider"></div>
+            <button class="chip-var" onclick="insertVar('[TOTAL]')">💰 Valor Total</button>
+            <button class="chip-var" onclick="insertVar('[ENTRADA]')">💵 Entrada</button>
+            <button class="chip-var" onclick="insertVar('[VALOR_PARCELA]')">💳 Valor Parc.</button>
+            <button class="chip-var" onclick="insertVar('[QTD_PARCELAS]')">🔢 Qtd Parc.</button>
+            <button class="chip-var" onclick="insertVar('[FORMA_PAGAM]')">💳 Método</button>
+            <div class="v-divider"></div>
+            <button class="chip-var" onclick="insertVar('[TABELA_ITENS]')">📋 Tabela Itens</button>
+            <button class="chip-var" onclick="insertVar('[ASSINATURAS]')">✍️ Assinaturas</button>
+            <div class="v-divider"></div>
+            <button class="chip-var" onclick="insertVar('[DATA]')">📅 Data Hoje</button>
+            <button class="chip-var" onclick="insertVar('[ID]')">🆔 Nº Orç.</button>
+            <div class="v-divider"></div>
+            <button class="chip-var" onclick="insertVar('[EMPRESA_NOME]')">🏢 Nome Empresa</button>
+            <button class="chip-var" onclick="insertVar('[EMPRESA_CNPJ]')">📄 CNPJ Empresa</button>
+            <button class="chip-var" onclick="insertVar('[EMPRESA_LOGO]', true)">🖼️ Logo Empresa (Img)</button>
+        </div>
+
+        <!-- EDITOR AREA -->
+        <div style="flex: 1; display: flex; flex-direction: column; position: relative;">
+            <textarea id="contratoTemplate"
+                style="flex: 1; width: 100%; padding: 20px; background: #1e1e1e; color: #d4d4d4; border: none; font-family: 'Fira Code', 'Consolas', monospace; line-height: 1.6; font-size: 14px; resize: none; outline: none;"></textarea>
+        </div>
+
+        <!-- FOOTER -->
+        <div
+            style="padding: 15px 20px; border-top: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #252526;">
+            <button class="btn btn-secondary" onclick="resetContractTemplate()"
+                style="color: #ff6b6b; border-color: #ff6b6b33;">⚠️ Restaurar Original</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="closeContractEditor()">Cancelar</button>
+                <button class="btn" onclick="saveContractSettings()" style="padding: 8px 30px; font-weight: bold;">💾
+                    Salvar Alterações</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</div>
+
+<!-- SCRAPER MODAL -->
+<div id="scraperModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center;">
+    <div
+        style="background: #1e1e1e; width: 90%; max-width: 500px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; display: flex; flex-direction: column;">
+        <div
+            style="padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #252526; border-radius: 8px 8px 0 0;">
+            <h3 style="margin: 0; color: #fff;">Agendamento de Raspagem</h3>
+            <button class="btn btn-secondary" onclick="closeScraperModal()" style="padding: 5px 10px;">✕ Fechar</button>
+        </div>
+        <div style="padding: 30px;">
+            <p style="color:#aaa; font-size: 0.9em; margin-bottom: 20px;">Configure o horário para atualização
+                automática de preços de fornecedores.</p>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="raspagemAtiva" style="width: auto; transform: scale(1.2);">
+                    <label for="raspagemAtiva" style="margin:0; font-size: 1.1em;">Ativar raspagem automática
+                        diária</label>
+                </div>
+                <div class="form-group">
+                    <label>Horário de Execução</label>
+                    <input type="time" id="raspagemHora" step="60"
+                        style="padding: 10px; background: #333; color: white; border: 1px solid #555; border-radius: 4px; width: 100%;">
+                </div>
+            </div>
+        </div>
+        <div
+            style="padding: 20px; border-top: 1px solid #333; display: flex; justify-content: flex-end; gap: 10px; background: #252526; border-radius: 0 0 8px 8px;">
+            <button class="btn btn-secondary" onclick="closeScraperModal()">Cancelar</button>
+            <button class="btn" onclick="saveScraperSettings()" style="padding: 10px 30px;">💾 Salvar
+                Configuração</button>
+        </div>
+    </div>
+</div>
+
+<!-- VALCI MODAL -->
+<div id="valciModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center;">
+    <div
+        style="background: #1e1e1e; width: 90%; max-width: 600px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; display: flex; flex-direction: column;">
+        <div
+            style="padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #252526; border-radius: 8px 8px 0 0;">
+            <h3 style="margin: 0; color: #fff;">Margens Padrão (Valci Goulart)</h3>
+            <button class="btn btn-secondary" onclick="closeValciModal()" style="padding: 5px 10px;">✕ Fechar</button>
+        </div>
+        <div style="padding: 30px;">
+            <p style="color:#aaa; font-size: 0.9em; margin-bottom: 20px;">Defina as margens padrão que serão sugeridas
+                ao criar novos orçamentos.</p>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <div class="form-group">
+                    <label>Margem Lucro (%)</label>
+                    <input type="number" id="valciMargemLucro" step="0.01" placeholder="Ex: 30">
+                </div>
+                <div class="form-group">
+                    <label>Reserva Negoc. (%)</label>
+                    <input type="number" id="valciMargemNegoc" step="0.01" placeholder="Ex: 5">
+                </div>
+                <div class="form-group">
+                    <label>Impostos (%)</label>
+                    <input type="number" id="valciMargemImposto" step="0.01" placeholder="Ex: 6">
+                </div>
+            </div>
+        </div>
+        <div
+            style="padding: 20px; border-top: 1px solid #333; display: flex; justify-content: flex-end; gap: 10px; background: #252526; border-radius: 0 0 8px 8px;">
+            <button class="btn btn-secondary" onclick="closeValciModal()">Cancelar</button>
+            <button class="btn" onclick="saveValciSettings()" style="padding: 10px 30px;">💾 Salvar Margens</button>
+        </div>
+    </div>
+</div>
+
+<!-- LOGS DO SISTEMA (CARD SUMMARY) -->
+
+
+<!-- USERS MODAL -->
+<div id="usersModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center;">
+    <div
+        style="background: #1e1e1e; width: 90%; max-width: 800px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; display: flex; flex-direction: column;">
+
+        <!-- HEADER -->
+        <div
+            style="padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #252526; border-radius: 8px 8px 0 0;">
+            <h3 style="margin: 0; color: #fff;">Usuários do Sistema</h3>
+            <button class="btn btn-secondary" onclick="document.getElementById('usersModal').style.display='none'"
+                style="padding: 5px 10px;">✕ Fechar</button>
+        </div>
+
+        <!-- LIST AREA -->
+        <div style="padding: 20px; flex: 1; overflow-y: auto;">
+            <button class="btn btn-primary" onclick="openUserForm()" style="margin-bottom: 20px;">+ Novo
+                Usuário</button>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #252526;">
+                    <tr>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #444;">Usuário</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #444;">Permissão</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #444;">Status</th>
+                        <th style="padding: 10px; text-align: right; border-bottom: 1px solid #444;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="usersBody">
+                    <!-- JS fills -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- USER FORM MODAL (Sub-modal) -->
+<div id="userFormModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1100; align-items: center; justify-content: center;">
+    <div
+        style="background: #252526; width: 90%; max-width: 400px; border-radius: 8px; border: 1px solid #444; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+        <h3 id="userFormTitle" style="margin: 0; color: #fff; border-bottom: 1px solid #444; padding-bottom: 10px;">Novo
+            Usuário</h3>
+        <input type="hidden" id="userId">
+
+        <div class="form-group">
+            <label>Usuário</label>
+            <input type="text" id="userUsername" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Senha <small style="color: #888;">(Deixe em branco para manter)</small></label>
+            <input type="password" id="userPassword" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Permissão</label>
+            <select id="userRole" class="form-control"
+                style="background:#333; color:white; border:1px solid #555; padding:10px; width:100%;">
+                <option value="user">Usuário Comum</option>
+                <option value="admin">Administrador</option>
+            </select>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+            <button class="btn btn-secondary"
+                onclick="document.getElementById('userFormModal').style.display='none'">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveUser()">Salvar</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- LOGS MODAL -->
+<div id="logsModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center;">
+    <div
+        style="background: #1e1e1e; width: 95%; max-width: 1000px; height: 90%; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; display: flex; flex-direction: column;">
+
+        <!-- HEADER -->
+        <div
+            style="padding: 15px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #252526; border-radius: 8px 8px 0 0;">
+            <h3 style="margin: 0; color: #fff;">Auditoria do Sistema</h3>
+            <button class="btn btn-secondary" onclick="document.getElementById('logsModal').style.display='none'"
+                style="padding: 5px 10px;">✕ Fechar</button>
+        </div>
+
+        <!-- FILTERS -->
+        <div
+            style="padding: 15px 20px; background: #2d2d2d; border-bottom: 1px solid #333; display: flex; gap: 10px; align-items: center;">
+            <input type="date" id="logDtIni" class="form-control" style="width: auto;">
+            <input type="date" id="logDtFim" class="form-control" style="width: auto;">
+            <input type="text" id="logUser" class="form-control" placeholder="Usuário" style="width: 150px;">
+            <input type="text" id="logAction" class="form-control" placeholder="Ação (ex: UPDATE)"
+                style="width: 150px;">
+            <button class="btn btn-primary" onclick="loadLogs()">🔎 Buscar</button>
+        </div>
+
+        <!-- TABLE -->
+        <div style="flex: 1; overflow-y: auto; padding: 0;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+                <thead style="background: #252526; position: sticky; top: 0;">
+                    <tr>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #444;">Data/Hora</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #444;">Usuário</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #444;">Ação</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #444;">Detalhes</th>
+                    </tr>
+                </thead>
+                <tbody id="logsBody">
+                    <!-- JS fills -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- COMPANY SETTINGS MODAL -->
+<div id="companyModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center;">
+    <div
+        style="background: #1e1e1e; width: 90%; max-width: 800px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; display: flex; flex-direction: column;">
+
+        <!-- HEADER -->
+        <div
+            style="padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #252526; border-radius: 8px 8px 0 0;">
+            <h3 style="margin: 0; color: #fff;">Dados da Empresa (White Label)</h3>
+            <button class="btn btn-secondary" onclick="closeCompanyModal()" style="padding: 5px 10px;">✕ Fechar</button>
+        </div>
+
+        <!-- BODY -->
+        <div style="padding: 30px; overflow-y: auto; max-height: 80vh;">
+            <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+                <!-- Logo Upload -->
+                <div style="flex: 0 0 200px; text-align: center;">
+                    <div
+                        style="background: #fff; padding: 10px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #444;">
+                        <img id="imgLogoPreview" src="/static/logo.jpg" style="width: 100%; max-width: 150px;">
+                    </div>
+                    <button class="btn btn-secondary" onclick="document.getElementById('fileLogo').click()"
+                        style="width: 100%; margin-bottom: 5px;">
+                        📷 Alterar Logo
+                    </button>
+                    <small style="color: #666; display: block;">Recomendado: PNG Transparente</small>
+                    <input type="file" id="fileLogo" accept="image/*" style="display: none;"
+                        onchange="uploadLogo(this)">
+                    <input type="hidden" id="empresaLogoUrl">
+                </div>
+
+                <!-- Fields -->
+                <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Nome da Empresa</label>
+                        <input type="text" id="empresaNome" placeholder="Ex: Adore Marcenaria">
+                    </div>
+                    <div class="form-group">
+                        <label>CNPJ / CPF</label>
+                        <input type="text" id="empresaCnpj" placeholder="00.000.000/0000-00">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefone / WhatsApp</label>
+                        <input type="text" id="empresaTelefone" placeholder="(00) 00000-0000">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Endereço Completo</label>
+                        <input type="text" id="empresaEndereco" placeholder="Rua, Número, Bairro, Cidade - UF">
+                    </div>
+                    <div class="form-group">
+                        <label>Email de Contato</label>
+                        <input type="email" id="empresaEmail" placeholder="contato@empresa.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Site / Instagram</label>
+                        <input type="text" id="empresaSite" placeholder="www.seusite.com.br">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div
+            style="padding: 20px; border-top: 1px solid #333; display: flex; justify-content: flex-end; gap: 10px; background: #252526; border-radius: 0 0 8px 8px;">
+            <button class="btn btn-secondary" onclick="closeCompanyModal()">Cancelar</button>
+            <button class="btn" onclick="saveCompanySettings()" style="padding: 10px 30px;">
+                💾 Salvar Alterações
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .chip-var {
+        background: #3E3E42;
+        color: #ddd;
+        border: 1px solid #555;
+        border-radius: 15px;
+        /* Pill shape for modern look */
+        padding: 4px 12px;
+        font-size: 0.85em;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .chip-var:hover {
+        background: #505054;
+        color: #fff;
+        border-color: #777;
+        transform: translateY(-1px);
+    }
+
+    .chip-var:active {
+        transform: translateY(0);
+    }
+
+    .v-divider {
+        width: 1px;
+        height: 20px;
+        background: #444;
+        margin: 0 5px;
+    }
+
+    /* Scrollbar for editor */
+    #contratoTemplate::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    #contratoTemplate::-webkit-scrollbar-track {
+        background: #1e1e1e;
+    }
+
+    #contratoTemplate::-webkit-scrollbar-thumb {
+        background: #444;
+        border-radius: 5px;
+    }
+
+    #contratoTemplate::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
+
+<script>
+    function loadSettings() {
+        // Load Settings
+        // Load Company Settings
+        fetch('/api/settings').then(r => r.json()).then(data => {
+            if (data.empresa_nome) document.getElementById('empresaNome').value = data.empresa_nome;
+            if (data.empresa_cnpj) document.getElementById('empresaCnpj').value = data.empresa_cnpj;
+            if (data.empresa_endereco) document.getElementById('empresaEndereco').value = data.empresa_endereco;
+            if (data.empresa_telefone) document.getElementById('empresaTelefone').value = data.empresa_telefone;
+            if (data.empresa_email) document.getElementById('empresaEmail').value = data.empresa_email;
+            if (data.empresa_site) document.getElementById('empresaSite').value = data.empresa_site;
+
+            if (data.empresa_logo_url) {
+                document.getElementById('empresaLogoUrl').value = data.empresa_logo_url;
+                document.getElementById('imgLogoPreview').src = data.empresa_logo_url;
+                // Update small preview on dashboard if exists
+                const smallPreview = document.getElementById('imgLogoSmall');
+                if (smallPreview) smallPreview.src = data.empresa_logo_url;
+            }
+            if (data.empresa_nome && document.getElementById('lblEmpresaNome')) {
+                document.getElementById('lblEmpresaNome').textContent = data.empresa_nome;
+            }
+
+
+            if (data.raspagem_ativa) {
+                document.getElementById('raspagemAtiva').checked = data.raspagem_ativa === 'true';
+            }
+            if (data.raspagem_hora) {
+                document.getElementById('raspagemHora').value = data.raspagem_hora;
+            }
+            // Load Contract Template or Fallback to Base
+            if (data.contrato_template) {
+                document.getElementById('contratoTemplate').value = data.contrato_template;
+            } else if (data.contrato_base) {
+                document.getElementById('contratoTemplate').value = data.contrato_base;
+            }
+        });
+
+        // Load Valci Defaults
+        fetch('/api/config-fabrica').then(r => r.json()).then(data => {
+            document.getElementById('valciMargemLucro').value = data.margem_lucro;
+            document.getElementById('valciMargemNegoc').value = data.margem_negociacao;
+            document.getElementById('valciMargemImposto').value = data.margem_impostos;
+        });
+    }
+
+    function saveValciSettings() {
+        const body = {
+            margem_lucro: parseFloat(document.getElementById('valciMargemLucro').value),
+            margem_negociacao: parseFloat(document.getElementById('valciMargemNegoc').value),
+            margem_impostos: parseFloat(document.getElementById('valciMargemImposto').value)
+        };
+        fetch('/api/config-fabrica', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) alert("Padrões do Método Valci atualizados!");
+        });
+    }
+
+
+
+    function saveCompanySettings() {
+        const body = {
+            empresa_nome: document.getElementById('empresaNome').value,
+            empresa_cnpj: document.getElementById('empresaCnpj').value,
+            empresa_endereco: document.getElementById('empresaEndereco').value,
+            empresa_telefone: document.getElementById('empresaTelefone').value,
+            empresa_email: document.getElementById('empresaEmail').value,
+            empresa_site: document.getElementById('empresaSite').value,
+            empresa_logo_url: document.getElementById('empresaLogoUrl').value
+        };
+        fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) {
+                alert("Dados da empresa atualizados! Recarregue a página para ver o novo logo/nome.");
+                location.reload();
+            }
+        });
+    }
+
+    function uploadLogo(input) {
+        if (!input.files || !input.files[0]) return;
+
+        const formData = new FormData();
+        formData.append('file', input.files[0]);
+        formData.append('client_name', 'logo_empresa'); // Use fixed name to identify
+
+        fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.url) {
+                    document.getElementById('empresaLogoUrl').value = data.url;
+                    document.getElementById('imgLogoPreview').src = data.url;
+                } else {
+                    alert("Erro ao fazer upload da imagem");
+                }
+            })
+            .catch(err => alert("Erro: " + err));
+    }
+
+    function saveScraperSettings() {
+        const body = {
+            raspagem_ativa: document.getElementById('raspagemAtiva').checked ? 'true' : 'false',
+            raspagem_hora: document.getElementById('raspagemHora').value
+        };
+        fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) alert("Configurações de raspagem salvas!");
+        });
+    }
+
+    // EDITOR MODAL FUNCTIONS
+    function openContractEditor() {
+        document.getElementById('contractModal').style.display = 'flex';
+        loadSettings(); // Refresh content
+    }
+
+    function closeContractEditor() {
+        document.getElementById('contractModal').style.display = 'none';
+    }
+
+    function saveContractSettings() {
+        const body = {
+            contrato_template: document.getElementById('contratoTemplate').value
+        };
+        fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) {
+                alert("Template do contrato atualizado com sucesso!");
+                closeContractEditor();
+            }
+        });
+    }
+
+    function insertVar(text, isHtml = false) {
+        const textarea = document.getElementById('contratoTemplate');
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const before = textarea.value.substring(0, start);
+        const after = textarea.value.substring(end, textarea.value.length);
+
+        // If it's the Logo and user just wants the tag
+        if (text === '[EMPRESA_LOGO]' && isHtml) {
+            text = '<img src="[EMPRESA_LOGO]" alt="Logo" style="max-height: 80px;">';
+        }
+
+        textarea.value = before + text + after;
+        textarea.selectionStart = textarea.selectionEnd = start + text.length;
+        textarea.focus();
+    }
+
+    function resetContractTemplate() {
+        if (confirm("Tem certeza? Isso apagará suas edições e restaurará o template padrão.")) {
+            alert("Para restaurar totalmente, limpe o campo e salve. O sistema irá regenerar o padrão na próxima inicialização.");
+            document.getElementById('contratoTemplate').value = "";
+        }
+    }
+    function openCompanyModal() {
+        document.getElementById('companyModal').style.display = 'flex';
+        loadSettings();
+    }
+
+    function closeCompanyModal() {
+        document.getElementById('companyModal').style.display = 'none';
+    }
+
+    function openScraperModal() {
+        document.getElementById('scraperModal').style.display = 'flex';
+        loadSettings();
+    }
+    function closeScraperModal() {
+        document.getElementById('scraperModal').style.display = 'none';
+    }
+
+    function openValciModal() {
+        document.getElementById('valciModal').style.display = 'flex';
+        loadSettings();
+    }
+    function openLogsModal() {
+        document.getElementById('logsModal').style.display = 'flex';
+        // Set default dates if empty
+        if (!document.getElementById('logDtIni').value) {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('logDtIni').value = today;
+            document.getElementById('logDtFim').value = today;
+        }
+        loadLogs();
+    }
+
+    function loadLogs() {
+        const dtIni = document.getElementById('logDtIni').value;
+        const dtFim = document.getElementById('logDtFim').value;
+        const user = document.getElementById('logUser').value;
+        const action = document.getElementById('logAction').value;
+
+        let url = `/api/logs?start_date=${dtIni}&end_date=${dtFim}`;
+        if (user) url += `&user=${user}`;
+        if (action) url += `&action=${action}`;
+
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                const tbody = document.getElementById('logsBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#aaa;">Nenhum registro encontrado.</td></tr>';
+                    return;
+                }
+
+                data.forEach(log => {
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid #333';
+                    tr.innerHTML = `
+                    <td style="padding: 8px; color: #aaa;">${log.created_at}</td>
+                    <td style="padding: 8px; color: #fff;">${log.user_id || '-'}</td>
+                    <td style="padding: 8px;">
+                        <span style="background: #333; padding: 2px 6px; borderRadius: 4px; font-size: 0.85em;">${log.action}</span>
+                    </td>
+                    <td style="padding: 8px; color: #ccc;">${log.details}</td>
+                `;
+                    tbody.appendChild(tr);
+                });
+            });
+    }
+
+    function closeValciModal() {
+        document.getElementById('valciModal').style.display = 'none';
+    }
+
+    // --- USER MANAGEMENT JS ---
+
+    function openUsersModal() {
+        document.getElementById('usersModal').style.display = 'flex';
+        loadUsers();
+    }
+
+    function loadUsers() {
+        fetch('/api/users')
+            .then(r => r.json())
+            .then(users => {
+                const tbody = document.getElementById('usersBody');
+                tbody.innerHTML = '';
+
+                users.forEach(u => {
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid #333';
+
+                    // Status Badge
+                    const statusColor = u.is_active ? '#28a745' : '#dc3545';
+                    const statusText = u.is_active ? 'Ativo' : 'Inativo';
+
+                    // Action Button text/color
+                    const btnActionText = u.is_active ? 'Desativar' : 'Reativar';
+                    const btnActionClass = u.is_active ? 'btn-secondary' : 'btn-primary'; // Visual cue
+
+                    tr.innerHTML = `
+                    <td style="padding: 10px; color: #fff;">${u.username}</td>
+                    <td style="padding: 10px; color: #aaa;">${u.role}</td>
+                    <td style="padding: 10px;">
+                        <span style="background: ${statusColor}; padding: 2px 8px; border-radius: 10px; font-size: 0.85em; color: white;">${statusText}</span>
+                    </td>
+                    <td style="padding: 10px; text-align: right;">
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.85em; margin-right: 5px;" 
+                            onclick="openUserForm(${u.id}, '${u.username}', '${u.role}')">✏️ Editar</button>
+                        <button class="btn ${btnActionClass}" style="padding: 5px 10px; font-size: 0.85em;" 
+                            onclick="toggleUserStatus(${u.id}, ${u.is_active})">${btnActionText}</button>
+                    </td>
+                `;
+                    tbody.appendChild(tr);
+                });
+            });
+    }
+
+    function openUserForm(id = null, username = '', role = 'user') {
+        document.getElementById('userId').value = id || '';
+        document.getElementById('userUsername').value = username;
+        document.getElementById('userPassword').value = ''; // Always clear password
+        document.getElementById('userRole').value = role;
+        document.getElementById('userFormTitle').textContent = id ? 'Editar Usuário' : 'Novo Usuário';
+
+        // Disable username edit if updating (optional, but good practice if IDs rely on it, though we use ID here)
+        // document.getElementById('userUsername').disabled = !!id; 
+
+        document.getElementById('userFormModal').style.display = 'flex';
+    }
+
+    function saveUser() {
+        const id = document.getElementById('userId').value;
+        const username = document.getElementById('userUsername').value;
+        const password = document.getElementById('userPassword').value;
+        const role = document.getElementById('userRole').value;
+
+        const body = { username, role };
+        if (password) body.password = password;
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/users/${id}` : '/api/users';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    document.getElementById('userFormModal').style.display = 'none';
+                    loadUsers(); // Reload list
+                    alert("Usuário salvo com sucesso!");
+                } else {
+                    alert("Erro: " + (res.error || "Erro desconhecido"));
+                }
+            });
+    }
+
+    function toggleUserStatus(id, currentStatus) {
+        // If active (1), we want to disable (0). If inactive (0), we want to enable (1).
+        // Wait, DELETE endpoint does soft delete (active=0).
+        // PUT endpoint can update is_active.
+
+        if (currentStatus) {
+            // Deactivate -> call DELETE (Soft Delete)
+            if (!confirm("Tem certeza que deseja desativar este usuário? Ele perderá acesso ao sistema.")) return;
+            fetch(`/api/users/${id}`, { method: 'DELETE' })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) loadUsers();
+                });
+        } else {
+            // Reactivate -> call PUT
+            fetch(`/api/users/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_active: 1 })
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) loadUsers();
+                });
+        }
+    }
+
+    // Mark active nav
+
+    loadSettings();
+</script>
+{% endblock %}

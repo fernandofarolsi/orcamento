@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Holerite - {{ funcionario.nome }}</title>
+    <style>
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            @page {
+                margin: 1cm;
+            }
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            /* Classic Holerite Look */
+            font-size: 12px;
+            color: #000;
+            background: #fff;
+            margin: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            /* A4 width approx */
+            margin: 0 auto;
+            border: 1px solid #000;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #000;
+            padding: 10px;
+        }
+
+        .header-left {
+            width: 60%;
+        }
+
+        .header-right {
+            width: 40%;
+            text-align: right;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .company-info div {
+            margin-bottom: 2px;
+        }
+
+        .company-name {
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .period-info {
+            border-bottom: 1px solid #000;
+            padding: 5px 10px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .employee-info {
+            display: flex;
+            border-bottom: 1px solid #000;
+            padding: 5px 0;
+            background: #f0f0f0;
+            /* Slight gray background for headers in some models */
+            background: transparent;
+        }
+
+        .emp-col {
+            padding: 0 10px;
+        }
+
+        .emp-code {
+            width: 10%;
+            border-right: 1px solid #000;
+        }
+
+        .emp-name {
+            width: 40%;
+            border-right: 1px solid #000;
+        }
+
+        .emp-cbo {
+            width: 10%;
+            border-right: 1px solid #000;
+        }
+
+        .emp-role {
+            width: 40%;
+        }
+
+        .label {
+            font-size: 10px;
+            color: #555;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .value {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Main Table */
+        .items-header {
+            display: grid;
+            grid-template-columns: 50px 1fr 60px 100px 100px;
+            border-bottom: 1px solid #000;
+            font-weight: bold;
+            text-align: center;
+            background: #eee;
+        }
+
+        .items-header div {
+            padding: 5px;
+            border-right: 1px solid #000;
+        }
+
+        .items-header div:last-child {
+            border-right: none;
+        }
+
+        .items-body {
+            min-height: 300px;
+            /* Force height */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 50px 1fr 60px 100px 100px;
+            border-bottom: 1px dashed #ccc;
+        }
+
+        .item-row div {
+            padding: 4px;
+            border-right: 1px solid #000;
+        }
+
+        .item-row div:last-child {
+            border-right: none;
+        }
+
+        .col-ref,
+        .col-venc,
+        .col-desc {
+            text-align: right;
+        }
+
+        .col-cod {
+            text-align: center;
+        }
+
+        /* Footer */
+        .totals-row {
+            border-top: 1px solid #000;
+            display: grid;
+            grid-template-columns: 1fr 100px 100px;
+        }
+
+        .totals-row div {
+            padding: 5px;
+            border-right: 1px solid #000;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .totals-row div:first-child {
+            text-align: left;
+            padding-left: 10px;
+            font-weight: normal;
+        }
+
+        .totals-row div:last-child {
+            border-right: none;
+        }
+
+        .net-pay-row {
+            border-top: 1px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 10px;
+            background: #ddd;
+        }
+
+        .net-pay-label {
+            font-weight: bold;
+        }
+
+        .net-pay-value {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .bases-row {
+            border-top: 1px solid #000;
+            display: flex;
+            font-size: 10px;
+            border-bottom: 1px solid #000;
+        }
+
+        .base-box {
+            flex: 1;
+            border-right: 1px solid #000;
+            padding: 2px 5px;
+        }
+
+        .base-box:last-child {
+            border-right: none;
+        }
+
+        .base-title {
+            display: block;
+            color: #555;
+            margin-bottom: 2px;
+        }
+
+        .base-val {
+            font-weight: bold;
+        }
+
+        .signature-area {
+            margin-top: 40px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .sig-line {
+            width: 40%;
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            font-size: 10px;
+        }
+
+        .security-msg {
+            writing-mode: vertical-rl;
+            position: absolute;
+            right: 10px;
+            top: 200px;
+            font-size: 8px;
+            color: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button onclick="window.print()" class="no-print"
+        style="padding:10px 20px; margin-bottom:20px; cursor:pointer; background:#000; color:#fff; border:none; border-radius:4px;">🖨️
+        Imprimir</button>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="company-info">
+                    <div class="company-name">{{ empresa.empresa_nome }}</div>
+                    <div>{{ empresa.empresa_endereco }}</div>
+                    <div>CNPJ: {{ empresa.empresa_cnpj }}</div>
+                </div>
+            </div>
+            <div class="header-right">
+                RECIBO DE PAGAMENTO DE SALÁRIO
+                <div style="font-size: 12px; margin-top: 5px; font-weight: normal;">Referência: <b>{{ mes_referencia
+                        }}</b></div>
+            </div>
+        </div>
+
+        <!-- Employee -->
+        <div class="employee-info">
+            <div class="emp-col emp-code">
+                <span class="label">CÓDIGO</span>
+                <span class="value">{{ funcionario.id }}</span>
+            </div>
+            <div class="emp-col emp-name">
+                <span class="label">NOME DO FUNCIONÁRIO</span>
+                <span class="value">{{ funcionario.nome }}</span>
+            </div>
+            <div class="emp-col emp-cbo">
+                <span class="label">CBO</span>
+                <span class="value"></span> <!-- Mock -->
+            </div>
+            <div class="emp-col emp-role">
+                <span class="label">CARGO / FUNÇÃO</span>
+                <span class="value">{{ funcionario.cargo }}</span>
+            </div>
+        </div>
+
+        <!-- Table Header -->
+        <div class="items-header">
+            <div>CÓD.</div>
+            <div>DESCRIÇÃO</div>
+            <div>REF.</div>
+            <div>VENCIMENTOS</div>
+            <div>DESCONTOS</div>
+        </div>
+
+        <!-- Table Body -->
+        <div class="items-body">
+            <!-- Salario Base -->
+            <div class="item-row">
+                <div class="col-cod">001</div>
+                <div>SALÁRIO BASE</div>
+                <div class="col-ref">30d</div>
+                <div class="col-venc">{{ "%.2f"|format(data.salario_base) }}</div>
+                <div class="col-desc"></div>
+            </div>
+
+            <!-- INSS -->
+            {% if data.inss_val > 0 %}
+            <div class="item-row">
+                <div class="col-cod">901</div>
+                <div>CONTRIBUIÇÃO INSS</div>
+                <div class="col-ref">{{ "%.1f"|format(funcionario.inss_percent * 100) }}%</div>
+                <div class="col-venc"></div>
+                <div class="col-desc">{{ "%.2f"|format(data.inss_val) }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Vales -->
+            {% if data.vales_val > 0 %}
+            <div class="item-row">
+                <div class="col-cod">950</div>
+                <div>ADIANTAMENTO SALARIAL (VALES)</div>
+                <div class="col-ref"></div>
+                <div class="col-venc"></div>
+                <div class="col-desc">{{ "%.2f"|format(data.vales_val) }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Outros Descontos -->
+            {% for d in data.outros_descontos %}
+            <div class="item-row">
+                <div class="col-cod">960</div>
+                <div>{{ d.tipo|upper }}</div>
+                <div class="col-ref"></div>
+                <div class="col-venc"></div>
+                <div class="col-desc">{{ "%.2f"|format(d.valor) }}</div>
+            </div>
+            {% endfor %}
+
+            <!-- Items de Ponto (Extras/Atrasos) - Future Implementation -->
+
+            <!-- Filler rows to maintain height -->
+            <div style="flex: 1; border-right: 1px solid #000; border-left: 1px solid #000;">
+                <!-- Vertical lines only -->
+                <div style="height: 100%; display: grid; grid-template-columns: 50px 1fr 60px 100px 100px;">
+                    <div style="border-right: 1px solid #000;"></div>
+                    <div style="border-right: 1px solid #000;"></div>
+                    <div style="border-right: 1px solid #000;"></div>
+                    <div style="border-right: 1px solid #000;"></div>
+                    <div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Totals -->
+        <div class="totals-row">
+            <div>
+                <span style="font-size: 10px;">Total de Vencimentos e Descontos</span>
+            </div>
+            <div>{{ "%.2f"|format(data.salario_base) }}</div> <!-- TODO: Sum properly including extras -->
+            <div>{{ "%.2f"|format(data.total_descontos) }}</div>
+        </div>
+
+        <!-- Net Pay -->
+        <div class="net-pay-row">
+            <div class="net-pay-label">VALOR LÍQUIDO A RECEBER (R$) ⇨</div>
+            <div class="net-pay-value">{{ "%.2f"|format(data.liquido) }}</div>
+        </div>
+
+        <!-- Bases -->
+        <div class="bases-row">
+            <div class="base-box">
+                <span class="base-title">Sal. Contrib. INSS</span>
+                <span class="base-val">{{ "%.2f"|format(data.salario_base) }}</span>
+            </div>
+            <div class="base-box">
+                <span class="base-title">Base Calc. FGTS</span>
+                <span class="base-val">{{ "%.2f"|format(data.salario_base) }}</span>
+            </div>
+            <div class="base-box">
+                <span class="base-title">FGTS do Mês</span>
+                <span class="base-val">{{ "%.2f"|format(data.fgts_val) }}</span>
+            </div>
+            <div class="base-box">
+                <span class="base-title">Base Calc. IRRF</span>
+                <span class="base-val">{{ "%.2f"|format(data.salario_base - data.inss_val) }}</span>
+            </div>
+            <div class="base-box">
+                <span class="base-title">Faixa IRRF</span>
+                <span class="base-val">0</span> <!-- Mock -->
+            </div>
+        </div>
+
+        <div style="padding: 10px; font-size: 10px; border-bottom: 1px solid #000;">
+            DECLARO TER RECEBIDO A IMPORTÂNCIA LÍQUIDA DISCRIMINADA NESTE RECIBO.
+        </div>
+
+        <!-- Signature -->
+        <div class="signature-area">
+            <div class="sig-line">
+                DATA
+            </div>
+            <div class="sig-line">
+                ASSINATURA DO FUNCIONÁRIO
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

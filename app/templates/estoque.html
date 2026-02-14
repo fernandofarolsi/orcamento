@@ -1,0 +1,970 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-20">
+    <div style="display: flex; flex-direction: column;">
+        <h1 style="margin:0;">Controle de Estoque</h1>
+        <small id="scrapeStatus" style="color: #888; margin-top: 5px;">Carregando agenda...</small>
+    </div>
+    <div class="flex gap-10">
+        <button class="btn" style="background: #29b6f6; color:#000;" onclick="rasparEstoque()">🔄 Atualizar Estoque
+            (Raspagem)</button>
+        <button class="btn" onclick="openGroupsModal()" style="background: #7e57c2;">📊 Grupos de Preço</button>
+        <button class="btn" onclick="openModal()">+ Novo Item</button>
+    </div>
+</div>
+
+<div class="search-bar mb-20">
+    <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nome ou categoria..."
+        onkeyup="filterTable()">
+</div>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Categoria</th>
+            <th>Und</th>
+            <th>Qtd</th>
+            <th>Custo (R$)</th>
+            <th>Origem</th>
+            <th>Última Atualização</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody id="estoqueTableBody">
+        <!-- JS fills this -->
+    </tbody>
+</table>
+
+
+<!-- MODAL RASPAGEM PROGRESSO (Novo) -->
+<div id="raspagemModal" class="modal">
+    <div class="modal-content" style="width: 500px; max-width: 95%;">
+        <h2 id="raspTitle">Atualizando Estoque...</h2>
+
+        <div id="raspProgressContainer" style="margin: 20px 0;">
+            <div
+                style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em; color: #ccc;">
+                <span id="raspStatusText">Iniciando...</span>
+                <span id="raspPercent">0%</span>
+            </div>
+            <div style="background: #444; height: 10px; border-radius: 5px; overflow: hidden;">
+                <div id="raspProgressBar" style="background: #29b6f6; width: 0%; height: 100%; transition: width 0.3s;">
+                </div>
+            </div>
+        </div>
+
+        <div id="raspLog"
+            style="background: #1e1e1e; color: #aaa; font-family: monospace; font-size: 0.8em; padding: 10px; height: 150px; overflow-y: auto; border-radius: 4px; border: 1px solid #333; margin-bottom: 20px;">
+            <!-- Logs go here -->
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button id="raspBtnStop" class="btn" onclick="stopRaspagem()" style="background: #ef5350;">Parar</button>
+            <button id="raspBtnClose" class="btn" onclick="closeRaspagemModal()" style="display: none;">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+    }
+
+    .modal-content {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 90%;
+        max-height: 90%;
+        overflow-y: auto;
+    }
+
+    .spinner {
+        margin: 20px auto;
+        width: 50px;
+        height: 50px;
+        border: 5px solid #444;
+        border-top: 5px solid #29b6f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Tooltip Styles */
+    .tooltip-icon {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        background: #29b6f6;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 14px;
+        font-size: 10px;
+        cursor: help;
+        margin-left: 5px;
+        font-weight: bold;
+    }
+
+    .tooltip-icon:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        background: #333;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: pre-line;
+        z-index: 1000;
+        max-width: 250px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        margin-top: -30px;
+        margin-left: 10px;
+    }
+</style>
+
+<!-- Modal -->
+<div id="estoqueModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+    <div
+        style="background: var(--card-bg); width: 500px; padding: 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <h2 id="modalTitle" style="margin-top: 0; margin-bottom: 20px;">Novo Item</h2>
+        <input type="hidden" id="itemId">
+
+        <div class="form-group">
+            <label>Nome</label>
+            <input type="text" id="itemNome">
+        </div>
+
+        <div class="form-group">
+            <label>Categoria</label>
+            <select id="itemCategoria" onchange="autoFillArea(this.value)">
+                <option value="MDF">MDF</option>
+                <option value="Compensado">Compensado</option>
+                <option value="Fórmica">Fórmica</option>
+                <option value="Vidro">Vidro</option>
+                <option value="Espelho">Espelho</option>
+                <option value="Ferragem">Ferragem</option>
+                <option value="Acessório">Acessório</option>
+                <option value="Iluminação">Iluminação</option>
+                <option value="Outro">Outro</option>
+            </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+                <label>Unidade <span class="tooltip-icon" data-tooltip="Tipo de medida do item:
+• Unidade: peças individuais (portas, puxadores)
+• Metro: materiais lineares (fitas, perfis)
+• Quilo: materiais por peso (colas, massas)">ⓘ</span></label>
+                <select id="itemUnidade">
+                    <option value="Unidade">Unidade</option>
+                    <option value="Metro">Metro</option>
+                    <option value="Quilo">Quilo</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Quantidade</label>
+                <input type="number" id="itemQtd" step="0.1">
+            </div>
+        </div>
+
+        <style>
+            .price-chips-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 8px;
+            }
+
+            .price-chip {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                padding: 6px 12px;
+                border-radius: 20px;
+                border: 1px solid #444;
+                background: #2a2a2a;
+                color: #ccc;
+                font-size: 0.85em;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                user-select: none;
+            }
+
+            .price-chip:hover {
+                background: #333;
+                border-color: #666;
+            }
+
+            .price-chip.selected {
+                background: rgba(41, 182, 246, 0.15);
+                /* #29b6f6 with opacity */
+                border-color: #29b6f6;
+                color: #29b6f6;
+                font-weight: bold;
+            }
+
+            .price-chip.best-price::after {
+                content: '🏆';
+                font-size: 1.1em;
+                margin-left: 4px;
+            }
+
+            .price-chip-label {
+                font-weight: 500;
+            }
+
+            .price-chip-value {
+                font-family: monospace;
+            }
+
+            .manual-badge {
+                display: none;
+                font-size: 0.8em;
+                color: #ff9800;
+                margin-left: 10px;
+            }
+        </style>
+
+        <div class="form-group">
+            <label>Custo Unitário (R$) <span id="manualBadge" class="manual-badge">✎ Manual</span></label>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="itemCusto" step="0.01" oninput="handleManualPriceInput()">
+                <button type="button" class="btn" onclick="resetToAutoPrice()"
+                    style="width: auto; padding: 0 15px; background: #444; font-size: 0.8em; height: 42px;"
+                    title="Resetar para Automático (Maior Preço)">Reset Auto</button>
+            </div>
+            <!-- Chips Container -->
+            <div id="priceChips" class="price-chips-container">
+                <!-- Chips will be injected by JS -->
+            </div>
+            <input type="hidden" id="itemPriceStrategy" value="auto_max">
+        </div>
+
+        <div class="form-group">
+            <label>Grupo de Preço (Opcional) <span class="tooltip-icon"
+                    data-tooltip="Se selecionado, o orçamento usará o preço PREDEFINIDO do grupo, ignorando o custo unitário acima. Ideal para MDFs Coloridos.">ⓘ</span></label>
+            <select id="itemPriceGroup">
+                <option value="">Nenhum - Usar Custo Unitário</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Área da Unidade (m²) <span class="tooltip-icon" data-tooltip="Área que cada unidade do material cobre:
+• Chapas MDF: ~5,06 m² (2,75x1,84m)
+• Fitas: largura × comprimento
+• Deixe 0,00 se não aplicar">ⓘ</span></label>
+            <input type="number" id="itemArea" step="0.01" placeholder="0.00">
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="itemIsAcessorio" style="width: auto;">
+            <label for="itemIsAcessorio" style="margin: 0; cursor: pointer;">É Acessório? <span class="tooltip-icon"
+                    data-tooltip="Marque se este item pode ser adicionado como opcional nos orçamentos (ex: puxadores, dobradiças, iluminação)">ⓘ</span></label>
+        </div>
+
+        <div class="form-group">
+            <label>Site Origem <span class="tooltip-icon" data-tooltip="Site para busca automática de preços:
+• Madeiranit, Leo, Madeverde: raspagem automática
+• Nenhum/Manual: controle manual">ⓘ</span></label>
+            <select id="itemSite">
+                <option value="">Nenhum / Manual</option>
+                <option value="madeiranit">Madeiranit</option>
+                <option value="leomadeiras">Leo Madeiras</option>
+                <option value="madeverde">Madeverde</option>
+            </select>
+        </div>
+
+        <div style="margin-top: 15px; border-top: 1px solid #444; padding-top: 10px;">
+            <label style="color: #29b6f6; font-size: 0.85em; font-weight: bold;">Links para Raspagem (URLs)</label>
+            <div class="form-group" style="margin-top: 5px;">
+                <input type="text" id="itemUrlMadeiranit" placeholder="Linnk na Madeiranit">
+            </div>
+            <div class="form-group">
+                <input type="text" id="itemUrlLeomadeiras" placeholder="Link na Leo Madeiras">
+            </div>
+            <div class="form-group">
+                <input type="text" id="itemUrlMadeverde" placeholder="Link na Madeverde">
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button class="btn" onclick="closeModal()" style="background: #6c757d; width: auto;">Cancelar</button>
+            <button class="btn" onclick="saveItem()" style="width: auto;">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL GRUPOS DE PREÇO -->
+<div id="groupsModal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="flex-between">
+            <h2>Grupos de Preço</h2>
+            <button class="btn" onclick="closeGroupsModal()" style="background: #666;">Fechar</button>
+        </div>
+        <p style="color: #aaa; margin-bottom: 20px;">Crie grupos para padronizar preços de venda (ex: "MDF Colorido",
+            "MDF Madeirado").</p>
+
+        <div
+            style="background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: flex-end;">
+            <div class="form-group" style="flex: 2;">
+                <label>Nome do Grupo</label>
+                <input type="text" id="groupName" placeholder="Ex: MDF Colorido Padrão">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>Preço Venda (R$)</label>
+                <input type="number" id="groupPrice" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group" style="flex: 2;">
+                <label>Descrição</label>
+                <input type="text" id="groupDesc" placeholder="Opcional">
+            </div>
+            <button class="btn" onclick="saveGroup()" style="background: #66bb6a; height: 38px;">+ Criar</button>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Preço de Venda</th>
+                    <th>Descrição</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="groupsTableBody">
+                <!-- JS fills this -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let allItems = [];
+    let allGroups = [];
+
+    // DEBUG: Expose functions to window to ensure button onclick works
+    window.openGroupsModal = openGroupsModal;
+    window.closeGroupsModal = closeGroupsModal;
+
+    // Load Price Groups
+    function loadGroups() {
+        console.log("Loading price groups...");
+        fetch('/api/price-groups')
+            .then(r => r.json())
+            .then(data => {
+                console.log("Price groups loaded:", data);
+                allGroups = data;
+                renderGroupsTable();
+                updateItemModalSelect();
+            })
+            .catch(err => console.error("Error loading price groups:", err));
+    }
+
+    function updateItemModalSelect() {
+        const sel = document.getElementById('itemPriceGroup');
+        const currentVal = sel.value;
+        sel.innerHTML = '<option value="">Nenhum - Usar Custo Unitário</option>';
+        allGroups.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g.id;
+            opt.innerText = `${g.name} (R$ ${g.price.toFixed(2)})`;
+            sel.appendChild(opt);
+        });
+        if (currentVal) sel.value = currentVal;
+    }
+
+    function renderGroupsTable() {
+        const tbody = document.getElementById('groupsTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        allGroups.forEach(g => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${g.name}</td>
+                <td style="color: #66bb6a; font-weight: bold;">R$ ${g.price.toFixed(2)}</td>
+                <td>${g.description || '-'}</td>
+                <td>
+                     <button onclick="deleteGroup(${g.id})" style="background: none; border: none; cursor: pointer; color: #ef5350;" title="Excluir">🗑️</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function saveGroup() {
+        const name = document.getElementById('groupName').value;
+        const price = parseFloat(document.getElementById('groupPrice').value);
+        const desc = document.getElementById('groupDesc').value;
+
+        if (!name || isNaN(price)) {
+            alert('Preencha nome e preço!');
+            return;
+        }
+
+        fetch('/api/price-groups', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, price, description: desc })
+        }).then(r => r.json()).then(res => {
+            if (res.success) {
+                document.getElementById('groupName').value = '';
+                document.getElementById('groupPrice').value = '';
+                document.getElementById('groupDesc').value = '';
+                loadGroups();
+            } else {
+                alert('Erro: ' + res.error);
+            }
+        });
+    }
+
+    function deleteGroup(id) {
+        if (!confirm('Tem certeza? Isso falhará se houver itens vinculados.')) return;
+        fetch(`/api/price-groups/${id}`, { method: 'DELETE' })
+            .then(r => r.json()).then(res => {
+                if (res.success) loadGroups();
+                else alert('Erro: ' + res.error);
+            });
+    }
+
+    function openGroupsModal() {
+        document.getElementById('groupsModal').style.display = 'flex';
+        loadGroups();
+    }
+
+    function closeGroupsModal() {
+        document.getElementById('groupsModal').style.display = 'none';
+        // Reload items to update pricing if changed
+        loadEstoque();
+    }
+
+    // Load items function
+    function loadEstoque() {
+        fetch('/api/estoque').then(r => r.json()).then(data => {
+            allItems = data;
+            renderTable(allItems);
+        });
+    }
+
+    // Initial load
+    // Initial load
+    loadEstoque();
+    loadGroups();
+
+    // Fetch scraping status
+    fetch('/api/settings').then(r => r.json()).then(data => {
+        const span = document.getElementById('scrapeStatus');
+        if (data.raspagem_ativa === 'true') {
+            span.innerHTML = `📅 Raspagem automática programada para as <b>${data.raspagem_hora}</b>`;
+            span.style.color = '#66bb6a';
+        } else {
+            span.innerHTML = `⚠️ Raspagem automática desativada`;
+            span.style.color = '#888';
+        }
+    });
+
+
+
+    function renderTable(items) {
+        const tbody = document.getElementById('estoqueTableBody');
+        tbody.innerHTML = '';
+        items.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td>${item.nome} ${item.is_acessorio ? '<span style="color:#29b6f6" title="Acessório">★</span>' : ''}</td>
+            <td><span style="padding: 2px 6px; border-radius: 4px; background: #333; font-size: 0.8em;">${item.categoria}</span></td>
+            <td>${item.unidade}</td>
+            <td style="font-weight: bold; color: ${item.quantidade < 5 ? '#ef5350' : '#66bb6a'}">${item.quantidade}</td>
+            <td>R$ ${item.custo_unitario.toFixed(2)} ${item.price_group_id ? '<span title="Usa Grupo de Preço" style="cursor:help">🏷️</span>' : ''}</td>
+            <td style="color: #aaa; font-style: italic;">${item.site_origem || '-'}</td>
+            <td style="font-size: 0.8em; color: #888;">${item.last_update}</td>
+            <td>
+                <button onclick="editItem(${item.id})" style="background: none; border: none; cursor: pointer; color: #64b5f6; margin-right: 10px;" title="Editar">✏️</button>
+                <button onclick="rasparItemIndividual(${item.id}, '${item.nome}')" style="background: none; border: none; cursor: pointer; color: #29b6f6; margin-right: 10px;" title="Raspar este item">🔄</button>
+                <button onclick="deleteItem(${item.id})" style="background: none; border: none; cursor: pointer; color: #ef5350;" title="Excluir">🗑️</button>
+            </td>
+        `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // --- SCRAPING FEEDBACK LOGIC ---
+    let isScraping = false;
+    let stopRequested = false;
+
+    async function rasparEstoque() {
+        if (isScraping) return;
+
+        // Reset UI
+        document.getElementById('raspagemModal').style.display = 'flex';
+        document.getElementById('raspTitle').innerText = 'Atualizando Estoque...';
+        document.getElementById('raspProgressBar').style.width = '0%';
+        document.getElementById('raspStatusText').innerText = 'Preparando...';
+        document.getElementById('raspPercent').innerText = '0%';
+        const logEl = document.getElementById('raspLog');
+        logEl.innerHTML = '<div style="color: #888">Iniciando processo...</div>';
+
+        document.getElementById('raspBtnStop').style.display = 'inline-block';
+        document.getElementById('raspBtnStop').innerText = 'Parar';
+        document.getElementById('raspBtnStop').disabled = false;
+        document.getElementById('raspBtnClose').style.display = 'none';
+
+        isScraping = true;
+        stopRequested = false;
+
+        try {
+            // 1. Get IDs
+            addLog('Buscando itens configurados...');
+            const r = await fetch('/api/estoque/ids-para-raspar');
+            const data = await r.json();
+
+            if (!data.ids || data.ids.length === 0) {
+                addLog('Nenhum item configurado para raspagem (URLs ausentes).', 'orange');
+                finishRaspagem();
+                return;
+            }
+
+            const total = data.ids.length;
+            addLog(`Encontrados ${total} itens para atualizar.`);
+
+            let success = 0;
+            let errors = 0;
+
+            // 2. Loop
+            for (let i = 0; i < total; i++) {
+                if (stopRequested) {
+                    addLog('Processo interrompido pelo usuário.', 'orange');
+                    break;
+                }
+
+                const id = data.ids[i];
+                const pct = Math.round(((i) / total) * 100);
+                updateProgress(pct, `Processando item ${i + 1} de ${total}...`);
+
+                try {
+                    const res = await fetch('/api/estoque/raspar-individual', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ item_id: id })
+                    });
+                    const itemData = await res.json();
+
+                    if (itemData.success) {
+                        addLog(`[OK] ${itemData.item || 'Item ' + id} - R$ ${itemData.preco}`, '#66bb6a');
+                        success++;
+                    } else {
+                        addLog(`[ERRO] Item ${id}: ${itemData.error}`, '#ef5350');
+                        errors++;
+                    }
+                } catch (e) {
+                    addLog(`[FALHA] Erro de conexão no item ${id}`, '#ef5350');
+                    errors++;
+                }
+            }
+
+            updateProgress(100, 'Concluído');
+            addLog('--------------------------------');
+            addLog(`Finalizado: ${success} sucessos, ${errors} erros.`, 'white');
+
+        } catch (err) {
+            addLog(`Erro fatal: ${err.message}`, 'red');
+        } finally {
+            finishRaspagem();
+        }
+    }
+
+    function stopRaspagem() {
+        if (!isScraping) return;
+        stopRequested = true;
+        document.getElementById('raspBtnStop').innerText = 'Parando...';
+        document.getElementById('raspBtnStop').disabled = true;
+    }
+
+    function finishRaspagem() {
+        isScraping = false;
+        document.getElementById('raspBtnStop').style.display = 'none';
+        document.getElementById('raspBtnClose').style.display = 'inline-block';
+        document.getElementById('raspTitle').innerText = 'Processo Finalizado';
+        loadEstoque(); // Refresh table
+    }
+
+    function closeRaspagemModal() {
+        document.getElementById('raspagemModal').style.display = 'none';
+    }
+
+    function updateProgress(pct, text) {
+        document.getElementById('raspProgressBar').style.width = `${pct}%`;
+        document.getElementById('raspPercent').innerText = `${pct}%`;
+        if (text) document.getElementById('raspStatusText').innerText = text;
+    }
+
+    function addLog(msg, color = '#ccc') {
+        const logEl = document.getElementById('raspLog');
+        const line = document.createElement('div');
+        line.style.color = color;
+        line.innerText = `> ${msg}`;
+        logEl.appendChild(line);
+        logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // Maintain Individual Scraping but repurpose logs if needed or execute silently?
+    // User asked for feedback on individual scraping too.
+    // Let's use the SAME modal but in "single item mode".
+    function rasparItemIndividual(itemId, itemName) {
+        // Reset UI for single item
+        document.getElementById('raspagemModal').style.display = 'flex';
+        document.getElementById('raspTitle').innerText = `Atualizando: ${itemName}`;
+        document.getElementById('raspProgressBar').style.width = '0%';
+        document.getElementById('raspStatusText').innerText = 'Iniciando...';
+        document.getElementById('raspPercent').innerText = '0%';
+        const logEl = document.getElementById('raspLog');
+        logEl.innerHTML = ''; // clear
+
+        document.getElementById('raspBtnStop').style.display = 'none'; // No stop for single
+        document.getElementById('raspBtnClose').style.display = 'none';
+
+        addLog(`Conectando...`, '#29b6f6');
+        updateProgress(50, 'Processando...');
+
+        fetch('/api/estoque/raspar-individual', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_id: itemId })
+        })
+            .then(r => r.json())
+            .then(s => {
+                updateProgress(100, 'Finalizado');
+                document.getElementById('raspBtnClose').style.display = 'inline-block';
+
+                if (s.success) {
+                    addLog(`[SUCESSO] Preço: R$ ${s.preco}`, '#66bb6a');
+                    addLog(`Fonte: ${s.site}`);
+                    setTimeout(() => {
+                        closeRaspagemModal();
+                        loadEstoque();
+                    }, 1500); // Auto close on success after 1.5s
+                } else {
+                    addLog(`[ERRO] ${s.error}`, '#ef5350');
+                }
+            })
+            .catch(error => {
+                updateProgress(100, 'Erro');
+                document.getElementById('raspBtnClose').style.display = 'inline-block';
+                addLog(`[ERRO FATAL] ${error.message}`, 'red');
+            });
+    }
+
+    function filterTable() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = allItems.filter(i =>
+            i.nome.toLowerCase().includes(term) ||
+            i.categoria.toLowerCase().includes(term)
+        );
+        renderTable(filtered);
+    }
+
+    function openModal(item = null) {
+        document.getElementById('estoqueModal').style.display = 'flex';
+        if (item) {
+            document.getElementById('modalTitle').innerText = 'Editar Item';
+            document.getElementById('itemId').value = item.id;
+            document.getElementById('itemNome').value = item.nome;
+            document.getElementById('itemCategoria').value = item.categoria;
+            document.getElementById('itemUnidade').value = item.unidade;
+            document.getElementById('itemQtd').value = item.quantidade;
+            document.getElementById('itemCusto').value = item.custo_unitario;
+            document.getElementById('itemArea').value = item.area_unidade || '';
+            document.getElementById('itemSite').value = item.site_origem || '';
+            document.getElementById('itemIsAcessorio').checked = !!item.is_acessorio;
+            document.getElementById('itemUrlMadeiranit').value = item.url_madeiranit || '';
+            document.getElementById('itemUrlLeomadeiras').value = item.url_leomadeiras || '';
+            document.getElementById('itemUrlMadeverde').value = item.url_madeverde || '';
+
+            // Smart Price Strategy
+            document.getElementById('itemPriceStrategy').value = item.price_strategy || 'auto_max';
+            renderPriceChips(item);
+
+            // Set Group
+            updateItemModalSelect(); // Ensure options are loaded
+            document.getElementById('itemPriceGroup').value = item.price_group_id || '';
+        } else {
+            document.getElementById('modalTitle').innerText = 'Novo Item';
+            document.getElementById('itemId').value = '';
+            document.getElementById('itemNome').value = '';
+            document.getElementById('itemQtd').value = '';
+            document.getElementById('itemCusto').value = '';
+            document.getElementById('itemArea').value = '';
+            document.getElementById('itemSite').value = '';
+            document.getElementById('itemIsAcessorio').checked = false;
+            document.getElementById('itemUrlMadeiranit').value = '';
+            document.getElementById('itemUrlLeomadeiras').value = '';
+            document.getElementById('itemUrlMadeverde').value = '';
+
+            // Smart Price Defaults
+            document.getElementById('itemPriceStrategy').value = 'auto_max';
+            renderPriceChips({}); // Empty for new item
+
+            updateItemModalSelect();
+            document.getElementById('itemPriceGroup').value = '';
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('estoqueModal').style.display = 'none';
+    }
+
+    function editItem(id) {
+        const item = allItems.find(i => i.id === id);
+        if (item) openModal(item);
+    }
+
+    function saveItem() {
+        const id = document.getElementById('itemId').value;
+        const body = {
+            nome: document.getElementById('itemNome').value,
+            categoria: document.getElementById('itemCategoria').value,
+            unidade: document.getElementById('itemUnidade').value,
+            quantidade: parseFloat(document.getElementById('itemQtd').value) || 0,
+            custo_unitario: parseFloat(document.getElementById('itemCusto').value) || 0,
+            area_unidade: parseFloat(document.getElementById('itemArea').value) || 0,
+            site_origem: document.getElementById('itemSite').value,
+            is_acessorio: document.getElementById('itemIsAcessorio').checked,
+            url_madeiranit: document.getElementById('itemUrlMadeiranit').value,
+            url_leomadeiras: document.getElementById('itemUrlLeomadeiras').value,
+            url_madeverde: document.getElementById('itemUrlMadeverde').value,
+            price_group_id: document.getElementById('itemPriceGroup').value || null,
+            price_strategy: document.getElementById('itemPriceStrategy').value // SAVE STRATEGY
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/estoque/${id}` : '/api/estoque';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) {
+                closeModal();
+                // Refresh table
+                // Refresh table
+                loadEstoque();
+            }
+        });
+    }
+
+    // --- SMART PRICE SELECTION LOGIC ---
+    let currentItemPrices = {};
+
+    function renderPriceChips(item) {
+        const container = document.getElementById('priceChips');
+        container.innerHTML = '';
+        currentItemPrices = {
+            'madeiranit': item.preco_madeiranit,
+            'leomadeiras': item.preco_leomadeiras,
+            'madeverde': item.preco_madeverde
+        };
+
+        const strategies = [
+            { id: 'madeiranit', label: 'Madeiranit', val: item.preco_madeiranit },
+            { id: 'leomadeiras', label: 'Leo Madeiras', val: item.preco_leomadeiras },
+            { id: 'madeverde', label: 'Madeverde', val: item.preco_madeverde }
+        ];
+
+        // Find max price for "Best Price" badge
+        let maxVal = 0;
+        strategies.forEach(s => { if (s.val > maxVal) maxVal = s.val; });
+
+        let hasChips = false;
+        const currentStrategy = document.getElementById('itemPriceStrategy').value;
+
+        strategies.forEach(s => {
+            if (s.val != null && s.val > 0) {
+                hasChips = true;
+                const chip = document.createElement('div');
+                chip.className = `price-chip ${currentStrategy === s.id ? 'selected' : ''} ${s.val === maxVal ? 'best-price' : ''}`;
+                chip.onclick = () => selectPriceStrategy(s.id, s.val);
+                chip.innerHTML = `
+                    <span class="price-chip-label">${s.label}:</span>
+                    <span class="price-chip-value">R$ ${s.val.toFixed(2)}</span>
+                `;
+                container.appendChild(chip);
+            }
+        });
+
+        if (!hasChips) {
+            container.innerHTML = '<span style="color:#666; font-size: 0.8em; font-style:italic;">Nenhum preço raspado disponível.</span>';
+        }
+
+        updateManualBadge();
+    }
+
+    function selectPriceStrategy(strategy, value) {
+        document.getElementById('itemPriceStrategy').value = strategy;
+        document.getElementById('itemCusto').value = value.toFixed(2);
+
+        // Update UI styling
+        const chips = document.querySelectorAll('.price-chip');
+        chips.forEach(c => c.classList.remove('selected'));
+
+        // Find the chip that was clicked (dirty way but works)
+        // Better: re-render or just match text. 
+        // Re-rendering is safer to sync state.
+        // Let's just update class manually for speed
+        const strategies = ['madeiranit', 'leomadeiras', 'madeverde'];
+        if (strategies.includes(strategy)) {
+            // Re-render to ensure correct state styling
+            // We need to pass the "item" object again, but we only have local data.
+            // We can reconstruct a mock item or just toggle classes based on index/text
+            // For simplicity, let's just highlight the one clicked.
+            // Actually, since we generated chips based on the list, let's iterate logic again?
+            // No, let's just toggle classes based on matching the label/value
+            renderPriceChipsWithState(strategy);
+        }
+    }
+
+    // Helper to re-render without full item object rely
+    function renderPriceChipsWithState(activeStrategy) {
+        const container = document.getElementById('priceChips');
+        Array.from(container.children).forEach(chip => {
+            // Cheating a bit: check if innerHTML contains the label corresponding to strategy
+            // This is brittle. Let's rely on dataset in future. 
+            // For now, let's just re-use the global `currentItemPrices`
+
+            // Actually, simpler: verify if chip text matches. 
+            // Let's optimize: add data-strategy to chips in renderPriceChips
+        });
+
+        // Re-run render is safer if we persist `currentItemPrices`
+        // Modified renderPriceChips to utilize `currentFullItem` global? No.
+        // Let's just manually toggle classes for now based on DOM logic
+        const chips = container.children;
+        for (let i = 0; i < chips.length; i++) {
+            chips[i].classList.remove('selected');
+            if (chips[i].innerHTML.includes(getLabelForStrategy(activeStrategy))) {
+                chips[i].classList.add('selected');
+            }
+        }
+        updateManualBadge();
+    }
+
+    function getLabelForStrategy(s) {
+        if (s === 'madeiranit') return 'Madeiranit';
+        if (s === 'leomadeiras') return 'Leo Madeiras';
+        if (s === 'madeverde') return 'Madeverde';
+        return '';
+    }
+
+    function handleManualPriceInput() {
+        document.getElementById('itemPriceStrategy').value = 'manual';
+        // Deselect all chips
+        const chips = document.querySelectorAll('.price-chip');
+        chips.forEach(c => c.classList.remove('selected'));
+        updateManualBadge();
+    }
+
+    function resetToAutoPrice() {
+        // Find max price from currentItemPrices
+        let maxVal = 0;
+        let maxStrat = 'manual';
+
+        // We need to access the prices passed to renderPriceChips. 
+        // Let's use the global `currentItemPrices` variable populated in renderPriceChips
+        for (const [strat, val] of Object.entries(currentItemPrices)) {
+            if (val && val > maxVal) {
+                maxVal = val;
+                maxStrat = strat;
+            }
+        }
+
+        if (maxVal > 0) {
+            document.getElementById('itemPriceStrategy').value = 'auto_max';
+            // 'auto_max' visually selects the max chip
+            // But we store 'auto_max' in DB? Plan says values: 'auto_max' OR specific source.
+            // If strategy is 'auto_max', we should find the corresponding source for UI highlight.
+            // Let's set the value to maxVal
+            document.getElementById('itemCusto').value = maxVal.toFixed(2);
+
+            // Re-highlight the best chip
+            selectPriceStrategy('auto_max', maxVal); // This sets hidden input to auto_max? 
+            // Wait, calculate maxStrat again
+            document.getElementById('itemPriceStrategy').value = 'auto_max';
+
+            // Visual update
+            const container = document.getElementById('priceChips');
+            Array.from(container.children).forEach(chip => {
+                chip.classList.remove('selected');
+                if (chip.classList.contains('best-price')) {
+                    chip.classList.add('selected');
+                }
+            });
+        }
+        updateManualBadge();
+    }
+
+    function updateManualBadge() {
+        const strat = document.getElementById('itemPriceStrategy').value;
+        const badge = document.getElementById('manualBadge');
+        const btn = document.querySelector('button[onclick="resetToAutoPrice()"]');
+
+        if (strat === 'manual') {
+            badge.style.display = 'inline';
+            btn.style.display = 'block'; // Show reset button
+        } else {
+            badge.style.display = 'none';
+            // Only hide reset button if we are in auto mode? 
+            // logic: If user clicked a specific chip, it's not "manual" (typing), but it is "locked".
+            // Implementation Plan says: "Reset Button: Small button to revert to 'Auto (Max)' mode if manual mode is active."
+            // Let's show it if strategy != 'auto_max'
+            btn.style.display = strat === 'auto_max' ? 'none' : 'block';
+        }
+    }
+
+
+
+    function autoFillArea(cat) {
+        const areaInput = document.getElementById('itemArea');
+        // Apenas preenche se estiver vazio ou se for um novo item (id vazio)
+        const isNew = document.getElementById('itemId').value === '';
+
+        if (isNew || areaInput.value === '' || areaInput.value === '0') {
+            if (cat === 'MDF') areaInput.value = '5.06';
+            else if (cat === 'Compensado') areaInput.value = '4.00';
+            else if (cat === 'Fórmica') areaInput.value = '3.12';
+            else if (cat === 'Vidro' || cat === 'Espelho') areaInput.value = '0';
+        }
+    }
+
+    function deleteItem(id) {
+        if (!confirm('Tem certeza?')) return;
+        fetch(`/api/estoque/${id}`, { method: 'DELETE' })
+            .then(r => r.json()).then(res => {
+                loadEstoque();
+            });
+    }
+</script>
+{% endblock %}

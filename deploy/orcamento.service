@@ -1,0 +1,13 @@
+[Unit]
+Description=Orcamento Flask App
+After=network.target
+
+[Service]
+User=fernando
+WorkingDirectory=/home/fernando/orcamento
+Environment="PATH=/home/fernando/orcamento/venv/bin"
+ExecStart=/home/fernando/orcamento/venv/bin/gunicorn --workers 2 --bind 0.0.0.0:5000 run:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

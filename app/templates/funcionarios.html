@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
+<style>
+    .holerite-modal {
+        max-width: 500px !important;
+    }
+
+    .holerite-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        border-bottom: 1px dashed var(--border-color);
+    }
+
+    .holerite-total {
+        margin-top: 15px;
+        padding-top: 10px;
+        border-top: 2px solid var(--border-color);
+        font-weight: bold;
+        font-size: 1.2em;
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="clientes-container">
+    <div class="flex-between mb-20">
+        <div>
+            <h1 style="margin:0;">Funcionários & RH</h1>
+        </div>
+        <div class="flex gap-10">
+            <button class="btn btn-secondary" onclick="openImportModal()">📂 Importar Ponto (XLS)</button>
+            <button class="btn btn-primary" onclick="openModal()">+ Novo Funcionário</button>
+        </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Cargo</th>
+                    <th>Salário Base</th>
+                    <th>INSS %</th>
+                    <th>FGTS %</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="listaFuncionarios">
+                <!-- JS Preenche -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Cadastro -->
+    <div id="funcModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Novo Funcionário</h2>
+            <form id="funcForm" onsubmit="saveFunc(event)">
+                <input type="hidden" id="funcId">
+
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="nome" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Cargo</label>
+                    <input type="text" id="cargo" required>
+                </div>
+
+                <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Salário Base (R$)</label>
+                        <input type="number" step="0.01" id="salario_base" required>
+                    </div>
+                    <div class="form-group">
+                        <label>INSS (%)</label>
+                        <input type="number" step="0.01" id="inss_percent" value="0.11" placeholder="0.11">
+                    </div>
+                    <div class="form-group">
+                        <label>FGTS (%)</label>
+                        <input type="number" step="0.01" id="fgts_percent" value="0.08" placeholder="0.08">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nome no Ponto (XLS)</label>
+                    <input type="text" id="nome_ponto" placeholder="Ex: FELIPE">
+                    <small>Nome exato como aparece no arquivo de ponto</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Descontos Fixos (JSON)</label>
+                    <textarea id="descontos_json" rows="3" placeholder='[{"tipo": "vale", "valor": 100}]'>[]</textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Importação Ponto -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <h2>Importar Arquivo de Ponto</h2>
+            <p>Selecione o arquivo XLS exportado do relógio.</p>
+            <input type="file" id="pontoFile" accept=".xls,.xlsx">
+
+            <div id="importLog"
+                style="margin-top:10px; max-height: 100px; overflow-y: auto; background: #eee; padding: 5px; display: none; font-size: 0.8em;">
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-secondary"
+                    onclick="document.getElementById('importModal').classList.remove('show')">Fechar</button>
+                <button class="btn btn-primary" onclick="uploadPonto()">Processar Arquivo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Espelho de Ponto -->
+    <div id="pontoModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="flex-between">
+                <h2>Espelho de Ponto</h2>
+                <input type="month" id="pontoMes" onchange="loadPontoRecords()" style="width: auto;">
+            </div>
+            <h4 id="pontoFuncNome" style="margin-top: 5px; color: #666;"></h4>
+
+            <div style="max-height: 400px; overflow-y: auto; margin-top: 15px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+                    <thead style="background: #f0f0f0; position: sticky; top: 0;">
+                        <tr>
+                            <th style="padding: 5px;">Data</th>
+                            <th style="padding: 5px;">Ent 1</th>
+                            <th style="padding: 5px;">Sai 1</th>
+                            <th style="padding: 5px;">Ent 2</th>
+                            <th style="padding: 5px;">Sai 2</th>
+                            <th style="padding: 5px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pontoBody"></tbody>
+                </table>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-secondary"
+                    onclick="document.getElementById('pontoModal').classList.remove('show')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Vale -->
+    <div id="valeModal" class="modal">
+        <div class="modal-content">
+            <h2>Lançar Vale / Adiantamento</h2>
+            <h4 id="valeFuncNome" style="margin-top: 5px; color: #666;"></h4>
+            <form onsubmit="saveVale(event)">
+                <input type="hidden" id="valeFuncId">
+
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" step="0.01" id="valeValor" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" id="valeData" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <input type="text" id="valeDesc" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="document.getElementById('valeModal').classList.remove('show')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Lançar no Financeiro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Holerite -->
+    <div id="holeriteModal" class="modal">
+        <div class="modal-content holerite-modal">
+            <div class="flex-between">
+                <h2>Prévia de Holerite</h2>
+                <input type="month" id="holeriteMes" onchange="recalcHolerite()" style="width: auto;">
+            </div>
+
+            <div id="holeriteContent">
+                <!-- JS Preenche -->
+            </div>
+            <div class="form-actions" style="margin-top: 20px;">
+                <button type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('holeriteModal').style.display='none'">Fechar</button>
+                <button type="button" class="btn btn-primary" onclick="printHolerite()">Imprimir Oficial</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let funcionarios = [];
+    let currentFuncIdPonto = null;
+
+    function loadFuncionarios() {
+        fetch('/api/funcionarios')
+            .then(r => r.json())
+            .then(data => {
+                funcionarios = data;
+                renderTable(data);
+            });
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('listaFuncionarios');
+        tbody.innerHTML = '';
+        data.forEach(f => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${f.nome} <br><small style="color:#aaa;">${f.nome_ponto || ''}</small></td>
+                <td>${f.cargo || '-'}</td>
+                <td>R$ ${parseFloat(f.salario_base).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                <td>${(f.inss_percent * 100).toFixed(1)}%</td>
+                <td>${(f.fgts_percent * 100).toFixed(1)}%</td>
+                <td style="text-align: center;">
+                    <button class="action-btn" onclick="openValeModal(${f.id}, '${f.nome}')" title="Lançar Vale" style="color: #e67e22;">💸</button>
+                    <button class="action-btn" onclick="openPontoModal(${f.id}, '${f.nome}')" title="Espelho de Ponto">🕒</button>
+                    <button class="action-btn" onclick="openModal(${f.id})" title="Editar">✏️</button>
+                    <button class="action-btn" onclick="showHolerite(${f.id})" title="Calcular Holerite">💰</button>
+                    <button class="action-btn" onclick="deleteFunc(${f.id})" title="Excluir" style="color: var(--danger-color);">🗑️</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // --- Vales ---
+    function openValeModal(id, nome) {
+        document.getElementById('valeFuncId').value = id;
+        document.getElementById('valeFuncNome').textContent = nome;
+        document.getElementById('valeValor').value = '';
+        document.getElementById('valeData').value = new Date().toISOString().split('T')[0];
+        document.getElementById('valeDesc').value = `Vale - ${nome}`;
+        document.getElementById('valeModal').classList.add('show');
+    }
+
+    function saveVale(e) {
+        e.preventDefault();
+        const data = {
+            tipo: 'pagar',
+            categoria: 'vale_funcionario',
+            funcionario_id: document.getElementById('valeFuncId').value,
+            valor: parseFloat(document.getElementById('valeValor').value),
+            vencimento: document.getElementById('valeData').value,
+            descricao: document.getElementById('valeDesc').value,
+            status: 'pago' // Vales usually given immediately
+        };
+
+        fetch('/api/financeiro/contas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    alert("Vale lançado no financeiro!");
+                    document.getElementById('valeModal').classList.remove('show');
+                } else {
+                    alert("Erro: " + (res.error || 'Desconhecido'));
+                }
+            });
+    }
+
+    function openModal(id = null) {
+        const modal = document.getElementById('funcModal');
+        const form = document.getElementById('funcForm');
+        form.reset();
+        document.getElementById('funcId').value = '';
+
+        if (id) {
+            const f = funcionarios.find(x => x.id === id);
+            if (f) {
+                document.getElementById('funcId').value = f.id;
+                document.getElementById('nome').value = f.nome;
+                document.getElementById('cargo').value = f.cargo;
+                document.getElementById('salario_base').value = f.salario_base;
+                document.getElementById('inss_percent').value = f.inss_percent || 0.11;
+                document.getElementById('fgts_percent').value = f.fgts_percent || 0.08;
+                document.getElementById('descontos_json').value = f.descontos_json || '[]';
+                document.getElementById('nome_ponto').value = f.nome_ponto || '';
+                document.getElementById('modalTitle').textContent = 'Editar Funcionário';
+            }
+        } else {
+            document.getElementById('modalTitle').textContent = 'Novo Funcionário';
+        }
+        modal.classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('funcModal').classList.remove('show');
+    }
+
+    function saveFunc(e) {
+        e.preventDefault();
+        const id = document.getElementById('funcId').value;
+        const data = {
+            nome: document.getElementById('nome').value,
+            cargo: document.getElementById('cargo').value,
+            salario_base: parseFloat(document.getElementById('salario_base').value),
+            inss_percent: parseFloat(document.getElementById('inss_percent').value),
+            fgts_percent: parseFloat(document.getElementById('fgts_percent').value),
+            descontos_json: JSON.parse(document.getElementById('descontos_json').value || '[]'),
+            nome_ponto: document.getElementById('nome_ponto').value
+        };
+
+        const url = id ? `/api/funcionarios/${id}` : '/api/funcionarios';
+        const method = id ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(r => r.json()).then(res => {
+            if (res.success) {
+                closeModal();
+                loadFuncionarios();
+            } else {
+                alert('Erro ao salvar');
+            }
+        });
+    }
+
+    function deleteFunc(id) {
+        if (!confirm('Deseja excluir?')) return;
+        fetch(`/api/funcionarios/${id}`, { method: 'DELETE' })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) loadFuncionarios();
+            });
+    }
+
+    // --- Importação Ponto ---
+    function openImportModal() {
+        document.getElementById('importModal').classList.add('show');
+        document.getElementById('importLog').style.display = 'none';
+        document.getElementById('importLog').innerHTML = '';
+    }
+
+    function uploadPonto() {
+        const fileInput = document.getElementById('pontoFile');
+        if (!fileInput.files[0]) return alert("Selecione um arquivo");
+
+        const fd = new FormData();
+        fd.append('file', fileInput.files[0]);
+
+        fetch('/api/ponto/upload', {
+            method: 'POST',
+            body: fd
+        })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    document.getElementById('importLog').style.display = 'block';
+                    document.getElementById('importLog').innerHTML = "<b>Importado com sucesso!</b><br>" + res.logs.join('<br>');
+                    loadFuncionarios(); // Refresh to see matched names
+                } else {
+                    alert("Erro: " + res.error);
+                }
+            })
+            .catch(err => alert("Erro requisição: " + err));
+    }
+
+    // --- Visualizar Ponto ---
+    function openPontoModal(id, nome) {
+        currentFuncIdPonto = id;
+        document.getElementById('pontoFuncNome').textContent = nome;
+
+        // Set default month to current
+        const now = new Date();
+        const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        document.getElementById('pontoMes').value = monthStr;
+
+        document.getElementById('pontoModal').classList.add('show');
+        loadPontoRecords();
+    }
+
+    function loadPontoRecords() {
+        if (!currentFuncIdPonto) return;
+        const mes = document.getElementById('pontoMes').value;
+
+        fetch(`/api/ponto/registros?funcionario_id=${currentFuncIdPonto}&month=${mes}`)
+            .then(r => r.json())
+            .then(data => {
+                const tbody = document.getElementById('pontoBody');
+                tbody.innerHTML = '';
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:10px;">Nenhum registro encontrado neste mês.</td></tr>';
+                    return;
+                }
+
+                data.forEach(r => {
+                    const d = new Date(r.data + 'T12:00:00'); // Safe parse
+                    const dia = d.getDate();
+                    const semana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'][d.getDay()];
+
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid #eee';
+                    tr.innerHTML = `
+                    <td style="padding:5px;"><b>${dia}</b> <small>${semana}</small></td>
+                    <td style="padding:5px; color: green;">${r.entrada_1 || '-'}</td>
+                    <td style="padding:5px; color: orange;">${r.saida_1 || '-'}</td>
+                    <td style="padding:5px; color: green;">${r.entrada_2 || '-'}</td>
+                    <td style="padding:5px; color: orange;">${r.saida_2 || '-'}</td>
+                    <td style="padding:5px;">${r.status || ''}</td>
+                 `;
+                    tbody.appendChild(tr);
+                });
+            });
+    }
+
+    function showHolerite(id) {
+        currentFuncIdHolerite = id;
+
+        // Set default month to current if not set
+        if (!document.getElementById('holeriteMes').value) {
+            const now = new Date();
+            const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('holeriteMes').value = monthStr;
+        }
+
+        recalcHolerite();
+        document.getElementById('holeriteModal').style.display = 'flex';
+    }
+
+    function recalcHolerite() {
+        if (!currentFuncIdHolerite) return;
+
+        const mes = document.getElementById('holeriteMes').value;
+        const dataRef = mes + '-01'; // First day of month for ref
+
+        fetch(`/api/holerite/${currentFuncIdHolerite}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: dataRef })
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) return alert(data.error);
+
+                const html = `
+                    <div style="text-align:center; margin-bottom:10px; font-weight:bold;">
+                        ${data.funcionario} - ${data.referencia}
+                    </div>
+                    <div class="holerite-item">
+                        <span>Salário Base</span>
+                        <span>R$ ${data.salario_base.toFixed(2)}</span>
+                    </div>
+                    <div class="holerite-item" style="color: var(--danger-color);">
+                        <span>INSS</span>
+                        <span>- R$ ${data.inss_val.toFixed(2)}</span>
+                    </div>
+                    ${data.vales_val > 0 ? `
+                    <div class="holerite-item" style="color: var(--danger-color);">
+                        <span>Adiantamentos (Vales)</span>
+                        <span>- R$ ${data.vales_val.toFixed(2)}</span>
+                    </div>` : ''}
+                    ${data.outros_descontos.map(d => `
+                        <div class="holerite-item" style="color: var(--danger-color);">
+                            <span>${d.tipo}</span>
+                            <span>- R$ ${d.valor.toFixed(2)}</span>
+                        </div>
+                    `).join('')}
+                    <div class="holerite-item" style="color: var(--info-color); border-bottom: none;">
+                        <span>FGTS (Provisão)</span>
+                        <span>(R$ ${data.fgts_val.toFixed(2)})</span>
+                    </div>
+                    <div class="holerite-total">
+                        <span>Líquido a Receber</span>
+                        <span style="color: var(--success-color);">R$ ${data.liquido.toFixed(2)}</span>
+                    </div>
+                `;
+                document.getElementById('holeriteContent').innerHTML = html;
+            });
+    }
+
+    function printHolerite() {
+        if (!currentFuncIdHolerite) return;
+        const mes = document.getElementById('holeriteMes').value;
+        window.open(`/holerite/print/${currentFuncIdHolerite}?mes=${mes}`, '_blank');
+    }
+
+    // Load on start
+    loadFuncionarios();
+
+</script>
+{% endblock %}

@@ -1,0 +1,84 @@
+{
+  "description": "API Schema for Adore Móveis Management System. Use these endpoints to interact with the database.",
+  "base_url": "http://localhost:5000/api",
+  "endpoints": {
+    "orcamentos": {
+      "list": {
+        "method": "GET",
+        "path": "/orcamentos",
+        "description": "List all budgets. Use ?show_all=true to see invoiced ones."
+      },
+      "create": {
+        "method": "POST",
+        "path": "/orcamentos",
+        "body": {
+          "client_id": "integer",
+          "client": "string (name)",
+          "itens": "array of objects",
+          "total": "float",
+          "total_horas_mo": "float"
+        }
+      },
+      "get": {
+        "method": "GET",
+        "path": "/orcamentos/<id>"
+      }
+    },
+    "estoque": {
+      "list": {
+        "method": "GET",
+        "path": "/estoque",
+        "description": "List all stock items."
+      },
+      "check": {
+        "method": "GET",
+        "path": "/estoque/check/<nome>",
+        "description": "Check availability of a specific item by name."
+      },
+      "create": {
+        "method": "POST",
+        "path": "/estoque",
+        "body": {
+          "nome": "string",
+          "categoria": "string",
+          "quantidade": "float",
+          "custo_unitario": "float"
+        }
+      }
+    },
+    "clientes": {
+      "list": {
+        "method": "GET",
+        "path": "/clientes"
+      },
+      "create": {
+        "method": "POST",
+        "path": "/clientes",
+        "body": {
+          "nome": "string",
+          "telefone": "string",
+          "email": "string"
+        }
+      }
+    },
+    "funcionarios": {
+      "list": {
+        "method": "GET",
+        "path": "/funcionarios"
+      },
+      "holerite": {
+        "method": "POST",
+        "path": "/holerite/<id>",
+        "description": "Calculate payroll (holerite) for an employee."
+      }
+    },
+    "financeiro": {
+      "list_contas": {
+        "method": "GET",
+        "path": "/contas",
+        "description": "List bills/invoices. Use ?tipo=pagar or ?tipo=receber."
+      }
+    }
+  },
+  "notes": "All POST/PUT requests require Content-Type: application/json. Authentication is via JWT in cookies."
+}

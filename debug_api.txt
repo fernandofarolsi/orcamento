@@ -1,0 +1,841 @@
+
+[2026-02-10 18:06:21.408118] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A06%3A20.056357Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1199, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A06%3A20.056357Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-10 18:07:36.671754] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A07%3A35.633529Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1199, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A07%3A35.633529Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-10 18:27:37.327856] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A27%3A36.606154Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1199, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A27%3A36.606154Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-10 18:29:41.028181] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A29%3A40.230401Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1202, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A29%3A40.230401Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-10 18:29:41.031272] CRITICAL API ERROR:
+no such column: data_vencimento
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1264, in api_calendar_events
+    contas = db.execute('SELECT id, descricao, valor, tipo, data_vencimento, status FROM contas WHERE status="pendente"').fetchall()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: data_vencimento
+
+[2026-02-10 18:37:12.512846] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A37%3A11.774095Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1202, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A37%3A11.774095Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-10 18:37:12.514954] CRITICAL API ERROR:
+no such column: data_vencimento
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1264, in api_calendar_events
+    contas = db.execute('SELECT id, descricao, valor, tipo, data_vencimento, status FROM contas WHERE status="pendente"').fetchall()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: data_vencimento
+
+[2026-02-10 18:38:04.394652] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A38%3A03.601924Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1202, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A38%3A03.601924Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-10 18:38:21.830294] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A38%3A21.020198Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1202, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A38%3A21.020198Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-10 18:38:45.452870] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A38%3A44.738160Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1202, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-11T22%3A38%3A44.738160Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-10 23:42:21.148758] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T03%3A42%3A20.512466Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1202, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T03%3A42%3A20.512466Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-10 23:44:53.517121] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T03%3A44%3A52.920067Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1202, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T03%3A44%3A52.920067Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-10 23:45:06.246814] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T03%3A45%3A05.606794Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1202, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T03%3A45%3A05.606794Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 00:26:35.017230] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T04%3A26%3A34.301295Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1205, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T04%3A26%3A34.301295Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 00:34:04.141193] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T04%3A34%3A03.423832Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1205, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T04%3A34%3A03.423832Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 08:03:57.305314] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T12%3A03%3A56.229667Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1219, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T12%3A03%3A56.229667Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 08:16:46.655028] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T12%3A16%3A45.814274Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1219, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T12%3A16%3A45.814274Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 09:40:37.584973] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T13%3A40%3A36.426611Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1260, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T13%3A40%3A36.426611Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 09:54:05.033516] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T13%3A54%3A04.362117Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1260, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T13%3A54%3A04.362117Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 10:05:18.521310] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T14%3A05%3A17.809091Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1260, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T14%3A05%3A17.809091Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 14:39:37.032979] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T18%3A39%3A36.154970Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1260, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T18%3A39%3A36.154970Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 14:39:38.814763] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T18%3A39%3A38.028357Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1260, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T18%3A39%3A38.028357Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 16:03:45.564964] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T20%3A03%3A44.453212Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1260, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T20%3A03%3A44.453212Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 16:39:44.941410] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T20%3A39%3A44.231922Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1301, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T20%3A39%3A44.231922Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-11 16:45:43.425124] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T20%3A45%3A42.782412Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1301, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-12T20%3A45%3A42.782412Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-12 15:49:27.520440] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-13T19%3A49%3A26.607490Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1373, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-13T19%3A49%3A26.607490Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-12 16:55:45.749856] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-13T20%3A55%3A44.699431Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1373, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-13T20%3A55%3A44.699431Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 08:21:47.362461] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T12%3A21%3A46.297225Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1619, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T12%3A21%3A46.297225Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 10:40:17.587975] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A40%3A16.706937Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1763, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A40%3A16.706937Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 10:40:20.715695] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A40%3A19.954516Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1763, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A40%3A19.954516Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 10:40:23.344292] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A40%3A22.666730Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1763, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A40%3A22.666730Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 10:42:05.503830] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A42%3A04.804003Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1763, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A42%3A04.804003Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 10:43:45.959569] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A43%3A45.200175Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1763, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A43%3A45.200175Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 10:46:37.476951] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A46%3A36.516649Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1763, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A46%3A36.516649Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 10:49:56.237645] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A49%3A55.249539Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1763, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A49%3A55.249539Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 10:56:03.546209] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A56%3A02.550953Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1763, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T14%3A56%3A02.550953Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 14:17:34.821395] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T18%3A17%3A34.141426Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1763, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T18%3A17%3A34.141426Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 14:39:57.996448] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T18%3A39%3A57.171296Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1832, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T18%3A39%3A57.171296Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:13:40.309242] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A13%3A39.439528Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1891, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A13%3A39.439528Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:13:47.779116] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A13%3A46.781840Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1891, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A13%3A46.781840Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:23:26.035138] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A23%3A25.256971Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A23%3A25.256971Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:23:53.785583] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A23%3A53.140557Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A23%3A53.140557Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:23:55.941220] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A23%3A55.320674Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A23%3A55.320674Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:23:58.086538] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A23%3A57.409800Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A23%3A57.409800Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:00.341144] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A23%3A59.670261Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A23%3A59.670261Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:02.899127] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A02.250532Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A02.250532Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:06.688262] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A06.000100Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A06.000100Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:09.452567] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A08.664566Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A08.664566Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:14.782618] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A13.999907Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A13.999907Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:17.951480] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A17.250146Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A17.250146Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:21.412825] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A20.715756Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A20.715756Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:24.916475] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A24.168962Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A24.168962Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:27.986708] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A27.225681Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A27.225681Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:30.956680] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A30.183092Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A30.183092Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:33.627873] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A32.939472Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A32.939472Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:24:36.179839] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A35.458400Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1927, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A24%3A35.458400Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:53:23.491024] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A53%3A22.869932Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1938, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A53%3A22.869932Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-13 15:54:20.724131] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A54%3A20.095518Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1938, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-14T19%3A54%3A20.095518Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-14 17:59:13.070163] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-15T21%3A59%3A12.282952Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1979, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-15T21%3A59%3A12.282952Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-14 18:02:47.226966] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-15T22%3A02%3A46.405315Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1979, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-15T22%3A02%3A46.405315Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+
+[2026-02-14 18:02:51.433415] Google Calendar Error:
+<HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-15T22%3A02%3A50.618309Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">
+HINT: Verify if the Service Account is added to the Calendar settings (Share with specific people).
+Traceback (most recent call last):
+  File "/home/fernando/Área de trabalho/Orcamento/app.py", line 1979, in api_calendar_events
+    orderBy='startTime').execute()
+                         ^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fernando/Área de trabalho/Orcamento/.venv/lib/python3.12/site-packages/googleapiclient/http.py", line 938, in execute
+    raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 404 when requesting https://www.googleapis.com/calendar/v3/calendars/ffdffc49c4127e4c3abffb421202eab6ff3f392866e60b532ad5bea2dc5232e4%40group.calendar.google.com/events?timeMin=2026-01-15T22%3A02%3A50.618309Z&maxResults=50&singleEvents=true&orderBy=startTime&alt=json returned "Not Found". Details: "[{'domain': 'global', 'reason': 'notFound', 'message': 'Not Found'}]">

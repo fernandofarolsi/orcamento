@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
+{% endblock %}
+
+{% block content %}
+<h1>Visão Geral</h1>
+
+<!-- KPI CARDS -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <h3>Faturamento Total</h3>
+        <p id="kpiFat" class="value">R$ ...</p>
+    </div>
+    <div class="kpi-card">
+        <h3>Orçamentos</h3>
+        <p id="kpiOrc" class="value">.../...</p>
+        <small id="kpiOrcTaxa">Taxa: ...%</small>
+    </div>
+    <div class="kpi-card" style="border-left: 4px solid #ef5350;">
+        <h3>Estoque Crítico</h3>
+        <p id="kpiEst" class="value" style="color:#ef5350">...</p>
+        <small>Itens com < 10un</small>
+    </div>
+    <div class="kpi-card">
+        <h3>Clientes Ativos</h3>
+        <p id="kpiCli" class="value">...</p>
+    </div>
+    <div class="kpi-card" style="border-left: 4px solid #ffa726;">
+        <h3>Contas Vencidas</h3>
+        <p id="kpiVenc" class="value" style="color:#ffa726">R$ ...</p>
+    </div>
+    <div class="kpi-card" style="border-left: 4px solid #66bb6a;">
+        <h3>Margem Média Projetos</h3>
+        <p id="kpiMargem" class="value" style="color:#66bb6a">...%</p>
+        <small id="kpiMargemLegenda">Meta Base (Valci)</small>
+    </div>
+</div>
+
+<!-- CHARTS -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <h3>Histórico de Faturamento (30d)</h3>
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="chartFat"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Estoque por Categoria</h3>
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="chartEst"></canvas>
+        </div>
+    </div>
+</div>
+</div>
+
+<style>
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .kpi-card {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .kpi-card h3 {
+        margin: 0 0 10px 0;
+        font-size: 1rem;
+        color: #aaa;
+    }
+
+    .kpi-card .value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+    }
+
+    .chart-card {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 8px;
+        min-height: 300px;
+    }
+
+    @media (max-width: 768px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+
+    fetch('/api/kpis').then(r => r.json()).then(data => {
+        // Fill KPIs
+        document.getElementById('kpiFat').innerText = `R$ ${(data.faturamento_mes || 0).toFixed(2)}`;
+        document.getElementById('kpiOrc').innerText = data.orcamentos_total;
+        document.getElementById('kpiEst').innerText = data.estoque_critico;
+        document.getElementById('kpiCli').innerText = data.clientes_novos;
+        document.getElementById('kpiVenc').innerText = `R$ ${(data.contas_vencidas || 0).toFixed(2)}`;
+        document.getElementById('kpiMargem').innerText = `${data.margem_projetos.toFixed(1)}%`;
+
+        // Render Charts (if data exists)
+        if (data.charts) {
+            new Chart(document.getElementById('chartFat'), {
+                type: 'line',
+                data: {
+                    labels: data.charts.fat_labels,
+                    datasets: [{
+                        label: 'Recebimentos',
+                        data: data.charts.fat_data,
+                        borderColor: '#29b6f6',
+                        tension: 0.1
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            new Chart(document.getElementById('chartEst'), {
+                type: 'bar',
+                data: {
+                    labels: data.charts.est_labels,
+                    datasets: [{
+                        label: 'Qtd Itens',
+                        data: data.charts.est_data,
+                        backgroundColor: ['#66bb6a', '#ffa726', '#ef5350', '#ab47bc', '#29b6f6']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+    });
+</script>
+{% endblock %}
