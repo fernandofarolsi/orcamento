@@ -10,3 +10,4 @@ git pull
 sudo systemctl restart orcamento
 
 echo "Atualizado com sucesso!"
+
