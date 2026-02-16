@@ -142,6 +142,13 @@ CREATE TABLE IF NOT EXISTS catalogo_insumos (
     FOREIGN KEY(catalogo_id) REFERENCES itens_catalogo(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS custos_fixos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    descricao TEXT NOT NULL,
+    valor REAL NOT NULL,
+    categoria TEXT
+);
+
 -- Seed Initial Data if tables are empty
 INSERT OR IGNORE INTO config_fabrica (id, margem_lucro, margem_negociacao, margem_impostos) VALUES (1, 0.35, 0.10, 0.05);
 
