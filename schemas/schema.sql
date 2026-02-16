@@ -82,6 +82,8 @@ CREATE TABLE IF NOT EXISTS orcamentos (
     itens_json TEXT NOT NULL, -- JSON array of items in this budget
     total REAL NOT NULL,
     status TEXT DEFAULT 'pendente',
+    prazo_entrega DATE,
+    data_instalacao DATE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(client_id) REFERENCES clientes(id)
 );
