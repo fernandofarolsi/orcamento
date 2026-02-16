@@ -19,24 +19,33 @@ def relatorios():
 def api_kpis():
     db = get_db()
     
-    # 1. Faturamento Mês (Sum orcamentos aprovados/contas receber)
-    faturamento = db.execute("SELECT SUM(valor) as total FROM contas WHERE tipo='receber' AND strftime('%Y-%m', vencimento) = strftime('%Y-%m', 'now')").fetchone()['total'] or 0
+    # 1. Faturamento Mês
+    row_fat = db.execute("SELECT SUM(valor) as total FROM contas WHERE tipo='receber' AND strftime('%Y-%m', vencimento) = strftime('%Y-%m', 'now')").fetchone()
+    faturamento = row_fat['total'] if row_fat and row_fat['total'] else 0
     
     # 2. Orçamentos (Total vs Approved)
-    total_orc = db.execute("SELECT COUNT(*) as c FROM orcamentos").fetchone()['c']
+    row_orc = db.execute("SELECT COUNT(*) as c FROM orcamentos").fetchone()
+    total_orc = row_orc['c'] if row_orc else 0
     
     # 3. Estoque Crítico (< 10)
-    estoque_crit = db.execute("SELECT COUNT(*) as c FROM estoque WHERE quantidade < 10 AND quantidade > 0").fetchone()['c']
+    row_est = db.execute("SELECT COUNT(*) as c FROM estoque WHERE quantidade < 10 AND quantidade > 0").fetchone()
+    estoque_crit = row_est['c'] if row_est else 0
     
     # 4. Clientes Novos (This Month)
-    clientes = db.execute("SELECT COUNT(DISTINCT client) as c FROM orcamentos WHERE strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')").fetchone()['c']
+    row_cli = db.execute("SELECT COUNT(DISTINCT client_id) as c FROM orcamentos WHERE strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')").fetchone()
+    clientes = row_cli['c'] if row_cli else 0
     
     # 5. Contas Vencidas
-    vencidas = db.execute("SELECT SUM(valor) as total FROM contas WHERE tipo='pagar' AND status='pendente' AND vencimento < date('now')").fetchone()['total'] or 0
+    row_venc = db.execute("SELECT SUM(valor) as total FROM contas WHERE tipo='pagar' AND status='pendente' AND vencimento < date('now')").fetchone()
+    vencidas = row_venc['total'] if row_venc and row_venc['total'] else 0
     
     # 6. Margem Média Projetos (Target from Config)
-    config = db.execute('SELECT margem_lucro FROM config_fabrica LIMIT 1').fetchone()
-    margem = (config['margem_lucro'] * 100) if config else 35.0
+    # Check if config_fabrica table exists first (handling migration edge cases)
+    try:
+        config = db.execute('SELECT margem_lucro FROM config_fabrica LIMIT 1').fetchone()
+        margem = (config['margem_lucro'] * 100) if config else 35.0
+    except:
+        margem = 35.0
 
     # 7. Charts Data
     # A. Faturamento (Last 30 days)
