@@ -25,13 +25,3 @@ CREATE TABLE IF NOT EXISTS contas (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Dados Demo Funcionários
-INSERT INTO funcionarios (nome, cargo, salario_base) VALUES 
-('José Silva', 'Marceneiro Chefe', 3500.00),
-('Maria Souza', 'Auxiliar Acabamento', 1800.00);
-
--- Dados Demo Contas
-INSERT INTO contas (tipo, descricao, valor, vencimento, status, categoria) VALUES
-('pagar', 'Fornecedor MDF (Chapas)', 1200.00, DATE('now', '+5 days'), 'pendente', 'material'),
-('pagar', 'Energia Elétrica', 450.00, DATE('now', '+10 days'), 'pendente', 'fixo'),
-('receber', 'Entrada Cozinha Sr. João', 5000.00, DATE('now', '-2 days'), 'pago', 'venda_orcamento');

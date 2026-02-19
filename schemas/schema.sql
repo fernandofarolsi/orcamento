@@ -149,11 +149,34 @@ CREATE TABLE IF NOT EXISTS custos_fixos (
     categoria TEXT
 );
 
+CREATE TABLE IF NOT EXISTS budget_tiers (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    order_index INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS tier_rules (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tier_id INTEGER NOT NULL,
+    category TEXT NOT NULL,
+    item_id INTEGER,
+    price_modifier REAL DEFAULT 1.0,
+    FOREIGN KEY(tier_id) REFERENCES budget_tiers(id),
+    FOREIGN KEY(item_id) REFERENCES estoque(id)
+);
+
+CREATE TABLE IF NOT EXISTS funcionario_periodos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    funcionario_id INTEGER NOT NULL,
+    data_contratacao DATE NOT NULL,
+    data_demissao DATE,
+    motivo_saida TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(funcionario_id) REFERENCES funcionarios(id) ON DELETE CASCADE
+);
+
 -- Seed Initial Data if tables are empty
 INSERT OR IGNORE INTO config_fabrica (id, margem_lucro, margem_negociacao, margem_impostos) VALUES (1, 0.35, 0.10, 0.05);
 
-INSERT OR IGNORE INTO estoque (nome, categoria, unidade, quantidade, custo_unitario) VALUES
-('MDF Branco Tx 15mm', 'MDF', 'Chapa', 10, 250.00),
-('MDF Amadeirado 15mm', 'MDF', 'Chapa', 5, 320.00),
-('Corrediça Telescópica 45cm', 'Ferragem', 'Par', 50, 15.00),
-('Dobradiça Curva 35mm', 'Ferragem', 'Unidade', 100, 3.50);
+

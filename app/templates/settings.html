@@ -100,6 +100,19 @@
             👥 Gerenciar
         </button>
     </div>
+
+    <!-- CAMILA CONFIG (CARD SUMMARY) -->
+    <div
+        style="background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); grid-column: span 2; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin:0; color: #00e676;">Assistente Camila (WhatsApp)</h3>
+            <p style="color:#aaa; font-size: 0.9em; margin: 5px 0 0 0;">Configuração da IA e conexão Waha.</p>
+        </div>
+        <button class="btn" onclick="openCamilaModal()"
+            style="width: auto; padding: 10px 20px; background: #333; border: 1px solid #555;">
+            🤖 Configurar IA
+        </button>
+    </div>
 </div>
 
 <!-- CONTRACT EDITOR MODAL -->
@@ -301,6 +314,11 @@
                 <option value="admin">Administrador</option>
             </select>
         </div>
+        <div class="form-group">
+            <label>WhatsApp (Identificação Camila)</label>
+            <input type="text" id="userWhatsapp" class="form-control" placeholder="Ex: 5541999999999">
+            <small style="color: #888;">Formato: PaísCódigoNúmero (sem espaços ou +)</small>
+        </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
             <button class="btn btn-secondary"
@@ -423,6 +441,96 @@
             <button class="btn btn-secondary" onclick="closeCompanyModal()">Cancelar</button>
             <button class="btn" onclick="saveCompanySettings()" style="padding: 10px 30px;">
                 💾 Salvar Alterações
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- CAMILA SETTINGS MODAL -->
+<div id="camilaModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center;">
+    <div
+        style="background: #1e1e1e; width: 90%; max-width: 800px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; display: flex; flex-direction: column; max-height: 90vh;">
+
+        <!-- HEADER -->
+        <div
+            style="padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #252526; border-radius: 8px 8px 0 0;">
+            <h3 style="margin: 0; color: #fff;">Configuração da Assistente Camila</h3>
+            <button class="btn btn-secondary" onclick="document.getElementById('camilaModal').style.display='none'"
+                style="padding: 5px 10px;">✕ Fechar</button>
+        </div>
+
+        <!-- BODY -->
+        <div style="padding: 30px; overflow-y: auto;">
+            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+
+                <!-- WAHA CONFIG -->
+                <div style="grid-column: span 2;">
+                    <h4 style="color: #00e676; border-bottom: 1px solid #333; padding-bottom: 5px; margin-top: 0;">1.
+                        Conexão WhatsApp (Waha)</h4>
+                    <div id="envWarning"
+                        style="background: #3e2723; color: #ffccbc; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 0.85em; display: none;">
+                        ⚠️ <b>Nota de Segurança:</b> Algumas configurações estão sendo carregadas via arquivo
+                        <code>.env</code> (servidor) e não podem ser alteradas por aqui para sua proteção.
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Waha API URL</label>
+                    <input type="text" id="wahaUrl" placeholder="http://localhost:3000" value="http://localhost:3000">
+                </div>
+                <div class="form-group">
+                    <label>Waha API Key (Op)</label>
+                    <input type="text" id="wahaKey" placeholder="Se definido no docker-compose">
+                </div>
+
+                <!-- AI CONFIG -->
+                <div style="grid-column: span 2; margin-top: 10px;">
+                    <h4 style="color: #29b6f6; border-bottom: 1px solid #333; padding-bottom: 5px;">2. Inteligência
+                        Artificial (Agno)</h4>
+                </div>
+
+                <div class="form-group">
+                    <label>Provedor AI</label>
+                    <select id="aiProvider"
+                        style="padding: 10px; background: #333; color: white; border: 1px solid #555; width: 100%;">
+                        <option value="groq">Groq (Recomendado - Grátis/Rápido)</option>
+                        <option value="openai">OpenAI (GPT-4o/Mini)</option>
+                        <option value="ollama">Ollama (Local - Qwen)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Model Name</label>
+                    <input type="text" id="aiModel" placeholder="Ex: llama3-70b-8192 ou gpt-4o">
+                </div>
+
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>API Key (Groq/OpenAI)</label>
+                    <input type="password" id="aiApiKey" placeholder="gsk_...">
+                </div>
+
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Prompt para ADMINISTRADORES/Equipe</label>
+                    <textarea id="camilaInstructionsAdmin" rows="5"
+                        style="width: 100%; padding: 10px; background: #333; color: white; border: 1px solid #555;"
+                        placeholder="Instruções para quando ela falar com você ou sua equipe..."></textarea>
+                </div>
+
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Prompt para CLIENTES Externos</label>
+                    <textarea id="camilaInstructionsClient" rows="5"
+                        style="width: 100%; padding: 10px; background: #333; color: white; border: 1px solid #555;"
+                        placeholder="Instruções para quando ela falar com clientes (restrito)..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div
+            style="padding: 20px; border-top: 1px solid #333; display: flex; justify-content: flex-end; gap: 10px; background: #252526; border-radius: 0 0 8px 8px;">
+            <button class="btn btn-secondary"
+                onclick="document.getElementById('camilaModal').style.display='none'">Cancelar</button>
+            <button class="btn" onclick="saveCamilaSettings()" style="padding: 10px 30px;">
+                💾 Salvar Configurações
             </button>
         </div>
     </div>
@@ -577,7 +685,12 @@
             method: 'POST',
             body: formData
         })
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) {
+                    return r.text().then(text => { throw new Error(text) });
+                }
+                return r.json();
+            })
             .then(data => {
                 if (data.url) {
                     document.getElementById('empresaLogoUrl').value = data.url;
@@ -586,7 +699,57 @@
                     alert("Erro ao fazer upload da imagem");
                 }
             })
-            .catch(err => alert("Erro: " + err));
+            .catch(err => {
+                console.error("Erro upload:", err);
+                alert("Erro no upload: " + err.message.substring(0, 100));
+            });
+    }
+
+    // --- CAMILA SETTINGS JS ---
+    function openCamilaModal() {
+        document.getElementById('camilaModal').style.display = 'flex';
+        // Load data specific if not loaded
+        fetch('/api/settings').then(r => r.json()).then(data => {
+            if (data.waha_api_url) document.getElementById('wahaUrl').value = data.waha_api_url;
+            if (data.waha_api_key) document.getElementById('wahaKey').value = data.waha_api_key;
+            if (data.ai_provider) document.getElementById('aiProvider').value = data.ai_provider;
+            if (data.ai_model) document.getElementById('aiModel').value = data.ai_model;
+            // API Key might be hidden/placeholder, but we can set it if exists
+            if (data.ai_api_key) document.getElementById('aiApiKey').value = data.ai_api_key;
+            if (data.camila_instructions_admin) document.getElementById('camilaInstructionsAdmin').value = data.camila_instructions_admin;
+            if (data.camila_instructions_client) document.getElementById('camilaInstructionsClient').value = data.camila_instructions_client;
+
+            // Check for env overrides (Informative ONLY, actual logic is in Backend)
+            // We'll assume if they are empty in DB but the system works, they are in ENV.
+            // Or we could have a specific API for this, but let's keep it simple.
+            // If the user wants to know if it's protected:
+            if (!data.ai_api_key && !data.waha_api_key) {
+                document.getElementById('envWarning').style.display = 'block';
+            }
+        });
+    }
+
+    function saveCamilaSettings() {
+        const body = {
+            waha_api_url: document.getElementById('wahaUrl').value,
+            waha_api_key: document.getElementById('wahaKey').value,
+            ai_provider: document.getElementById('aiProvider').value,
+            ai_model: document.getElementById('aiModel').value,
+            ai_api_key: document.getElementById('aiApiKey').value,
+            camila_instructions_admin: document.getElementById('camilaInstructionsAdmin').value,
+            camila_instructions_client: document.getElementById('camilaInstructionsClient').value
+        };
+
+        fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) {
+                alert("Configurações da Camila salvas!");
+                document.getElementById('camilaModal').style.display = 'none';
+            }
+        });
     }
 
     function saveScraperSettings() {
@@ -759,7 +922,7 @@
                     </td>
                     <td style="padding: 10px; text-align: right;">
                         <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.85em; margin-right: 5px;" 
-                            onclick="openUserForm(${u.id}, '${u.username}', '${u.role}')">✏️ Editar</button>
+                            onclick="openUserForm(${u.id}, '${u.username}', '${u.role}', '${u.whatsapp || ''}')">✏️ Editar</button>
                         <button class="btn ${btnActionClass}" style="padding: 5px 10px; font-size: 0.85em;" 
                             onclick="toggleUserStatus(${u.id}, ${u.is_active})">${btnActionText}</button>
                     </td>
@@ -769,11 +932,12 @@
             });
     }
 
-    function openUserForm(id = null, username = '', role = 'user') {
+    function openUserForm(id = null, username = '', role = 'user', whatsapp = '') {
         document.getElementById('userId').value = id || '';
         document.getElementById('userUsername').value = username;
         document.getElementById('userPassword').value = ''; // Always clear password
         document.getElementById('userRole').value = role;
+        document.getElementById('userWhatsapp').value = whatsapp;
         document.getElementById('userFormTitle').textContent = id ? 'Editar Usuário' : 'Novo Usuário';
 
         // Disable username edit if updating (optional, but good practice if IDs rely on it, though we use ID here)
@@ -787,8 +951,9 @@
         const username = document.getElementById('userUsername').value;
         const password = document.getElementById('userPassword').value;
         const role = document.getElementById('userRole').value;
+        const whatsapp = document.getElementById('userWhatsapp').value;
 
-        const body = { username, role };
+        const body = { username, role, whatsapp };
         if (password) body.password = password;
 
         const method = id ? 'PUT' : 'POST';

@@ -22,7 +22,8 @@ def api_catalogo_list():
                    'quantidade', ci.quantidade, 
                    'tipo_calculo', ci.tipo_calculo,
                    'nome', e.nome,
-                   'custo_unitario', e.custo_unitario
+                   'custo_unitario', e.custo_unitario,
+                   'categoria', e.categoria
                ))
                FROM catalogo_insumos ci
                JOIN estoque e ON ci.estoque_id = e.id

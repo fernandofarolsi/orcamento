@@ -1,0 +1,13 @@
+services:
+  waha:
+    image: devlikeapro/waha:latest
+    restart: always
+    # Waha dashboard on port 3000
+    ports:
+      - "3000:3000"
+    environment:
+      # WHATSAPP_DEFAULT_ENGINE: WEBJS (alternative)
+      WHATSAPP_RESTART_ON_FAIL: "True"
+      WHATSAPP_StartSession: "default"
+    volumes:
+      - ./waha-data:/app/sessions

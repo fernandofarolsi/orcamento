@@ -23,6 +23,56 @@
         display: flex;
         justify-content: space-between;
     }
+
+    .badge-warning {
+        background-color: #ffca28;
+        color: #000;
+    }
+
+    /* Tabs para Modal Consolidado */
+    .tab-container {
+        display: flex;
+        border-bottom: 2px solid #eee;
+        margin-bottom: 20px;
+        gap: 10px;
+    }
+
+    .tab-btn {
+        padding: 10px 20px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-weight: bold;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+    }
+
+    .tab-btn.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+    }
+
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.3s;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 </style>
 {% endblock %}
 
@@ -33,7 +83,12 @@
             <h1 style="margin:0;">Funcionários & RH</h1>
         </div>
         <div class="flex gap-10">
+            <label class="flex gap-5"
+                style="align-items: center; cursor: pointer; font-size: 0.9em; margin-right: 15px;">
+                <input type="checkbox" id="showInativos" onchange="renderTable(funcionarios)"> Mostrar Inativos
+            </label>
             <button class="btn btn-secondary" onclick="openImportModal()">📂 Importar Ponto (XLS)</button>
+            <button class="btn btn-success" onclick="bulkHolerite()">💰 Gerar Holerites do Mês</button>
             <button class="btn btn-primary" onclick="openModal()">+ Novo Funcionário</button>
         </div>
     </div>
@@ -45,10 +100,9 @@
                 <tr>
                     <th>Nome</th>
                     <th>Cargo</th>
+                    <th>Status</th>
                     <th>Salário Base</th>
-                    <th>INSS %</th>
-                    <th>FGTS %</th>
-                    <th>Ações</th>
+                    <th>Acões</th>
                 </tr>
             </thead>
             <tbody id="listaFuncionarios">
@@ -57,57 +111,193 @@
         </table>
     </div>
 
-    <!-- Modal Cadastro -->
+    <!-- Modal Único de Funcionário (Perfis e Ações) -->
     <div id="funcModal" class="modal">
-        <div class="modal-content">
-            <h2 id="modalTitle">Novo Funcionário</h2>
-            <form id="funcForm" onsubmit="saveFunc(event)">
-                <input type="hidden" id="funcId">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="flex-between">
+                <h2 id="modalTitle">Perfil do Funcionário</h2>
+                <button class="btn btn-secondary" onclick="closeModal()">Fechar</button>
+            </div>
 
-                <div class="form-group">
-                    <label>Nome Completo</label>
-                    <input type="text" id="nome" required>
-                </div>
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('cadastro')" id="btn-tab-cadastro">Cadastro</button>
+                <button class="tab-btn" onclick="switchTab('historico')" id="btn-tab-historico">Histórico 📜</button>
+                <button class="tab-btn" onclick="switchTab('holerite')" id="btn-tab-holerite">Holerite 💰</button>
+                <button class="tab-btn" onclick="switchTab('ponto')" id="btn-tab-ponto">Ponto 🕒</button>
+                <button class="tab-btn" onclick="switchTab('desligamento')" id="btn-tab-desligamento">Desligamento
+                    👋</button>
+            </div>
 
-                <div class="form-group">
-                    <label>Cargo</label>
-                    <input type="text" id="cargo" required>
-                </div>
+            <!-- TAB: CADASTRO -->
+            <div id="tab-cadastro" class="tab-content active">
+                <form id="funcForm" onsubmit="saveFunc(event)">
+                    <input type="hidden" id="funcId">
 
-                <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                     <div class="form-group">
-                        <label>Salário Base (R$)</label>
-                        <input type="number" step="0.01" id="salario_base" required>
+                        <label>Nome Completo</label>
+                        <input type="text" id="nome" required>
                     </div>
+
                     <div class="form-group">
-                        <label>INSS (%)</label>
-                        <input type="number" step="0.01" id="inss_percent" value="0.11" placeholder="0.11">
+                        <label>Cargo</label>
+                        <input type="text" id="cargo" required>
                     </div>
+
+                    <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label>Salário Base (R$)</label>
+                            <input type="number" step="0.01" id="salario_base" required>
+                        </div>
+                        <div class="form-group">
+                            <label>INSS (%)</label>
+                            <input type="number" step="0.01" id="inss_percent" value="0.11" placeholder="0.11">
+                        </div>
+                        <div class="form-group">
+                            <label>FGTS (%)</label>
+                            <input type="number" step="0.01" id="fgts_percent" value="0.08" placeholder="0.08">
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label>FGTS (%)</label>
-                        <input type="number" step="0.01" id="fgts_percent" value="0.08" placeholder="0.08">
+                        <label>Nome no Ponto (XLS)</label>
+                        <input type="text" id="nome_ponto" placeholder="Ex: FELIPE">
+                        <small>Nome exato como aparece no arquivo de ponto</small>
                     </div>
+
+                    <div class="form-group" id="contratacaoGroup">
+                        <label>Data de Contratação</label>
+                        <input type="date" id="data_contratacao">
+                        <small>Se preenchido, o primeiro período será criado automaticamente.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descontos Fixos (JSON)</label>
+                        <textarea id="descontos_json" rows="3"
+                            placeholder='[{"tipo": "vale", "valor": 100}]'>[]</textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Salvar Alterações no
+                            Cadastro</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB: HISTÓRICO -->
+            <div id="tab-historico" class="tab-content">
+                <div class="flex-between">
+                    <h3>Períodos de Trabalho</h3>
+                    <button class="btn btn-primary btn-sm" onclick="openNewPeriodForm()">+ Novo Período</button>
                 </div>
 
+                <div id="periodFormContainer"
+                    style="display: none; background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #eee;">
+                    <h4 id="periodFormTitle" style="margin-top: 0;">Novo Período</h4>
+                    <form onsubmit="savePeriod(event)">
+                        <input type="hidden" id="periodId">
+                        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label>Data Contratação</label>
+                                <input type="date" id="p_data_contratacao" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Data Demissão</label>
+                                <input type="date" id="p_data_demissao">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Motivo Saída / Obs</label>
+                            <input type="text" id="p_motivo_saida" placeholder="Ex: Pedido de demissão">
+                        </div>
+                        <div class="form-actions" style="margin-top: 10px;">
+                            <button type="button" class="btn btn-secondary"
+                                onclick="closePeriodForm()">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar Período</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div style="max-height: 300px; overflow-y: auto; margin-top: 10px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+                        <thead style="background: #f0f0f0;">
+                            <tr>
+                                <th style="padding: 8px;">Contratação</th>
+                                <th style="padding: 8px;">Demissão</th>
+                                <th style="padding: 8px;">Motivo</th>
+                                <th style="padding: 8px;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="periodoListBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: HOLERITE -->
+            <div id="tab-holerite" class="tab-content">
+                <div class="flex-between">
+                    <h3>Prévia de Holerite</h3>
+                    <input type="month" id="holeriteMes" onchange="recalcHolerite()" style="width: auto;">
+                </div>
+                <div id="holeriteContent" style="margin-top: 15px;">
+                    <!-- JS Preenche -->
+                </div>
+                <div class="form-actions" style="margin-top: 15px; gap: 10px;">
+                    <button type="button" class="btn btn-primary" onclick="printHolerite()" style="flex:1;">🖨️
+                        Imprimir</button>
+                    <button type="button" class="btn btn-success" id="btnFinalizarFinanceiro"
+                        onclick="finalizeHolerite()" style="flex:2; background-color: #27ae60;">💰 Lançar no
+                        Financeiro</button>
+                </div>
+            </div>
+
+            <!-- TAB: PONTO -->
+            <div id="tab-ponto" class="tab-content">
+                <div class="flex-between">
+                    <h3>Espelho de Ponto</h3>
+                    <input type="month" id="pontoMes" onchange="loadPontoRecords()" style="width: auto;">
+                </div>
+                <div style="max-height: 350px; overflow-y: auto; margin-top: 10px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
+                        <thead style="background: #f0f0f0; position: sticky; top: 0;">
+                            <tr>
+                                <th style="padding: 5px;">Data</th>
+                                <th style="padding: 5px;">Ent 1</th>
+                                <th style="padding: 5px;">Sai 1</th>
+                                <th style="padding: 5px;">Ent 2</th>
+                                <th style="padding: 5px;">Sai 2</th>
+                                <th style="padding: 5px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pontoBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: DESLIGAMENTO -->
+            <div id="tab-desligamento" class="tab-content">
+                <h3 style="color: var(--danger-color);">Simulação de Rescisão</h3>
                 <div class="form-group">
-                    <label>Nome no Ponto (XLS)</label>
-                    <input type="text" id="nome_ponto" placeholder="Ex: FELIPE">
-                    <small>Nome exato como aparece no arquivo de ponto</small>
+                    <label>Data de Demissão</label>
+                    <input type="date" id="rescisaoData" onchange="loadRescisaoCalc()" required>
                 </div>
 
-                <div class="form-group">
-                    <label>Descontos Fixos (JSON)</label>
-                    <textarea id="descontos_json" rows="3" placeholder='[{"tipo": "vale", "valor": 100}]'>[]</textarea>
+                <div id="rescisaoResult"
+                    style="margin-top: 15px; background: #fffbe6; padding: 15px; border-radius: 8px; border: 1px solid #ffe58f; display:none;">
+                    <!-- JS Preenche -->
                 </div>
 
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar</button>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Motivo da Saída</label>
+                    <input type="text" id="rescisaoMotivo" placeholder="Ex: Pedido de demissão">
                 </div>
-            </form>
+
+                <div class="form-actions" style="margin-top: 20px;">
+                    <button type="button" class="btn btn-danger" style="width: 100%;"
+                        onclick="confirmDismissal()">Confirmar Demissão 👋</button>
+                </div>
+            </div>
         </div>
     </div>
-
     <!-- Modal Importação Ponto -->
     <div id="importModal" class="modal">
         <div class="modal-content">
@@ -123,38 +313,6 @@
                 <button class="btn btn-secondary"
                     onclick="document.getElementById('importModal').classList.remove('show')">Fechar</button>
                 <button class="btn btn-primary" onclick="uploadPonto()">Processar Arquivo</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Espelho de Ponto -->
-    <div id="pontoModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
-            <div class="flex-between">
-                <h2>Espelho de Ponto</h2>
-                <input type="month" id="pontoMes" onchange="loadPontoRecords()" style="width: auto;">
-            </div>
-            <h4 id="pontoFuncNome" style="margin-top: 5px; color: #666;"></h4>
-
-            <div style="max-height: 400px; overflow-y: auto; margin-top: 15px;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
-                    <thead style="background: #f0f0f0; position: sticky; top: 0;">
-                        <tr>
-                            <th style="padding: 5px;">Data</th>
-                            <th style="padding: 5px;">Ent 1</th>
-                            <th style="padding: 5px;">Sai 1</th>
-                            <th style="padding: 5px;">Ent 2</th>
-                            <th style="padding: 5px;">Sai 2</th>
-                            <th style="padding: 5px;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pontoBody"></tbody>
-                </table>
-            </div>
-
-            <div class="form-actions">
-                <button class="btn btn-secondary"
-                    onclick="document.getElementById('pontoModal').classList.remove('show')">Fechar</button>
             </div>
         </div>
     </div>
@@ -191,236 +349,396 @@
         </div>
     </div>
 
-    <!-- Modal Holerite -->
-    <div id="holeriteModal" class="modal">
-        <div class="modal-content holerite-modal">
-            <div class="flex-between">
-                <h2>Prévia de Holerite</h2>
-                <input type="month" id="holeriteMes" onchange="recalcHolerite()" style="width: auto;">
-            </div>
+    <script>
+        let funcionarios = [];
+        let currentFuncIdPonto = null;
 
-            <div id="holeriteContent">
-                <!-- JS Preenche -->
-            </div>
-            <div class="form-actions" style="margin-top: 20px;">
-                <button type="button" class="btn btn-secondary"
-                    onclick="document.getElementById('holeriteModal').style.display='none'">Fechar</button>
-                <button type="button" class="btn btn-primary" onclick="printHolerite()">Imprimir Oficial</button>
-            </div>
-        </div>
-    </div>
+        function loadFuncionarios() {
+            fetch('/api/funcionarios')
+                .then(r => r.json())
+                .then(data => {
+                    funcionarios = data;
+                    renderTable(data);
+                });
+        }
 
-</div>
+        function renderTable(data) {
+            const tbody = document.getElementById('listaFuncionarios');
+            const showInativos = document.getElementById('showInativos').checked;
+            tbody.innerHTML = '';
 
-<script>
-    let funcionarios = [];
-    let currentFuncIdPonto = null;
+            data.forEach(f => {
+                // Filtro de inativos (Demitidos no mês atual continuam aparecendo)
+                const isDemitidoRecente = f.status_emprego === 'Demitido (Mês Atual)';
+                if (!showInativos && f.status_emprego === 'Inativo') return;
 
-    function loadFuncionarios() {
-        fetch('/api/funcionarios')
-            .then(r => r.json())
-            .then(data => {
-                funcionarios = data;
-                renderTable(data);
-            });
-    }
+                let statusClass = 'badge-secondary';
+                if (f.status_emprego === 'Ativo') statusClass = 'badge-success';
+                if (f.status_emprego === 'Inativo') statusClass = 'badge-danger';
+                if (isDemitidoRecente) statusClass = 'badge-warning';
 
-    function renderTable(data) {
-        const tbody = document.getElementById('listaFuncionarios');
-        tbody.innerHTML = '';
-        data.forEach(f => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
+                const isInactive = f.status_emprego === 'Inativo';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
                 <td>${f.nome} <br><small style="color:#aaa;">${f.nome_ponto || ''}</small></td>
                 <td>${f.cargo || '-'}</td>
+                <td><span class="badge ${statusClass}">${f.status_emprego}</span></td>
                 <td>R$ ${parseFloat(f.salario_base).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                <td>${(f.inss_percent * 100).toFixed(1)}%</td>
-                <td>${(f.fgts_percent * 100).toFixed(1)}%</td>
                 <td style="text-align: center;">
-                    <button class="action-btn" onclick="openValeModal(${f.id}, '${f.nome}')" title="Lançar Vale" style="color: #e67e22;">💸</button>
-                    <button class="action-btn" onclick="openPontoModal(${f.id}, '${f.nome}')" title="Espelho de Ponto">🕒</button>
-                    <button class="action-btn" onclick="openModal(${f.id})" title="Editar">✏️</button>
-                    <button class="action-btn" onclick="showHolerite(${f.id})" title="Calcular Holerite">💰</button>
-                    <button class="action-btn" onclick="deleteFunc(${f.id})" title="Excluir" style="color: var(--danger-color);">🗑️</button>
+                    ${!isInactive ? `<button class="action-btn" onclick="openValeModal(${f.id}, '${f.nome}')" title="Lançar Vale" style="color: #e67e22;">💸</button>` : `<span class="action-btn" title="Funcionário Inativo" style="opacity: 0.3; cursor: not-allowed; filter: grayscale(1);">💸</span>`}
+                    <button class="action-btn" onclick="openModal(${f.id})" title="Perfil / Editar">✏️</button>
                 </td>
             `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    // --- Vales ---
-    function openValeModal(id, nome) {
-        document.getElementById('valeFuncId').value = id;
-        document.getElementById('valeFuncNome').textContent = nome;
-        document.getElementById('valeValor').value = '';
-        document.getElementById('valeData').value = new Date().toISOString().split('T')[0];
-        document.getElementById('valeDesc').value = `Vale - ${nome}`;
-        document.getElementById('valeModal').classList.add('show');
-    }
-
-    function saveVale(e) {
-        e.preventDefault();
-        const data = {
-            tipo: 'pagar',
-            categoria: 'vale_funcionario',
-            funcionario_id: document.getElementById('valeFuncId').value,
-            valor: parseFloat(document.getElementById('valeValor').value),
-            vencimento: document.getElementById('valeData').value,
-            descricao: document.getElementById('valeDesc').value,
-            status: 'pago' // Vales usually given immediately
-        };
-
-        fetch('/api/financeiro/contas', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-            .then(r => r.json())
-            .then(res => {
-                if (res.success) {
-                    alert("Vale lançado no financeiro!");
-                    document.getElementById('valeModal').classList.remove('show');
-                } else {
-                    alert("Erro: " + (res.error || 'Desconhecido'));
-                }
+                tbody.appendChild(tr);
             });
-    }
-
-    function openModal(id = null) {
-        const modal = document.getElementById('funcModal');
-        const form = document.getElementById('funcForm');
-        form.reset();
-        document.getElementById('funcId').value = '';
-
-        if (id) {
-            const f = funcionarios.find(x => x.id === id);
-            if (f) {
-                document.getElementById('funcId').value = f.id;
-                document.getElementById('nome').value = f.nome;
-                document.getElementById('cargo').value = f.cargo;
-                document.getElementById('salario_base').value = f.salario_base;
-                document.getElementById('inss_percent').value = f.inss_percent || 0.11;
-                document.getElementById('fgts_percent').value = f.fgts_percent || 0.08;
-                document.getElementById('descontos_json').value = f.descontos_json || '[]';
-                document.getElementById('nome_ponto').value = f.nome_ponto || '';
-                document.getElementById('modalTitle').textContent = 'Editar Funcionário';
-            }
-        } else {
-            document.getElementById('modalTitle').textContent = 'Novo Funcionário';
         }
-        modal.classList.add('show');
-    }
 
-    function closeModal() {
-        document.getElementById('funcModal').classList.remove('show');
-    }
+        // --- Vales ---
+        function openValeModal(id, nome) {
+            document.getElementById('valeFuncId').value = id;
+            document.getElementById('valeFuncNome').textContent = nome;
+            document.getElementById('valeValor').value = '';
+            document.getElementById('valeData').value = new Date().toISOString().split('T')[0];
+            document.getElementById('valeDesc').value = `Vale - ${nome}`;
+            document.getElementById('valeModal').classList.add('show');
+        }
 
-    function saveFunc(e) {
-        e.preventDefault();
-        const id = document.getElementById('funcId').value;
-        const data = {
-            nome: document.getElementById('nome').value,
-            cargo: document.getElementById('cargo').value,
-            salario_base: parseFloat(document.getElementById('salario_base').value),
-            inss_percent: parseFloat(document.getElementById('inss_percent').value),
-            fgts_percent: parseFloat(document.getElementById('fgts_percent').value),
-            descontos_json: JSON.parse(document.getElementById('descontos_json').value || '[]'),
-            nome_ponto: document.getElementById('nome_ponto').value
-        };
+        async function saveVale(e) {
+            e.preventDefault();
+            const funcId = document.getElementById('valeFuncId').value;
+            const valor = parseFloat(document.getElementById('valeValor').value);
+            const vencimento = document.getElementById('valeData').value;
+            const mesRef = vencimento.substring(0, 7); // AAAA-MM
 
-        const url = id ? `/api/funcionarios/${id}` : '/api/funcionarios';
-        const method = id ? 'PUT' : 'POST';
-
-        fetch(url, {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        }).then(r => r.json()).then(res => {
-            if (res.success) {
-                closeModal();
-                loadFuncionarios();
-            } else {
-                alert('Erro ao salvar');
-            }
-        });
-    }
-
-    function deleteFunc(id) {
-        if (!confirm('Deseja excluir?')) return;
-        fetch(`/api/funcionarios/${id}`, { method: 'DELETE' })
-            .then(r => r.json())
-            .then(res => {
-                if (res.success) loadFuncionarios();
+            // 1. Verificar status do holerite
+            const checkRes = await fetch(`/api/holerite/${funcId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: vencimento })
             });
-    }
+            const checkData = await checkRes.json();
 
-    // --- Importação Ponto ---
-    function openImportModal() {
-        document.getElementById('importModal').classList.add('show');
-        document.getElementById('importLog').style.display = 'none';
-        document.getElementById('importLog').innerHTML = '';
-    }
-
-    function uploadPonto() {
-        const fileInput = document.getElementById('pontoFile');
-        if (!fileInput.files[0]) return alert("Selecione um arquivo");
-
-        const fd = new FormData();
-        fd.append('file', fileInput.files[0]);
-
-        fetch('/api/ponto/upload', {
-            method: 'POST',
-            body: fd
-        })
-            .then(r => r.json())
-            .then(res => {
-                if (res.success) {
-                    document.getElementById('importLog').style.display = 'block';
-                    document.getElementById('importLog').innerHTML = "<b>Importado com sucesso!</b><br>" + res.logs.join('<br>');
-                    loadFuncionarios(); // Refresh to see matched names
-                } else {
-                    alert("Erro: " + res.error);
-                }
-            })
-            .catch(err => alert("Erro requisição: " + err));
-    }
-
-    // --- Visualizar Ponto ---
-    function openPontoModal(id, nome) {
-        currentFuncIdPonto = id;
-        document.getElementById('pontoFuncNome').textContent = nome;
-
-        // Set default month to current
-        const now = new Date();
-        const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        document.getElementById('pontoMes').value = monthStr;
-
-        document.getElementById('pontoModal').classList.add('show');
-        loadPontoRecords();
-    }
-
-    function loadPontoRecords() {
-        if (!currentFuncIdPonto) return;
-        const mes = document.getElementById('pontoMes').value;
-
-        fetch(`/api/ponto/registros?funcionario_id=${currentFuncIdPonto}&month=${mes}`)
-            .then(r => r.json())
-            .then(data => {
-                const tbody = document.getElementById('pontoBody');
-                tbody.innerHTML = '';
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:10px;">Nenhum registro encontrado neste mês.</td></tr>';
+            if (checkData.status_pagamento === 'Pago') {
+                if (!confirm(`O holerite de ${mesRef} já foi pago! Deseja lançar este vale para o MÊS SEGUINTE automaticamente?`)) {
                     return;
                 }
+                // Ajusta para o dia 1 do mês seguinte
+                const d = new Date(vencimento + 'T12:00:00');
+                d.setMonth(d.getMonth() + 1);
+                d.setDate(1);
+                document.getElementById('valeData').value = d.toISOString().split('T')[0];
+            } else if (valor > checkData.liquido) {
+                const excedente = valor - checkData.liquido;
+                if (!confirm(`Este valor (R$ ${valor.toFixed(2)}) é MAIOR que o saldo líquido (R$ ${checkData.liquido.toFixed(2)}).\n\nO excedente de R$ ${excedente.toFixed(2)} será descontado no mês seguinte. Confirmar?`)) {
+                    return;
+                }
+            }
 
-                data.forEach(r => {
-                    const d = new Date(r.data + 'T12:00:00'); // Safe parse
-                    const dia = d.getDate();
-                    const semana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'][d.getDay()];
+            const data = {
+                tipo: 'pagar',
+                categoria: 'vale_funcionario',
+                funcionario_id: funcId,
+                valor: valor,
+                vencimento: document.getElementById('valeData').value,
+                descricao: document.getElementById('valeDesc').value,
+                status: 'pago'
+            };
 
-                    const tr = document.createElement('tr');
-                    tr.style.borderBottom = '1px solid #eee';
-                    tr.innerHTML = `
+            fetch('/api/contas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        alert("Vale lançado com sucesso!");
+                        document.getElementById('valeModal').classList.remove('show');
+                        // Se o modal de perfil estiver aberto na aba de holerite, recalcula
+                        if (document.getElementById('funcModal').classList.contains('show')) {
+                            recalcHolerite();
+                        }
+                    } else {
+                        alert("Erro: " + (res.error || 'Desconhecido'));
+                    }
+                });
+        }
+
+        let currentFuncIdGlobal = null;
+
+        function switchTab(tabName) {
+            // Esconde todas as abas
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+            // Mostra a selecionada
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.getElementById('btn-tab-' + tabName).classList.add('active');
+
+            // Gatilhos de carregamento sob demanda
+            if (tabName === 'historico') loadPeriodos();
+            if (tabName === 'holerite') recalcHolerite();
+            if (tabName === 'ponto') loadPontoRecords();
+            if (tabName === 'desligamento') loadRescisaoCalc();
+        }
+
+        function openModal(id = null) {
+            currentFuncIdGlobal = id;
+            const modal = document.getElementById('funcModal');
+            const form = document.getElementById('funcForm');
+            form.reset();
+            document.getElementById('funcId').value = '';
+
+            // Reset de Tabs
+            switchTab('cadastro');
+
+            if (id) {
+                const f = funcionarios.find(x => x.id === id);
+                if (f) {
+                    document.getElementById('funcId').value = f.id;
+                    document.getElementById('nome').value = f.nome;
+                    document.getElementById('cargo').value = f.cargo;
+                    document.getElementById('salario_base').value = f.salario_base;
+                    document.getElementById('inss_percent').value = f.inss_percent || 0.11;
+                    document.getElementById('fgts_percent').value = f.fgts_percent || 0.08;
+                    document.getElementById('descontos_json').value = f.descontos_json || '[]';
+                    document.getElementById('nome_ponto').value = f.nome_ponto || '';
+                    document.getElementById('modalTitle').textContent = `Perfil: ${f.nome}`;
+                    document.getElementById('contratacaoGroup').style.display = 'none';
+
+                    // Cache de IDs para abas
+                    currentFuncIdPeriodos = id;
+                    currentFuncIdPonto = id;
+                    currentFuncIdRescisao = id; // Já existia no código anterior para rescisão
+
+                    // Mostra/Esconde aba de desligamento dependendo do status
+                    document.getElementById('btn-tab-desligamento').style.display = (f.status_emprego === 'Ativo') ? 'block' : 'none';
+
+                    // Month defaults
+                    const now = new Date();
+                    const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                    document.getElementById('holeriteMes').value = monthStr;
+                    document.getElementById('pontoMes').value = monthStr;
+                    document.getElementById('rescisaoData').value = now.toISOString().split('T')[0];
+                }
+            } else {
+                document.getElementById('modalTitle').textContent = 'Novo Funcionário';
+                document.getElementById('contratacaoGroup').style.display = 'block';
+                document.getElementById('data_contratacao').value = new Date().toISOString().split('T')[0];
+
+                // Esconde outras abas para novo cadastro (não tem histórico ainda)
+                document.getElementById('btn-tab-historico').style.display = 'none';
+                document.getElementById('btn-tab-holerite').style.display = 'none';
+                document.getElementById('btn-tab-ponto').style.display = 'none';
+                document.getElementById('btn-tab-desligamento').style.display = 'none';
+            }
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('funcModal').classList.remove('show');
+        }
+
+        function saveFunc(e) {
+            e.preventDefault();
+            const id = document.getElementById('funcId').value;
+            const data = {
+                nome: document.getElementById('nome').value,
+                cargo: document.getElementById('cargo').value,
+                salario_base: parseFloat(document.getElementById('salario_base').value),
+                inss_percent: parseFloat(document.getElementById('inss_percent').value),
+                fgts_percent: parseFloat(document.getElementById('fgts_percent').value),
+                descontos_json: JSON.parse(document.getElementById('descontos_json').value || '[]'),
+                nome_ponto: document.getElementById('nome_ponto').value,
+                data_contratacao: document.getElementById('data_contratacao').value
+            };
+
+            const url = id ? `/api/funcionarios/${id}` : '/api/funcionarios';
+            const method = id ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(res => {
+                if (res.success) {
+                    closeModal();
+                    loadFuncionarios();
+                } else {
+                    alert('Erro ao salvar');
+                }
+            });
+        }
+
+        function deleteFunc(id) {
+            if (!confirm('Deseja excluir?')) return;
+            fetch(`/api/funcionarios/${id}`, { method: 'DELETE' })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) loadFuncionarios();
+                });
+        }
+
+        // --- Importação Ponto ---
+        function openImportModal() {
+            document.getElementById('importModal').classList.add('show');
+            document.getElementById('importLog').style.display = 'none';
+            document.getElementById('importLog').innerHTML = '';
+        }
+
+        function uploadPonto() {
+            const fileInput = document.getElementById('pontoFile');
+            if (!fileInput.files[0]) return alert("Selecione um arquivo");
+
+            const fd = new FormData();
+            fd.append('file', fileInput.files[0]);
+
+            fetch('/api/ponto/upload', {
+                method: 'POST',
+                body: fd
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        document.getElementById('importLog').style.display = 'block';
+                        document.getElementById('importLog').innerHTML = "<b>Importado com sucesso!</b><br>" + res.logs.join('<br>');
+                        loadFuncionarios(); // Refresh to see matched names
+                    } else {
+                        alert("Erro: " + res.error);
+                    }
+                })
+                .catch(err => alert("Erro requisição: " + err));
+        }
+
+        // --- Visualizar Ponto ---
+        function openPontoModal(id, nome) {
+            openModal(id);
+            switchTab('ponto');
+        }
+
+        // --- Histórico de Períodos ---
+        let currentFuncIdPeriodos = null;
+        let periodosCached = [];
+
+        function openPeriodoModal(id, nome) {
+            openModal(id);
+            switchTab('historico');
+        }
+
+        function loadPeriodos() {
+            if (!currentFuncIdPeriodos) return;
+            fetch(`/api/funcionarios/${currentFuncIdPeriodos}/periodos`)
+                .then(r => r.json())
+                .then(data => {
+                    periodosCached = data;
+                    const tbody = document.getElementById('periodoListBody');
+                    tbody.innerHTML = '';
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px;">Nenhum período registrado.</td></tr>';
+                        return;
+                    }
+                    data.forEach(p => {
+                        const tr = document.createElement('tr');
+                        tr.style.borderBottom = '1px solid #eee';
+                        tr.innerHTML = `
+                        <td style="padding:8px;">${p.data_contratacao}</td>
+                        <td style="padding:8px;">${p.data_demissao || '<span style="color:green">Ativo</span>'}</td>
+                        <td style="padding:8px;">${p.motivo_saida || '-'}</td>
+                        <td style="padding:8px;">
+                            <button class="action-btn" onclick="editPeriod(${p.id})">✏️</button>
+                            <button class="action-btn" onclick="deletePeriod(${p.id})" style="color:red">🗑️</button>
+                        </td>
+                    `;
+                        tbody.appendChild(tr);
+                    });
+                });
+        }
+
+        function openNewPeriodForm() {
+            document.getElementById('periodId').value = '';
+            document.getElementById('p_data_contratacao').value = '';
+            document.getElementById('p_data_demissao').value = '';
+            document.getElementById('p_motivo_saida').value = '';
+            document.getElementById('periodFormTitle').textContent = 'Novo Período';
+            document.getElementById('periodFormContainer').style.display = 'block';
+        }
+
+        function closePeriodForm() {
+            document.getElementById('periodFormContainer').style.display = 'none';
+        }
+
+        function editPeriod(periodId) {
+            const p = periodosCached.find(x => x.id === periodId);
+            if (!p) return;
+            document.getElementById('periodId').value = p.id;
+            document.getElementById('p_data_contratacao').value = p.data_contratacao;
+            document.getElementById('p_data_demissao').value = p.data_demissao || '';
+            document.getElementById('p_motivo_saida').value = p.motivo_saida || '';
+            document.getElementById('periodFormTitle').textContent = 'Editar Período';
+            document.getElementById('periodFormContainer').style.display = 'block';
+        }
+
+        function savePeriod(e) {
+            e.preventDefault();
+            const periodId = document.getElementById('periodId').value;
+            const data = {
+                data_contratacao: document.getElementById('p_data_contratacao').value,
+                data_demissao: document.getElementById('p_data_demissao').value,
+                motivo_saida: document.getElementById('p_motivo_saida').value
+            };
+
+            const url = periodId ? `/api/funcionarios/periodos/${periodId}` : `/api/funcionarios/${currentFuncIdPeriodos}/periodos`;
+            const method = periodId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(res => {
+                if (res.success) {
+                    closePeriodForm();
+                    loadPeriodos();
+                    loadFuncionarios(); // Refresh status on main table
+                } else {
+                    alert('Erro ao salvar período');
+                }
+            });
+        }
+
+        function deletePeriod(periodId) {
+            if (!confirm('Deseja excluir este período?')) return;
+            fetch(`/api/funcionarios/periodos/${periodId}`, { method: 'DELETE' })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        loadFuncionarios();
+                    }
+                });
+        }
+
+        function loadPontoRecords() {
+            if (!currentFuncIdPonto) return;
+            const mes = document.getElementById('pontoMes').value;
+
+            fetch(`/api/ponto/registros?funcionario_id=${currentFuncIdPonto}&month=${mes}`)
+                .then(r => r.json())
+                .then(data => {
+                    const tbody = document.getElementById('pontoBody');
+                    tbody.innerHTML = '';
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:10px;">Nenhum registro encontrado neste mês.</td></tr>';
+                        return;
+                    }
+
+                    data.forEach(r => {
+                        const d = new Date(r.data + 'T12:00:00'); // Safe parse
+                        const dia = d.getDate();
+                        const semana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'][d.getDay()];
+
+                        const tr = document.createElement('tr');
+                        tr.style.borderBottom = '1px solid #eee';
+                        tr.innerHTML = `
                     <td style="padding:5px;"><b>${dia}</b> <small>${semana}</small></td>
                     <td style="padding:5px; color: green;">${r.entrada_1 || '-'}</td>
                     <td style="padding:5px; color: orange;">${r.saida_1 || '-'}</td>
@@ -428,41 +746,49 @@
                     <td style="padding:5px; color: orange;">${r.saida_2 || '-'}</td>
                     <td style="padding:5px;">${r.status || ''}</td>
                  `;
-                    tbody.appendChild(tr);
+                        tbody.appendChild(tr);
+                    });
                 });
-            });
-    }
-
-    function showHolerite(id) {
-        currentFuncIdHolerite = id;
-
-        // Set default month to current if not set
-        if (!document.getElementById('holeriteMes').value) {
-            const now = new Date();
-            const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            document.getElementById('holeriteMes').value = monthStr;
         }
 
-        recalcHolerite();
-        document.getElementById('holeriteModal').style.display = 'flex';
-    }
+        function showHolerite(id) {
+            openModal(id);
+            switchTab('holerite');
+        }
 
-    function recalcHolerite() {
-        if (!currentFuncIdHolerite) return;
+        function recalcHolerite() {
+            const id = currentFuncIdGlobal;
+            if (!id) return;
 
-        const mes = document.getElementById('holeriteMes').value;
-        const dataRef = mes + '-01'; // First day of month for ref
+            const mes = document.getElementById('holeriteMes').value;
+            const dataRef = mes + '-01';
 
-        fetch(`/api/holerite/${currentFuncIdHolerite}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: dataRef })
-        })
-            .then(r => r.json())
-            .then(data => {
-                if (data.error) return alert(data.error);
+            fetch(`/api/holerite/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: dataRef })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) return alert(data.error);
 
-                const html = `
+                    const statusColor = data.status_pagamento === 'Pago' ? '#27ae60' : '#f39c12';
+                    const btnFinalizar = document.getElementById('btnFinalizarFinanceiro');
+                    if (data.status_pagamento === 'Pago') {
+                        btnFinalizar.disabled = true;
+                        btnFinalizar.style.opacity = '0.5';
+                        btnFinalizar.textContent = '✅ Já Lançado no Financeiro';
+                    } else {
+                        btnFinalizar.disabled = false;
+                        btnFinalizar.style.opacity = '1';
+                        btnFinalizar.textContent = '💰 Lançar no Financeiro';
+                    }
+
+                    const html = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid ${statusColor};">
+                        <span>Status: <b>${data.status_pagamento}</b></span>
+                        ${data.pago_em ? `<span>Pago em: ${data.pago_em}</span>` : ''}
+                    </div>
                     <div style="text-align:center; margin-bottom:10px; font-weight:bold;">
                         ${data.funcionario} - ${data.referencia}
                     </div>
@@ -471,14 +797,19 @@
                         <span>R$ ${data.salario_base.toFixed(2)}</span>
                     </div>
                     <div class="holerite-item" style="color: var(--danger-color);">
-                        <span>INSS</span>
+                        <span>INSS (${(data.inss_percent * 100).toFixed(1)}%)</span>
                         <span>- R$ ${data.inss_val.toFixed(2)}</span>
                     </div>
                     ${data.vales_val > 0 ? `
                     <div class="holerite-item" style="color: var(--danger-color);">
-                        <span>Adiantamentos (Vales)</span>
+                        <span>Adiantamentos (Vales) do Mês</span>
                         <span>- R$ ${data.vales_val.toFixed(2)}</span>
                     </div>` : ''}
+                    ${data.saldo_devedor_anterior > 0 ? `
+                        <div class="holerite-item" style="color: #c0392b; font-weight: bold;">
+                            <span>Dívida de Meses Anteriores 🚩</span>
+                            <span>- R$ ${data.saldo_devedor_anterior.toFixed(2)}</span>
+                        </div>` : ''}
                     ${data.outros_descontos.map(d => `
                         <div class="holerite-item" style="color: var(--danger-color);">
                             <span>${d.tipo}</span>
@@ -493,19 +824,148 @@
                         <span>Líquido a Receber</span>
                         <span style="color: var(--success-color);">R$ ${data.liquido.toFixed(2)}</span>
                     </div>
+                    ${data.excedente_para_proximo > 0 ? `
+                    <div style="margin-top:10px; color:#e74c3c; font-size:0.85em; text-align:right;">
+                        * Excedente de R$ ${data.excedente_para_proximo.toFixed(2)} acumulado para o próximo mês.
+                    </div>` : ''}
                 `;
-                document.getElementById('holeriteContent').innerHTML = html;
-            });
-    }
+                    document.getElementById('holeriteContent').innerHTML = html;
+                });
+        }
 
-    function printHolerite() {
-        if (!currentFuncIdHolerite) return;
-        const mes = document.getElementById('holeriteMes').value;
-        window.open(`/holerite/print/${currentFuncIdHolerite}?mes=${mes}`, '_blank');
-    }
+        function printHolerite() {
+            const id = currentFuncIdGlobal;
+            if (!id) return;
+            const mes = document.getElementById('holeriteMes').value;
+            window.open(`/holerite/print/${id}?mes=${mes}`, '_blank');
+        }
 
-    // Load on start
-    loadFuncionarios();
+        function finalizeHolerite() {
+            const id = currentFuncIdGlobal;
+            const mes = document.getElementById('holeriteMes').value;
+            if (!id || !mes) return;
 
-</script>
-{% endblock %}
+            if (!confirm(`Deseja LANÇAR O PAGAMENTO de ${mes} no financeiro? Isso criará um registro de despesa.`)) return;
+
+            fetch(`/api/holerite/${id}/finalize`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ month: mes })
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        alert("Pagamento lançado no financeiro com sucesso!");
+                        recalcHolerite(); // Refresh view
+                    } else {
+                        alert("Erro: " + res.error);
+                    }
+                });
+        }
+
+        function bulkHolerite() {
+            const now = new Date();
+            const defMes = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const mes = prompt("Informe o mês para gerar rascunhos (AAAA-MM):", defMes);
+            if (!mes) return;
+
+            fetch(`/api/holerite/bulk`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ month: mes })
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        alert(`Foram gerados/analisados ${res.count} holerites.`);
+                    } else {
+                        alert("Erro: " + res.error);
+                    }
+                });
+        }
+
+        // --- Rescisão ---
+        let currentFuncIdRescisao = null; // Mantido por compatibilidade
+
+        function openRescisaoModal(id, nome) {
+            openModal(id);
+            switchTab('desligamento');
+        }
+
+        function loadRescisaoCalc() {
+            const dataDem = document.getElementById('rescisaoData').value;
+            if (!dataDem) return;
+
+            fetch(`/api/funcionarios/${currentFuncIdRescisao}/rescisao_calc`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data_demissao: dataDem })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('rescisaoResult').style.display = 'none';
+                        return alert(data.error);
+                    }
+                    const resDiv = document.getElementById('rescisaoResult');
+                    resDiv.style.display = 'block';
+                    resDiv.innerHTML = `
+                    <div style="font-size:0.9em;">
+                        <strong>Início:</strong> ${data.data_inicio} <br>
+                        <strong>Saldo Salário:</strong> R$ ${data.saldo_salario.toFixed(2)} <br>
+                        <strong>13º Prop:</strong> R$ ${data.decimo_terceiro.toFixed(2)} <br>
+                        <strong>Férias Prop:</strong> R$ ${data.ferias_prop.toFixed(2)} <br>
+                        <strong>1/3 Férias:</strong> R$ ${data.terco_ferias.toFixed(2)} <br>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #ffe58f;">
+                        <span style="font-size:1.1em; font-weight:bold; color:var(--danger-color);">
+                            Total Estimado: R$ ${data.total_estimado.toFixed(2)}
+                        </span>
+                    </div>
+                `;
+                });
+        }
+
+        function confirmDismissal() {
+            const dataDem = document.getElementById('rescisaoData').value;
+            const motivo = document.getElementById('rescisaoMotivo').value;
+
+            console.log("Confirming dismissal for:", currentFuncIdRescisao, dataDem, motivo);
+
+            // Busca os períodos para achar o atual aberto
+            fetch(`/api/funcionarios/${currentFuncIdRescisao}/periodos`)
+                .then(r => r.json())
+                .then(periodos => {
+                    console.log("Found periods:", periodos);
+                    const pAtivo = periodos.find(p => !p.data_demissao);
+                    if (!pAtivo) {
+                        console.error("No active period found.");
+                        return alert("Erro: Não foi encontrado um período ativo para este funcionário.");
+                    }
+
+                    console.log("Updating period:", pAtivo.id);
+                    fetch(`/api/funcionarios/periodos/${pAtivo.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            data_contratacao: pAtivo.data_contratacao,
+                            data_demissao: dataDem,
+                            motivo_saida: motivo
+                        })
+                    }).then(r => r.json()).then(res => {
+                        console.log("Update result:", res);
+                        if (res.success) {
+                            alert("Demissão processada e registrada com sucesso!");
+                            document.getElementById('rescisaoModal').classList.remove('show');
+                            loadFuncionarios();
+                        } else {
+                            alert("Erro ao processar demissão.");
+                        }
+                    }).catch(err => console.error("Update fetch error:", err));
+                }).catch(err => console.error("List periods fetch error:", err));
+        }
+
+        // Load on start
+        loadFuncionarios();
+
+    </script>
+    {% endblock %}

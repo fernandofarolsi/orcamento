@@ -3,32 +3,111 @@
    ======================================== */
 
 /* Variáveis CSS */
+/* ========================================
+   FUTURISTIC DESIGN TOKENS (GLASS & NEON)
+   ======================================== */
 :root {
-    --primary-color: #007bff;
-    --secondary-color: #6c757d;
-    --success-color: #28a745;
-    --danger-color: #dc3545;
-    --warning-color: #ffc107;
-    --info-color: #17a2b8;
-    --light-color: #f8f9fa;
-    --dark-color: #343a40;
-    --card-bg: #1a1a1a;
-    --input-bg: #2d2d2d;
-    --border-color: #444;
-    --text-color: #fff;
-    --header-bg: #2c3e50;
+    /* Colors */
+    --bg-dark: #0a0b0d;
+    --bg-surface: rgba(10, 11, 13, 0.85);
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-highlight: rgba(255, 255, 255, 0.2);
+    --glass-blur: blur(20px);
+
+    /* Neon Accents - Boosted for contrast */
+    --primary-neon: #00f0ff;
+    --secondary-neon: #8a33ff;
+    --accent-magenta: #ff0080;
+    --accent-orange: #ffab00;
+
+    /* Gradients */
+    --grad-cyan-purple: linear-gradient(135deg, var(--primary-neon) 0%, var(--secondary-neon) 100%);
+    --grad-magenta-orange: linear-gradient(135deg, var(--accent-magenta) 0%, var(--accent-orange) 100%);
+
+    /* Shadows & Glows */
+    --neon-glow: 0 0 25px rgba(0, 240, 255, 0.4);
+    --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+
+    /* Typography & Spacing */
+    --text-primary: #ffffff;
+    --text-muted: #a1b0c5;
+    --sidebar-width: 80px;
+    --border-radius-lg: 32px;
+    --border-radius-md: 16px;
+
+    /* Legacy Sync */
+    --primary-color: var(--primary-neon);
+    --card-bg: var(--bg-surface);
+    --text-color: var(--text-primary);
 }
 
 /* ========================================
    ESTILOS GERAIS
    ======================================== */
 
+.app-background-aurora {
+    position: fixed;
+    top: 50%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+    width: 140vw;
+    height: 140vh;
+    background-size: 60%;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: blur(60px) opacity(0.15);
+    /* Reduced blur for subtle recognition */
+    z-index: -1;
+    pointer-events: none;
+    animation: aurora-drift 60s infinite alternate ease-in-out;
+}
+
+.app-logo-watermark {
+    position: fixed;
+    top: 50%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+    width: 40vw;
+    height: 40vh;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.03;
+    /* Extremely faint but sharp */
+    z-index: -1;
+    pointer-events: none;
+}
+
+@keyframes aurora-drift {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    }
+
+    to {
+        transform: translate(-45%, -55%) rotate(5deg) scale(1.1);
+    }
+}
+
 body {
-    background: #1a1a1a;
+    background: var(--bg-dark);
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(138, 51, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.2) 0%, transparent 100%);
+    background-attachment: fixed;
     color: var(--text-color);
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, oxygen, ubuntu, cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 24px;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
 .btn {
@@ -129,6 +208,269 @@ body {
 
 .search-bar {
     margin-bottom: 20px;
+}
+
+/* ========================================
+   SIDEBAR DESKTOP
+   ======================================== */
+/* ========================================
+   SIDEBAR DESKTOP (PILL STYLE)
+   ======================================== */
+.sidebar-desktop {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    border-right: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Horizontally center children */
+    padding: 30px 0;
+    z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.logo-container {
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.logo-container img {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+.nav-links {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px;
+    align-items: center !important;
+    /* Centering icons inside nav-links */
+    width: 100% !important;
+    position: relative;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.nav-links a {
+    width: 50px;
+    height: 50px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 16px;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    margin: 0 auto !important;
+    /* Extra insurance for centering */
+    padding: 0 !important;
+}
+
+.nav-links a i {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.nav-links a:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+    transform: scale(1.1);
+}
+
+.nav-links a.active {
+    color: white;
+    background: var(--grad-cyan-purple);
+    box-shadow: var(--neon-glow);
+}
+
+.nav-links a.active::after {
+    content: '';
+    position: absolute;
+    right: -15px;
+    width: 4px;
+    height: 20px;
+    background: var(--primary-neon);
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--primary-neon);
+}
+
+/* Tooltip mockup (uses title attribute) */
+.nav-links a::before {
+    content: attr(title);
+    position: absolute;
+    left: 100%;
+    margin-left: 15px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+    transform: translateX(-10px);
+}
+
+.nav-links a:hover::before {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ========================================
+   UTILITIES (GLASS & NEON BORDERS)
+   ======================================== */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-top: 1px solid var(--glass-highlight);
+    border-left: 1px solid var(--glass-highlight);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--glass-shadow);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-panel:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Global Form & Input Refinement */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+input[type="password"],
+select,
+textarea {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    color: var(--text-primary) !important;
+    padding: 12px 16px !important;
+    transition: all 0.3s ease !important;
+    outline: none !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: var(--primary-neon) !important;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2) !important;
+}
+
+.form-group label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    display: block;
+    font-weight: 500;
+}
+
+.neon-border-cyan {
+    position: relative;
+    border: 1px solid transparent;
+    background: linear-gradient(var(--bg-dark), var(--bg-dark)) padding-box,
+        var(--grad-cyan-purple) border-box;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+}
+
+.neon-border-magenta {
+    position: relative;
+    border: 1px solid transparent;
+    background: linear-gradient(var(--bg-dark), var(--bg-dark)) padding-box,
+        var(--grad-magenta-orange) border-box;
+    box-shadow: 0 0 15px rgba(255, 0, 122, 0.1);
+}
+
+.logo-container {
+    margin-bottom: 40px;
+}
+
+.nav-links {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.menu-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu-divider {
+    width: 30%;
+    height: 1px;
+    background: var(--glass-border);
+    margin: 10px 0;
+}
+
+.nav-links a,
+.logout-container button {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.nav-links a:hover,
+.logout-container button:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--primary-neon);
+    transform: translateY(-2px);
+}
+
+.nav-links a.active {
+    background: var(--primary-neon);
+    color: white;
+    box-shadow: 0 0 20px rgba(41, 182, 246, 0.4);
+}
+
+.logout-container {
+    padding-bottom: 20px;
+}
+
+/* MAIN CONTENT ADJUSTMENT */
+.main-content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    padding: 24px;
+    min-height: 100vh;
+    background: transparent;
 }
 
 /* ========================================
@@ -504,7 +846,9 @@ tr:hover {
 /* ========================================
    MODAIS
    ======================================== */
-
+/* ========================================
+   FUTURISTIC MODALS
+   ======================================== */
 .modal {
     display: none;
     position: fixed;
@@ -516,6 +860,8 @@ tr:hover {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
 }
 
 /* Garantir que o modal inicie fechado */
@@ -535,6 +881,14 @@ tr:hover {
     max-height: 90%;
     overflow-y: auto;
     width: 600px;
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--glass-shadow);
+    color: var(--text-primary);
+    padding: 30px;
+    max-width: 600px;
 }
 
 .modal-content h2 {
@@ -1317,4 +1671,256 @@ tr:hover {
 .menu-header:first-of-type {
     border-top: none;
     margin-top: 0;
+}
+
+/* ========================================
+   FUTURISTIC KANBAN & CARDS
+   ======================================== */
+/* ========================================
+   FUTURISTIC KANBAN & CARDS
+   ======================================== */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 12px;
+    padding: 10px;
+    align-items: flex-start;
+    scrollbar-width: thin;
+    scrollbar-color: var(--glass-border) transparent;
+}
+
+.kanban-col {
+    min-width: 0;
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-top: 1px solid var(--glass-highlight);
+    border-left: 1px solid var(--glass-highlight);
+    border-radius: var(--border-radius-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 600px;
+    overflow-y: auto;
+    box-shadow: var(--glass-shadow);
+    scrollbar-width: thin;
+    scrollbar-color: var(--glass-border) transparent;
+}
+
+.kanban-col h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid var(--glass-border);
+    padding-bottom: 15px;
+}
+
+.kanban-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: grab;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.kanban-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.kanban-card.lead-card {
+    border: 1px solid transparent;
+    background: linear-gradient(var(--bg-surface), var(--bg-surface)) padding-box,
+        var(--grad-cyan-purple) border-box;
+}
+
+.kanban-card.orc-card {
+    border: 1px solid transparent;
+    background: linear-gradient(var(--bg-surface), var(--bg-surface)) padding-box,
+        var(--grad-magenta-orange) border-box;
+}
+
+.kanban-card h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.kanban-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+/* CALENDAR FUTURISTIC OVERHAUL */
+.kanban-calendar {
+    margin: 50px 30px;
+    padding: 40px;
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-top: 1px solid var(--glass-highlight);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--glass-shadow);
+}
+
+.calendar-day {
+    aspect-ratio: 1/1;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+}
+
+.calendar-day:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px) scale(1.1);
+    border-color: var(--primary-neon);
+    box-shadow: var(--neon-glow);
+}
+
+.calendar-day.today {
+    background: var(--grad-cyan-purple);
+    color: white;
+    border: none;
+    box-shadow: var(--neon-glow);
+}
+
+/* ========================================
+   AGENDA SIDEBAR
+   ======================================== */
+
+.agenda-sidebar {
+    position: fixed;
+    top: 0;
+    right: -450px;
+    width: 400px;
+    height: 100vh;
+    background: rgba(10, 14, 23, 0.85);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-left: 1px solid var(--glass-border);
+    z-index: 2000;
+    padding: 30px;
+    transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+}
+
+.agenda-sidebar.active {
+    right: 0;
+}
+
+.agenda-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.agenda-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--primary-neon);
+}
+
+.close-agenda {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.agenda-form h4 {
+    margin-top: 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+/* TIMELINE STYLES */
+
+.timeline {
+    margin-top: 40px;
+    position: relative;
+    padding-left: 30px;
+    border-left: 2px solid var(--glass-border);
+}
+
+.timeline-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.timeline-card:hover {
+    transform: scale(1.02);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.timeline-card::before {
+    content: '';
+    position: absolute;
+    left: -37px;
+    top: 20px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-neon);
+    box-shadow: 0 0 10px var(--primary-neon);
+}
+
+.timeline-card.visit::before {
+    background: #9c27b0;
+    box-shadow: 0 0 8px #9c27b0;
+}
+
+.timeline-card.payable::before {
+    background: #dc3545;
+    box-shadow: 0 0 8px #dc3545;
+}
+
+.timeline-card.receber::before {
+    background: #28a745;
+    box-shadow: 0 0 8px #28a745;
+}
+
+.time-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--accent-cyan);
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.event-title {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.event-details {
+    font-size: 0.85rem;
+    color: var(--text-muted);
 }

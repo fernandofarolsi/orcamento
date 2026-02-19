@@ -4,7 +4,7 @@ from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 
 from .database import get_db, close_connection
-from .utils import count_json_items, date_format_filter, status_color_filter, from_json_filter
+from .utils import count_json_items, date_format_filter, status_color_filter, from_json_filter, format_currency
 
 load_dotenv()
 
@@ -45,6 +45,7 @@ def create_app(test_config=None):
     app.template_filter('date_format')(date_format_filter)
     app.template_filter('status_color')(status_color_filter)
     app.template_filter('from_json')(from_json_filter)
+    app.template_filter('format_currency')(format_currency)
 
     # Context Processors
     @app.context_processor
@@ -73,16 +74,26 @@ def create_app(test_config=None):
         return dict(current_user=current_user)
 
     # JWT Callbacks
+    # JWT Callbacks
     @jwt.unauthorized_loader
     def custom_unauthorized_response(_err):
+        from flask import request
+        if request.path.startswith('/api/'):
+            return jsonify({"msg": "Missing Authorization Header"}), 401
         return redirect(url_for('auth.login'))
 
     @jwt.expired_token_loader
     def custom_expired_token_response(_hdr, _payload):
+        from flask import request
+        if request.path.startswith('/api/'):
+            return jsonify({"msg": "Token has expired", "error": "token_expired"}), 401
         return redirect(url_for('auth.login'))
     
     @jwt.invalid_token_loader
     def custom_invalid_token_response(_err):
+        from flask import request
+        if request.path.startswith('/api/'):
+            return jsonify({"msg": "Invalid Token"}), 401
         return redirect(url_for('auth.login'))
 
     @jwt.user_lookup_loader
@@ -92,7 +103,7 @@ def create_app(test_config=None):
         return db.execute("SELECT * FROM users WHERE id = ?", (identity,)).fetchone()
 
     # Register Blueprints (Import here to avoid circular dependencies)
-    from .routes import auth, dashboard, kanban, orcamentos, clientes, estoque, financeiro, funcionarios, settings, main, catalogo, relatorios
+    from .routes import auth, dashboard, kanban, orcamentos, clientes, estoque, financeiro, funcionarios, settings, main, catalogo, relatorios, tiers, crm, whatsapp, whatsapp_webhook
     
     app.register_blueprint(auth.bp)
     app.register_blueprint(dashboard.bp)
@@ -106,5 +117,17 @@ def create_app(test_config=None):
     app.register_blueprint(main.bp)
     app.register_blueprint(catalogo.bp)
     app.register_blueprint(relatorios.bp)
+    app.register_blueprint(tiers.bp)
+    app.register_blueprint(crm.bp)
+    app.register_blueprint(whatsapp.bp)
+    app.register_blueprint(whatsapp_webhook.bp)
+
+    # Prototype Route (Temporary)
+    from .routes import prototype
+    app.register_blueprint(prototype.bp)
+
+    # Client Profile Route
+    from .routes import client_profile
+    app.register_blueprint(client_profile.bp)
 
     return app

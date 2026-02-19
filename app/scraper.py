@@ -1,3 +1,4 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 import time
@@ -5,10 +6,16 @@ import sqlite3
 from datetime import datetime
 from app.database import DATABASE
 
+def get_proxies():
+    proxy = os.getenv('SCRAPING_PROXY')
+    if proxy:
+        return {'http': proxy, 'https': proxy}
+    return None
+
 def fetch_price_leomadeiras(url):
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=10, proxies=get_proxies())
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             # Selector: .price-template or .product-price
@@ -28,7 +35,7 @@ def fetch_price_madeverde(url):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
             'Cookie': 'cep=01310-100' # Tentar forçar CEP via cookie
         }
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=10, proxies=get_proxies())
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             # Selectors seen: .preco-venda, .preco-promocional
@@ -43,7 +50,7 @@ def fetch_price_madeverde(url):
 def fetch_price_madeiranit(url):
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=10, proxies=get_proxies())
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             # Selector: .product-info-main .price

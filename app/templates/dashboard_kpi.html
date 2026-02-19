@@ -9,94 +9,128 @@
 
 <!-- KPI CARDS -->
 <div class="kpi-grid">
-    <div class="kpi-card">
-        <h3>Faturamento Total</h3>
-        <p id="kpiFat" class="value">R$ ...</p>
+    <div class="kpi-card glass-panel neon-border-cyan">
+        <div class="kpi-label">FATURAMENTO TOTAL</div>
+        <div id="kpiFat" class="kpi-value">R$ {{ total_revenue|format_currency }}</div>
     </div>
-    <div class="kpi-card">
-        <h3>Orçamentos</h3>
-        <p id="kpiOrc" class="value">.../...</p>
-        <small id="kpiOrcTaxa">Taxa: ...%</small>
-    </div>
-    <div class="kpi-card" style="border-left: 4px solid #ef5350;">
-        <h3>Estoque Crítico</h3>
-        <p id="kpiEst" class="value" style="color:#ef5350">...</p>
-        <small>Itens com < 10un</small>
-    </div>
-    <div class="kpi-card">
-        <h3>Clientes Ativos</h3>
-        <p id="kpiCli" class="value">...</p>
-    </div>
-    <div class="kpi-card" style="border-left: 4px solid #ffa726;">
-        <h3>Contas Vencidas</h3>
-        <p id="kpiVenc" class="value" style="color:#ffa726">R$ ...</p>
-    </div>
-    <div class="kpi-card" style="border-left: 4px solid #66bb6a;">
-        <h3>Margem Média Projetos</h3>
-        <p id="kpiMargem" class="value" style="color:#66bb6a">...%</p>
-        <small id="kpiMargemLegenda">Meta Base (Valci)</small>
-    </div>
-</div>
 
-<!-- CHARTS -->
-<div class="charts-grid">
-    <div class="chart-card">
-        <h3>Histórico de Faturamento (30d)</h3>
-        <div style="position: relative; height: 300px; width: 100%;">
-            <canvas id="chartFat"></canvas>
+    <div class="kpi-card glass-panel neon-border-cyan">
+        <div class="kpi-label">ORÇAMENTOS</div>
+        <div id="kpiOrc" class="kpi-value">{{ total_budgets }}</div>
+        <div class="kpi-label" style="font-size: 0.7rem;">Taxa: ...%</div>
+    </div>
+
+    <div class="kpi-card glass-panel neon-border-magenta">
+        <div class="kpi-label">ESTOQUE CRÍTICO</div>
+        <div id="kpiEst" class="kpi-value">{{ critical_stock_count }}</div>
+        <div class="kpi-label" style="font-size: 0.7rem;">Itens com < 10un</div>
+        </div>
+
+        <div class="kpi-card glass-panel neon-border-cyan">
+            <div class="kpi-label">CLIENTES ATIVOS</div>
+            <div id="kpiCli" class="kpi-value">{{ total_clients }}</div>
+        </div>
+
+        <div class="kpi-card glass-panel neon-border-magenta">
+            <div class="kpi-label">CONTAS VENCIDAS</div>
+            <div id="kpiVenc" class="kpi-value">R$ {{ expired_accounts_total|format_currency }}</div>
+        </div>
+
+        <div class="kpi-card glass-panel neon-border-cyan">
+            <div class="kpi-label">MARGEM MÉDIA</div>
+            <div id="kpiMargem" class="kpi-value">35.0%</div>
+            <div class="kpi-label" style="font-size: 0.7rem;">Meta Base (Valci)</div>
         </div>
     </div>
-    <div class="chart-card">
-        <h3>Estoque por Categoria</h3>
-        <div style="position: relative; height: 300px; width: 100%;">
-            <canvas id="chartEst"></canvas>
+
+    <!-- CHARTS -->
+    <div class="charts-grid">
+        <div class="glass-panel chart-card">
+            <h3>Histórico de Faturamento (30d)</h3>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="chartFat"></canvas>
+            </div>
+        </div>
+        <div class="glass-panel chart-card">
+            <h3>Estoque por Categoria</h3>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="chartEst"></canvas>
+            </div>
         </div>
     </div>
-</div>
 </div>
 
 <style>
     .kpi-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 25px;
         margin-bottom: 30px;
     }
 
     .kpi-card {
-        background: var(--card-bg);
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        border-left: 4px solid var(--primary-color);
+        padding: 25px;
+        position: relative;
+        overflow: hidden;
     }
 
     .kpi-card h3 {
         margin: 0 0 10px 0;
-        font-size: 1rem;
-        color: #aaa;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
     .kpi-card .value {
-        font-size: 1.8rem;
-        font-weight: bold;
+        font-size: 2rem;
+        font-weight: 800;
         margin: 0;
+        color: var(--text-primary);
+    }
+
+    /* SPECIFIC KPI STATES */
+    .status-danger {
+        border-bottom: 3px solid var(--accent-magenta);
+    }
+
+    .status-danger .value {
+        color: var(--accent-magenta);
+    }
+
+    .status-warning {
+        border-bottom: 3px solid var(--accent-lime);
+    }
+
+    .status-warning .value {
+        color: var(--accent-lime);
+    }
+
+    .status-success {
+        border-bottom: 3px solid var(--accent-cyan);
+    }
+
+    .status-success .value {
+        color: var(--accent-cyan);
     }
 
     .charts-grid {
         display: grid;
         grid-template-columns: 2fr 1fr;
-        gap: 20px;
+        gap: 25px;
     }
 
     .chart-card {
-        background: var(--card-bg);
-        padding: 20px;
-        border-radius: 8px;
-        min-height: 300px;
+        padding: 25px;
+        min-height: 350px;
     }
 
-    @media (max-width: 768px) {
+    .chart-card h3 {
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 1024px) {
         .charts-grid {
             grid-template-columns: 1fr;
         }
@@ -125,11 +159,25 @@
                     datasets: [{
                         label: 'Recebimentos',
                         data: data.charts.fat_data,
-                        borderColor: '#29b6f6',
-                        tension: 0.1
+                        borderColor: '#00e5ff',
+                        backgroundColor: 'rgba(0, 229, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#00e5ff',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, border: { display: false } },
+                        x: { grid: { display: false }, border: { display: false } }
+                    }
+                }
             });
 
             new Chart(document.getElementById('chartEst'), {
@@ -139,10 +187,19 @@
                     datasets: [{
                         label: 'Qtd Itens',
                         data: data.charts.est_data,
-                        backgroundColor: ['#66bb6a', '#ffa726', '#ef5350', '#ab47bc', '#29b6f6']
+                        backgroundColor: ['#00e5ff', '#76ff03', '#e91e63', '#9c27b0', '#29b6f6'],
+                        borderRadius: 10,
+                        borderSkipped: false
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, border: { display: false } },
+                        x: { grid: { display: false }, border: { display: false } }
+                    }
+                }
             });
         }
     });

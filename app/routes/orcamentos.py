@@ -136,6 +136,56 @@ def api_orcamento_calcular():
         'breakdown': breakdown
     })
 
+@bp.route('/api/orcamentos/calculate-tiers', methods=['POST'])
+@jwt_required()
+def api_orcamento_calculate_tiers():
+    from app.services.calculator import calculate_item_tier_cost
+    
+    data = request.json
+    items = data.get('items', [])
+    config = data.get('config', {})
+    
+    db = get_db()
+    
+    # 1. Get Tiers
+    tiers = db.execute("SELECT * FROM budget_tiers ORDER BY order_index").fetchall()
+    
+    results = {}
+    
+    # Global Config (or per tier?)
+    if not config:
+        cf = db.execute('SELECT * FROM config_fabrica LIMIT 1').fetchone()
+        config = dict(cf) if cf else {'margem_lucro': 0.35, 'margem_negociacao': 0.10, 'margem_impostos': 0.05}
+
+    margem_lucro = float(config.get('margem_lucro', 0.35))
+    margem_negociacao = float(config.get('margem_negociacao', 0.10))
+    margem_impostos = float(config.get('margem_impostos', 0.05))
+
+    for tier in tiers:
+        tier_id = tier['id']
+        tier_name = tier['name']
+        
+        tier_total_cost = 0.0
+        tier_breakdown = []
+        
+        for item in items:
+            # Calculate cost for this item in this tier
+            cost, details = calculate_item_tier_cost(db, item, tier_id)
+            tier_total_cost += cost
+            tier_breakdown.extend(details)
+            
+        # Final Price Calculation
+        preco_venda = tier_total_cost * (1 + margem_lucro) * (1 + margem_negociacao) * (1 + margem_impostos)
+        
+        results[tier_name] = {
+            'custo_total': round(tier_total_cost, 2),
+            'preco_venda': round(preco_venda, 2),
+            'breakdown': tier_breakdown,
+            'description': tier['description']
+        }
+        
+    return jsonify(results)
+
 # --- Generating Contracts & Proposals ---
 
 def render_contract_template(template_str, orc, cliente, db):
@@ -148,7 +198,7 @@ def render_contract_template(template_str, orc, cliente, db):
     def fmt_moeda(val):
         return f"R$ {val:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
 
-    pag_info = json.loads(orc['pagamento_json']) if orc['pagamento_json'] else {}
+    pag_info = json.loads(orc['pagamento_json']) if 'pagamento_json' in orc.keys() and orc['pagamento_json'] else {}
     total = fmt_moeda(orc['total'])
     data_hoje = datetime.now().strftime('%d/%m/%Y')
 
@@ -211,8 +261,8 @@ def render_contract_template(template_str, orc, cliente, db):
     html = html.replace('[EMPRESA_CNPJ]', c_cnpj)
     html = html.replace('[EMPRESA_ENDERECO]', c_end)
     html = html.replace('[EMPRESA_LOGO]', c_logo)
-    html = html.replace('[CLIENTE]', cliente['nome'] if cliente else "N/A")
-    html = html.replace('[CPF_CNPJ]', cliente['cpf_cnpj'] if cliente else "N/A")
+    html = html.replace('[CLIENTE]', (cliente['nome'] or "N/A") if cliente else "N/A")
+    html = html.replace('[CPF_CNPJ]', (cliente['cpf_cnpj'] or "N/A") if cliente else "N/A")
     html = html.replace('[FORMA_PAGAM]', pag_info.get('metodo', 'À combinar'))
     html = html.replace('[ENTRADA]', fmt_moeda(float(pag_info.get('entrada', 0))))
     html = html.replace('[QTD_PARCELAS]', str(pag_info.get('parcelas', 1)))

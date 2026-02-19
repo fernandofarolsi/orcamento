@@ -212,9 +212,10 @@
             {% set group_total = 0 %}
             {% for item in group.itens %}{% set group_total = group_total + (item.subtotal | float) %}{% endfor %}
             {% set unit_price = group_total %}
-            {% set total_item = group_total * (group.qty | int) %}
+            {% set qty = group.qty | default(1) | int %}
+            {% set total_item = unit_price * qty %}
             <tr>
-                <td>{{ group.code }}</td>
+                <td>{{ group.code | default('-') }}</td>
                 <td>
                     <strong>{{ group.name }}</strong>
                     <div style="font-size: 0.85em; color: #555; margin-top: 5px;">
@@ -223,7 +224,7 @@
                         {% endfor %}
                     </div>
                 </td>
-                <td>{{ "%03d"|format(group.qty | int) }}</td>
+                <td>{{ "%03d"|format(qty) }}</td>
                 <td>R$ {{ "%.2f"|format(unit_price) }}</td>
                 <td><strong>R$ {{ "%.2f"|format(total_item) }}</strong></td>
                 <td class="miniature">

@@ -60,3 +60,82 @@ def api_config_update():
                 float(data.get('margem_impostos')) / 100))
     db.commit()
     return jsonify({'success': True})
+
+@bp.route('/api/users', methods=['GET'])
+@jwt_required()
+def api_users_list():
+    if current_user['role'] != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    db = get_db()
+    users = db.execute('SELECT id, username, role, is_active, whatsapp FROM users').fetchall()
+    return jsonify([dict(u) for u in users])
+
+@bp.route('/api/users', methods=['POST'])
+@jwt_required()
+def api_users_create():
+    if current_user['role'] != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    data = request.json
+    db = get_db()
+    
+    # Check existing
+    exists = db.execute('SELECT id FROM users WHERE username = ?', (data.get('username'),)).fetchone()
+    if exists:
+        return jsonify({'error': 'Usuário já existe'}), 400
+        
+    db.execute('INSERT INTO users (username, password, role, is_active, whatsapp) VALUES (?, ?, ?, 1, ?)',
+               (data.get('username'), data.get('password'), data.get('role', 'user'), data.get('whatsapp')))
+    db.commit()
+    return jsonify({'success': True})
+
+@bp.route('/api/users/<int:id>', methods=['PUT'])
+@jwt_required()
+def api_users_update(id):
+    if current_user['role'] != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    data = request.json
+    db = get_db()
+    
+    fields = []
+    values = []
+    
+    if 'role' in data:
+        fields.append('role=?')
+        values.append(data['role'])
+    
+    if 'password' in data and data['password']:
+        fields.append('password=?')
+        values.append(data['password'])
+        
+    if 'is_active' in data:
+        fields.append('is_active=?')
+        values.append(int(data['is_active']))
+        
+    if 'whatsapp' in data:
+        fields.append('whatsapp=?')
+        values.append(data['whatsapp'])
+        
+    if not fields:
+        return jsonify({'success': True}) # Nothing to update
+        
+    values.append(id)
+    query = f"UPDATE users SET {', '.join(fields)} WHERE id=?"
+    db.execute(query, tuple(values))
+    db.commit()
+    
+    return jsonify({'success': True})
+
+@bp.route('/api/users/<int:id>', methods=['DELETE'])
+@jwt_required()
+def api_users_delete(id):
+    if current_user['role'] != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    # Soft delete
+    db = get_db()
+    db.execute('UPDATE users SET is_active = 0 WHERE id = ?', (id,))
+    db.commit()
+    
+    return jsonify({'success': True})

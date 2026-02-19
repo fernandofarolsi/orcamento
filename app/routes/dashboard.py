@@ -7,7 +7,30 @@ bp = Blueprint('dashboard', __name__)
 @bp.route('/dashboard')
 @jwt_required()
 def dashboard():
-    return render_template('dashboard_kpi.html')
+    db = get_db()
+    
+    # KPIs for initial render
+    row_fat = db.execute("SELECT SUM(valor) as total FROM contas WHERE tipo='receber' AND strftime('%Y-%m', vencimento) = strftime('%Y-%m', 'now')").fetchone()
+    total_revenue = row_fat['total'] if row_fat and row_fat['total'] else 0
+    
+    row_orc = db.execute("SELECT COUNT(*) as c FROM orcamentos").fetchone()
+    total_budgets = row_orc['c'] if row_orc else 0
+    
+    row_est = db.execute("SELECT COUNT(*) as c FROM estoque WHERE quantidade < 10 AND quantidade > 0").fetchone()
+    critical_stock_count = row_est['c'] if row_est else 0
+    
+    row_cli = db.execute("SELECT COUNT(DISTINCT client_id) as c FROM orcamentos").fetchone()
+    total_clients = row_cli['c'] if row_cli else 0
+    
+    row_venc = db.execute("SELECT SUM(valor) as total FROM contas WHERE tipo='pagar' AND status='pendente' AND vencimento < date('now')").fetchone()
+    expired_accounts_total = row_venc['total'] if row_venc and row_venc['total'] else 0
+
+    return render_template('dashboard_kpi.html', 
+                          total_revenue=total_revenue,
+                          total_budgets=total_budgets,
+                          critical_stock_count=critical_stock_count,
+                          total_clients=total_clients,
+                          expired_accounts_total=expired_accounts_total)
 
 @bp.route('/relatorios')
 @jwt_required()

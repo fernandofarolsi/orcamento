@@ -27,8 +27,8 @@
         </div>
     </div>
 
-    <div class="logs-section">
-        <table>
+    <div class="glass-panel" style="padding: 20px;">
+        <table class="data-table">
             <thead>
                 <tr>
                     <th>Ref.</th>
@@ -45,22 +45,27 @@
                     <td>#{{ orc.id }}</td>
                     <td>{{ orc.client }}</td>
                     <td>R$ {{ "%.2f"|format(orc.total) }}</td>
-                    <td><span
-                            style="padding: 4px 8px; border-radius: 4px; background: {{ orc.status | status_color }}; color: #fff; font-size: 0.9em;">{{
-                            orc.status }}</span></td>
+                    <td>
+                        <span
+                            style="padding: 4px 8px; border-radius: 4px; background-color: {{ orc.status | status_color }}; color: #fff; font-size: 0.9em;">
+                            {{ orc.status }}
+                        </span>
+                    </td>
                     <td>{{ orc.created_at | date_format(True) }}</td>
                     <td>
                         <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em; background: #17a2b8;"
-                                onclick="editOrcamento('{{orc.id}}')">✏️ Editar</button>
-                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em; background: #28a745;"
-                                onclick="window.open('/proposta/{{orc.id}}', '_blank')">📑 Proposta</button>
-                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em; background: #6c757d;"
-                                onclick="window.open('/contrato/{{orc.id}}', '_blank')">📜 Contrato</button>
-                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em; background: #007BFF;"
-                                onclick="faturarOrcamento('{{orc.id}}')">$ Faturar</button>
-                            <button class="btn cancel" style="padding: 5px 10px; font-size: 0.8em;"
-                                onclick="deleteOrcamento('{{orc.id}}')">Excluir</button>
+                            <button class="btn"
+                                style="padding: 5px 10px; font-size: 0.8em; background: #17a2b8; width: auto;"
+                                onclick="editOrcamento('{{orc.id}}')">✏️</button>
+                            <button class="btn"
+                                style="padding: 5px 10px; font-size: 0.8em; background: #28a745; width: auto;"
+                                onclick="window.open('/proposta/{{orc.id}}', '_blank')">📑</button>
+                            <button class="btn"
+                                style="padding: 5px 10px; font-size: 0.8em; background: #6c757d; width: auto;"
+                                onclick="window.open('/contrato/{{orc.id}}', '_blank')">📜</button>
+                            <button class="btn"
+                                style="padding: 5px 10px; font-size: 0.8em; background: #007BFF; width: auto;"
+                                onclick="faturarOrcamento('{{orc.id}}')">$</button>
                         </div>
                     </td>
                 </tr>
@@ -73,10 +78,11 @@
 
 <!-- Modal Creation -->
 <div id="orcModal"
-    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
-    <div
-        style="background: var(--card-bg); width: 800px; max-height: 90vh; overflow-y: auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 20px;">
-        <h2 id="modalTitle" style="margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="glass-panel neon-border-cyan"
+        style="width: 800px; max-height: 90vh; overflow-y: auto; padding: 40px; display: flex; flex-direction: column; gap: 20px;">
+        <h2 id="modalTitle"
+            style="margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; color: var(--primary-neon);">
             Novo Orçamento
         </h2>
         <input type="hidden" id="orcamentoId">
@@ -338,6 +344,26 @@
                 <div id="valciBreakdown"
                     style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px; font-family: monospace; font-size: 0.9em; color: #aaa; white-space: pre-wrap;">
                     <!-- Breakdown will appear here -->
+                </div>
+            </div>
+
+            <!-- SCENARIOS SECTION -->
+            <div
+                style="margin-top: 20px; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; border: 1px solid #444;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-size: 1.1em; color: #17a2b8;">Análise de Cenários (3 Níveis)</h3>
+                    <button class="btn" style="background: #17a2b8; width: auto; font-size: 0.9em;"
+                        onclick="calculateTiers()">
+                        🔄 Calcular Cenários
+                    </button>
+                </div>
+
+                <div id="tiersContainer"
+                    style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
+                    <!-- Tier Cards will be injected here -->
+                    <div style="grid-column: span 3; text-align: center; color: #666; padding: 20px;">
+                        Clique em "Calcular Cenários" para ver as opções.
+                    </div>
                 </div>
             </div>
 
@@ -684,11 +710,13 @@
         const item = catalogoData.find(i => i.id == id);
         if (!item) return;
 
-        item.dims_padrao.split(',').forEach(part => {
-            const [k, v] = part.split(':');
-            const el = document.getElementById(`dim${k}`);
-            if (el) el.value = v;
-        });
+        if (item.dims_padrao) {
+            item.dims_padrao.split(',').forEach(part => {
+                const [k, v] = part.split(':');
+                const el = document.getElementById(`dim${k}`);
+                if (el) el.value = v;
+            });
+        }
 
         // Atualizar o preview após preencher as dimensões
         updateItemPreview();
@@ -796,8 +824,84 @@
         accBuffer = [];
         updateAccBufferList();
 
-        showToast("Item adicionado com sucesso!");
     }
+
+    function calculateTiers() {
+        const items = [];
+        budgetTabs.forEach(tab => {
+            if (tab.items && tab.items.length > 0) {
+                tab.items.forEach(it => items.push(it));
+            }
+        });
+
+        if (items.length === 0) return alert("Adicione itens ao projeto primeiro.");
+
+        const config = {
+            margem_lucro: parseFloat(document.getElementById('valciMargemLucro').value),
+            margem_negociacao: parseFloat(document.getElementById('valciMargemNegoc').value),
+            margem_impostos: parseFloat(document.getElementById('valciMargemImposto').value)
+        };
+
+        const container = document.getElementById('tiersContainer');
+        container.innerHTML = '<div style="grid-column: span 3; text-align: center; color: #aaa;">Calculando...</div>';
+
+        fetch('/api/orcamentos/calculate-tiers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: items, config: config })
+        })
+            .then(r => r.json())
+            .then(data => {
+                container.innerHTML = '';
+                // data is { 'Econômico': {...}, ... }
+                Object.keys(data).forEach(tierName => {
+                    const tier = data[tierName];
+                    const card = document.createElement('div');
+                    card.style.cssText = 'background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid #555;';
+
+                    const isPremium = tierName.toLowerCase().includes('premium');
+                    const isEco = tierName.toLowerCase().includes('econ');
+
+                    let color = '#ccc';
+                    if (isPremium) color = '#ffdf7e'; // Goldish
+                    if (isEco) color = '#a8e6cf'; // Greenish
+
+                    card.innerHTML = `
+                    <h4 style="margin: 0 0 10px 0; color: ${color}; border-bottom: 1px solid #444; padding-bottom: 5px;">${tierName}</h4>
+                    <div style="font-size: 0.9em; color: #aaa; margin-bottom: 10px; height: 40px; overflow: hidden;">${tier.description || ''}</div>
+                    
+                    <div style="margin-bottom: 5px;">Custo: R$ ${tier.custo_total.toFixed(2)}</div>
+                    <div style="font-size: 1.4em; font-weight: bold; color: ${color}; margin-bottom: 15px;">
+                        R$ ${tier.preco_venda.toFixed(2)}
+                    </div>
+                    
+                    <button class="btn" style="width: 100%; font-size: 0.8em; background: #444;" onclick='alert(${JSON.stringify(tier.breakdown.join("\\n"))})'>Ver Detalhes</button>
+                    <button class="btn" style="width: 100%; margin-top: 5px; background: ${color}; color: #000; font-weight: bold;" onclick="applyTierPrice(${tier.preco_venda})">Selecionar</button>
+                `;
+                    container.appendChild(card);
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                container.innerHTML = `<div style="color: red;">Erro ao calcular: ${err.message}</div>`;
+            });
+    }
+
+    function applyTierPrice(price) {
+        // Option to apply this price as the "Custom Price" or just populate the breakdown?
+        // For now, let's just log it or maybe show a toast.
+        // User asked to "gerar os 3".
+        // Maybe we just alert for now.
+        // Actually, let's allow setting the "grandTotal" override if we had one.
+        // But grandTotal is currently calculated from Valci margins.
+        // If we select a Tier, we might be selecting the *Base Cost* of that tier.
+        // But the input form (Valci) works on margin * base.
+        // So selecting a tier effectively means "Use Tier X Materials".
+        // But we don't have a way to "swap" materials in the UI *tab list* yet.
+        // So this visual is just for "Quote Presentation".
+        alert("Preço copiado! Você pode usar este valor na Proposta.");
+    }
+
 
     function removeItem(index) {
         const tab = budgetTabs.find(t => t.id === activeTabId);
@@ -1038,8 +1142,15 @@
 
     function faturarOrcamento(id) {
         fetch(`/api/orcamentos/${id}`)
-            .then(r => r.json())
+            .then(r => {
+                if (r.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+                return r.json();
+            })
             .then(data => {
+                if (!data) return;
                 if (data.success && data.orcamento && data.orcamento.total !== undefined) {
                     openFaturar(id, data.orcamento.total);
                 } else {

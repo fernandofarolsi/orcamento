@@ -57,3 +57,9 @@ def from_json_filter(value):
         return json.loads(value)
     except:
         return {}
+
+def format_currency(value):
+    try:
+        return f"{value:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+    except:
+        return "0,00"

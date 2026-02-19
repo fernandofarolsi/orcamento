@@ -19,10 +19,3 @@ CREATE TABLE orcamentos (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Seed Catalog
-INSERT INTO itens_catalogo (nome, preco_base, dims_padrao) VALUES 
-('Gaveteiro Simples', 400.0, 'L:0.5,A:0.7,P:0.5'),
-('Roupeiro 2 Portas', 850.0, 'L:1.0,A:2.4,P:0.6'),
-('Armário Aéreo', 450.0, 'L:1.2,A:0.8,P:0.35'),
-('Balcão Cozinha', 600.0, 'L:1.2,A:0.9,P:0.6'),
-('Painel TV', 300.0, 'L:1.8,A:1.5,P:0.05');

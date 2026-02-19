@@ -16,7 +16,7 @@
     </div>
 
     <!-- Filtros -->
-    <div class="filters-section">
+    <div class="filters-section glass-panel mb-20" style="padding: 20px;">
         <div class="flex gap-10" style="align-items: flex-end;">
             <div class="form-group" style="flex: 1;">
                 <label>Buscar</label>
@@ -30,20 +30,14 @@
                     <option value="inativo">Inativo</option>
                 </select>
             </div>
-            <!-- Campo de cidade comentado - pode ser útil no futuro -->
-            <!--
-            <div class="form-group">
-                <label>Cidade</label>
-                <input type="text" id="cidadeFilter" placeholder="Filtrar por cidade..." oninput="filterTable()">
-            </div>
-            -->
-            <button class="btn btn-secondary" onclick="clearFilters()" style="height: 38px;">Limpar</button>
+            <button class="btn btn-secondary" onclick="clearFilters()"
+                style="height: 45px; border-radius: 12px;">Limpar</button>
         </div>
     </div>
 
     <!-- Tabela de Clientes -->
-    <div class="card">
-        <table>
+    <div class="glass-panel" style="padding: 20px;">
+        <table class="data-table">
             <thead>
                 <tr>
                     <th>Nome</th>
@@ -64,11 +58,12 @@
 
     <!-- Modal Cadastro/Edição -->
     <div id="clienteModal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
-        <div
-            style="background: var(--card-bg); width: 800px; max-height: 90vh; overflow-y: auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 20px;">
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="glass-panel neon-border-cyan"
+            style="width: 800px; max-height: 90vh; overflow-y: auto; padding: 40px; display: flex; flex-direction: column; gap: 20px;">
             <h2 id="modalTitle"
-                style="margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">Novo Cliente
+                style="margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; color: var(--primary-neon);">
+                Novo Cliente
             </h2>
             <form id="clienteForm" onsubmit="saveCliente(event)">
                 <input type="hidden" id="clienteId">
@@ -349,7 +344,9 @@
         data.forEach(cliente => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td style="padding: 12px;">${cliente.nome}</td>
+                <td style="padding: 12px; cursor:pointer;" onclick="window.location.href='/cliente/${cliente.id}'">
+                    <span style="font-weight:bold; color:var(--primary-color);">${cliente.nome}</span>
+                </td>
                 <td style="padding: 12px;">${cliente.cpf_cnpj}</td>
                 <td style="padding: 12px;">${cliente.telefone}</td>
                 <td style="padding: 12px;">${cliente.email}</td>

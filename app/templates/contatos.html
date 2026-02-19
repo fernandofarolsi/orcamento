@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="clientes-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h1 style="margin:0;">Central de Contatos (CRM)</h1>
+            <p style="color: #aaa; margin: 5px 0 0 0;">Gerencie todos os contatos do sistema e sincronize com o celular.
+            </p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" onclick="importContacts()"
+                title="Importar Clientes e Funcionários existentes">
+                📥 Importar do Sistema
+            </button>
+            <button class="btn" onclick="syncGoogle()" style="background: #4285F4;">
+                🔄 Sync Google
+            </button>
+            <button class="btn" onclick="openContactModal()">
+                + Novo Contato
+            </button>
+        </div>
+    </div>
+
+    <div class="logs-section">
+        <!-- Search & Filter -->
+        <div
+            style="display: flex; gap: 10px; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+            <input type="text" id="searchContact" placeholder="🔍 Buscar por nome, telefone..." class="form-control"
+                oninput="filterContacts()" style="flex: 1;">
+            <select id="filterType" class="form-control" onchange="filterContacts()" style="width: 150px;">
+                <option value="">Todos os Tipos</option>
+                <option value="lead">Lead</option>
+                <option value="cliente">Cliente</option>
+                <option value="fornecedor">Fornecedor</option>
+                <option value="funcionario">Funcionário</option>
+                <option value="parceiro">Parceiro</option>
+            </select>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background: #252526; color: #ccc;">
+                <tr>
+                    <th style="padding: 10px; text-align: left;">Nome</th>
+                    <th style="padding: 10px; text-align: left;">Tipo</th>
+                    <th style="padding: 10px; text-align: left;">Telefone / Email</th>
+                    <th style="padding: 10px; text-align: left;">Google Sync</th>
+                    <th style="padding: 10px; text-align: right;">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="contactsBody">
+                <!-- JS fills -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Contact Modal -->
+<div id="contactModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center;">
+    <div
+        style="background: var(--card-bg); width: 90%; max-width: 500px; padding: 20px; border-radius: 8px; border: 1px solid #444; display: flex; flex-direction: column; gap: 15px;">
+        <h3 id="modalTitle" style="margin: 0; color: #fff; border-bottom: 1px solid #444; padding-bottom: 10px;">Novo
+            Contato</h3>
+        <input type="hidden" id="contactId">
+
+        <div class="form-group">
+            <label>Nome Completo</label>
+            <input type="text" id="cNome" class="form-control" required placeholder="Ex: João Silva">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+                <label>Tipo</label>
+                <select id="cTipo" class="form-control">
+                    <option value="lead">Lead (Potencial)</option>
+                    <option value="cliente">Cliente</option>
+                    <option value="fornecedor">Fornecedor</option>
+                    <option value="funcionario">Funcionário</option>
+                    <option value="parceiro">Parceiro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Origem</label>
+                <select id="cOrigem" class="form-control">
+                    <option value="manual">Manual</option>
+                    <option value="indicacao">Indicação</option>
+                    <option value="site">Site/Google</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Telefone / WhatsApp</label>
+            <input type="text" id="cTelefone" class="form-control" placeholder="(00) 00000-0000">
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="cEmail" class="form-control" placeholder="email@exemplo.com">
+        </div>
+
+        <div class="form-group">
+            <label>Observações</label>
+            <textarea id="cObs" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+            <button class="btn btn-secondary" onclick="closeContactModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveContact()">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let contacts = [];
+
+    function loadContacts() {
+        document.getElementById('contactsBody').innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Carregando...</td></tr>';
+
+        fetch('/api/contatos')
+            .then(r => r.json())
+            .then(data => {
+                contacts = data;
+                renderContacts(contacts);
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('contactsBody').innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Erro ao carregar contatos by API.</td></tr>';
+            });
+    }
+
+    function renderContacts(list) {
+        const tbody = document.getElementById('contactsBody');
+        tbody.innerHTML = '';
+
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: #aaa;">Nenhum contato encontrado.</td></tr>';
+            return;
+        }
+
+        list.forEach(c => {
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid #333';
+
+            // Status Icon logic
+            let typeColor = '#ccc';
+            if (c.tipo === 'cliente') typeColor = '#28a745';
+            if (c.tipo === 'lead') typeColor = '#ffc107';
+            if (c.tipo === 'fornecedor') typeColor = '#17a2b8';
+            if (c.tipo === 'funcionario') typeColor = '#dc3545';
+
+            const googleIcon = c.google_resource_name ? '<span title="Sincronizado" style="color: #4285F4;">☁️ OK</span>' : '<span title="Pendente" style="color: #666;">☁️ -</span>';
+
+            tr.innerHTML = `
+                <td style="padding: 10px;"><strong>${c.nome}</strong></td>
+                <td style="padding: 10px;"><span style="background: ${typeColor}; padding: 2px 8px; border-radius: 10px; color: #fff; font-size: 0.8em;">${c.tipo.toUpperCase()}</span></td>
+                <td style="padding: 10px; color: #aaa;">
+                    ${c.telefone || '-'} <br>
+                    <small>${c.email || ''}</small>
+                </td>
+                <td style="padding: 10px;">${googleIcon}</td>
+                <td style="padding: 10px; text-align: right;">
+                    <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.85em;" onclick='editContact(${JSON.stringify(c)})'>✏️</button>
+                    <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.85em; color: #ff5252;" onclick="deleteContact(${c.id})">🗑️</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function filterContacts() {
+        const term = document.getElementById('searchContact').value.toLowerCase();
+        const type = document.getElementById('filterType').value;
+
+        const filtered = contacts.filter(c => {
+            const matchTerm = c.nome.toLowerCase().includes(term) || (c.telefone && c.telefone.includes(term));
+            const matchType = type ? c.tipo === type : true;
+            return matchTerm && matchType;
+        });
+
+        renderContacts(filtered);
+    }
+
+    // Modal Logic
+    function openContactModal() {
+        document.getElementById('contactId').value = '';
+        document.getElementById('cNome').value = '';
+        document.getElementById('cTelefone').value = '';
+        document.getElementById('cEmail').value = '';
+        document.getElementById('cObs').value = '';
+        document.getElementById('cTipo').value = 'lead';
+        document.getElementById('modalTitle').textContent = 'Novo Contato';
+        document.getElementById('contactModal').style.display = 'flex';
+        document.getElementById('cNome').focus();
+    }
+
+    function editContact(c) {
+        document.getElementById('contactId').value = c.id;
+        document.getElementById('cNome').value = c.nome;
+        document.getElementById('cTelefone').value = c.telefone || '';
+        document.getElementById('cEmail').value = c.email || '';
+        document.getElementById('cObs').value = c.observacoes || '';
+        document.getElementById('cTipo').value = c.tipo || 'lead';
+        document.getElementById('cOrigem').value = c.origem || 'manual';
+        document.getElementById('modalTitle').textContent = 'Editar Contato';
+        document.getElementById('contactModal').style.display = 'flex';
+    }
+
+    function closeContactModal() {
+        document.getElementById('contactModal').style.display = 'none';
+    }
+
+    function saveContact() {
+        const id = document.getElementById('contactId').value;
+        const body = {
+            nome: document.getElementById('cNome').value,
+            tipo: document.getElementById('cTipo').value,
+            telefone: document.getElementById('cTelefone').value,
+            email: document.getElementById('cEmail').value,
+            origem: document.getElementById('cOrigem').value,
+            observacoes: document.getElementById('cObs').value
+        };
+
+        if (!body.nome) return alert("Nome é obrigatório");
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/contatos/${id}` : '/api/contatos';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) {
+                closeContactModal();
+                loadContacts();
+            } else {
+                alert("Erro ao salvar: " + res.error);
+            }
+        });
+    }
+
+    function deleteContact(id) {
+        if (!confirm("Excluir contato permanentemente?")) return;
+        fetch(`/api/contatos/${id}`, { method: 'DELETE' })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) loadContacts();
+            });
+    }
+
+    function syncGoogle() {
+        if (!confirm("Iniciar sincronização com Google Contatos? Isso pode levar alguns instantes.")) return;
+        fetch('/api/contatos/sync', { method: 'POST' })
+            .then(r => r.json())
+            .then(res => {
+                alert(res.message);
+                loadContacts();
+            });
+    }
+
+    function importContacts() {
+        if (!confirm("Importar clientes e funcionários existentes para a Central de Contatos? (Não duplica se já existir nome igual)")) return;
+        fetch('/api/contatos/import', { method: 'POST' })
+            .then(r => r.json())
+            .then(res => {
+                alert(`Importação concluída! ${res.imported} novos contatos adicionados.`);
+                loadContacts();
+            });
+    }
+
+    // Init
+    loadContacts();
+</script>
+{% endblock %}
