@@ -135,21 +135,72 @@
 
 <!-- TAB: RH -->
 <div id="tab-rh" class="tab-content" style="display:none;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3>Registro de Colaboradores</h3>
-
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+        <div>
+            <h3 class="neon-text-magenta">Dashboard Talentos</h3>
+            <p class="text-muted">Resumo financeiro da folha de pagamento.</p>
+        </div>
+        <a href="/funcionarios" class="btn glass-btn neon-border-magenta"
+            style="padding: 10px 20px; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+            <span>Gerenciar Equipe Completa</span>
+            <span style="font-size: 1.2em;">↗</span>
+        </a>
     </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th style="color: #fff">Nome</th>
-                <th style="color: #fff">Cargo</th>
-                <th style="color: #fff">Salário Base</th>
-                <th style="color: #fff">Ações</th>
-            </tr>
-        </thead>
-        <tbody id="listaFunc"></tbody>
-    </table>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        <div class="glass-panel"
+            style="padding: 25px; border: 1px solid var(--accent-magenta); position: relative; overflow: hidden;">
+            <div
+                style="position: absolute; right: -10px; top: -10px; font-size: 5rem; opacity: 0.1; color: var(--accent-magenta); font-weight: 800;">
+                👥</div>
+            <label class="text-muted"
+                style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;">Colaboradores Ativos</label>
+            <p id="kpi-ativos-count" class="neon-text-magenta"
+                style="font-size: 3rem; font-weight: 800; margin: 10px 0;">0</p>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Equipe operacional ativa no sistema</div>
+        </div>
+
+        <div class="glass-panel"
+            style="padding: 25px; border: 1px solid #00ff88; position: relative; overflow: hidden;">
+            <div
+                style="position: absolute; right: -10px; top: -10px; font-size: 5rem; opacity: 0.1; color: #00ff88; font-weight: 800;">
+                💰</div>
+            <label class="text-muted" style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;">Custo
+                Mensal (Salários)</label>
+            <p id="kpi-payroll-total"
+                style="font-size: 2.2rem; font-weight: 800; margin: 10px 0; color: #00ff88; font-family: 'JetBrains Mono';">
+                R$ 0,00</p>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Soma total dos salários base dos ativos</div>
+        </div>
+
+        <div class="glass-panel"
+            style="padding: 25px; border: 1px solid var(--accent-cyan); position: relative; overflow: hidden;">
+            <div
+                style="position: absolute; right: -10px; top: -10px; font-size: 5rem; opacity: 0.1; color: var(--accent-cyan); font-weight: 800;">
+                📂</div>
+            <label class="text-muted"
+                style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;">Provisões
+                (Férias/13º)</label>
+            <p id="kpi-provisao-total" class="neon-text-cyan"
+                style="font-size: 2.2rem; font-weight: 800; margin: 10px 0; font-family: 'JetBrains Mono';">R$ 0,00</p>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Reserva mensal de segurança (1/6 da folha)</div>
+        </div>
+    </div>
+
+    <div class="glass-panel mt-20"
+        style="padding: 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(255, 68, 68, 0.05); border: 1px dashed rgba(255, 68, 68, 0.3);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span style="font-size: 1.5rem;">⚠️</span>
+            <div>
+                <p style="font-weight: 600; color: #ff4444; margin-bottom: 2px;">Gestão de Folha & Pontos</p>
+                <p class="text-muted" style="font-size: 0.8rem;">Para gerar olerites ou importar biometria, utilize o
+                    módulo dedicado.</p>
+            </div>
+        </div>
+        <a href="/funcionarios" class="action-btn"
+            style="color: #ff4444; border: 1px solid #ff4444; padding: 5px 15px; border-radius: 4px; font-size: 0.8rem; text-decoration: none;">Acessar
+            Gestão ↗</a>
+    </div>
 </div>
 
 
@@ -238,6 +289,22 @@
         padding: 20px;
         border-radius: 8px;
         width: 400px;
+    }
+
+    @keyframes slideUpFade {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .slideUpFade {
+        animation: slideUpFade 0.4s ease-out forwards;
     }
 </style>
 
@@ -440,32 +507,22 @@
     // --- RH ---
     function loadFuncionarios() {
         fetch('/api/funcionarios').then(r => r.json()).then(data => {
-            const tbody = document.getElementById('listaFunc');
-            tbody.innerHTML = '';
+            let ativosCount = 0;
+            let totalPayroll = 0;
+            let totalProvisao = 0;
+
             data.forEach(f => {
                 if (f.status_emprego === 'Inativo') return;
 
-                let statusBadge = '';
-                if (f.status_emprego === 'Ativo') {
-                    statusBadge = '<span class="status-badge" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);">Ativo</span>';
-                } else {
-                    statusBadge = '<span class="status-badge" style="background: rgba(255, 170, 0, 0.1); color: #ffaa00; border: 1px solid rgba(255, 170, 0, 0.3);">Rescisão</span>';
-                }
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        <div style="font-weight: 600; color: var(--text-primary);">${f.nome}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">${f.cargo || '-'}</div>
-                    </td>
-                    <td>${statusBadge}</td>
-                    <td style="font-family: 'JetBrains Mono'; color: var(--text-primary);">R$ ${f.salario_base.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td style="text-align: center;">
-                        <button class="action-btn" onclick="gerarHolerite(${f.id})" title="📄 Prévia Holerite">📄</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+                ativosCount++;
+                totalPayroll += f.salario_base;
+                totalProvisao += (f.salario_base / 6);
             });
+
+            // Update Dashboard KPIs
+            document.getElementById('kpi-ativos-count').innerText = ativosCount;
+            document.getElementById('kpi-payroll-total').innerText = `R$ ${totalPayroll.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+            document.getElementById('kpi-provisao-total').innerText = `R$ ${totalProvisao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
         });
     }
 
