@@ -10,7 +10,8 @@
 </div>
 
 <!-- TABS -->
-<div class="glass-panel mb-20" style="padding: 10px; display: flex; gap: 5px; border-radius: 16px;">
+<div class="glass-panel mb-20"
+    style="padding: 10px; display: flex; gap: 8px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border);">
     <button class="tab-btn active" onclick="openTab('receber')">Receber</button>
     <button class="tab-btn" onclick="openTab('pagar')">Pagar</button>
     <button class="tab-btn" onclick="openTab('custos_fixos')">Custos Fixos (Fábrica)</button>
@@ -71,12 +72,12 @@
                     <input type="number" id="fixValor" placeholder="Valor" style="flex: 1;">
                     <button class="btn" onclick="addCustoFixo()" style="width: auto;">+</button>
                 </div>
-                <table class="data-table">
+                <table class="modern-table">
                     <thead>
                         <tr>
-                            <th style="color: #fff">Item</th>
-                            <th style="color: #fff">Valor</th>
-                            <th style="color: #fff">Ações</th>
+                            <th>Item</th>
+                            <th>Valor</th>
+                            <th style="width: 80px; text-align: center;">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="listaFixosManuais"></tbody>
@@ -86,12 +87,12 @@
             <h3>Provisões de Funcionários</h3>
             <small style="color:#888;">Cálculo: Salário + 1/12 (13º) + 1/12 (Provisão Férias)</small>
             <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                <table class="data-table">
+                <table class="modern-table">
                     <thead>
                         <tr>
-                            <th style="color: #fff">Funcionário</th>
-                            <th style="color: #fff">Salário Base</th>
-                            <th style="color: #fff">Custo Total (c/ Prov.)</th>
+                            <th>Funcionário</th>
+                            <th>Salário Base</th>
+                            <th>Custo Total (c/ Prov.)</th>
                         </tr>
                     </thead>
                     <tbody id="listaFixosRH"></tbody>
@@ -100,32 +101,33 @@
         </div>
 
         <!-- DASHBOARD SUGGESTION -->
-        <div
-            style="background: #2c3e50; padding: 20px; border-radius: 8px; align-self: start; top: 20px; position: sticky;">
-            <h3 style="margin-top: 0; color: #5cb85c;">Cálculo Valor Hora</h3>
-            <hr style="border-color: #444;">
+        <div class="glass-panel"
+            style="padding: 25px; align-self: start; top: 20px; position: sticky; border: 1px solid var(--accent-cyan);">
+            <h3 class="neon-text-cyan" style="margin-top: 0;">Valor da Hora</h3>
+            <hr style="border-color: var(--glass-border); margin: 15px 0;">
             <div style="margin: 15px 0;">
-                <label>Total Custos Fixos</label>
-                <p style="font-size: 1.5em; font-weight: bold;" id="totalCustosFixos">R$ 0,00</p>
+                <label class="text-muted">Total Custos Fixos</label>
+                <p style="font-size: 1.8em; font-weight: 700; color: var(--text-primary); font-family: 'JetBrains Mono';"
+                    id="totalCustosFixos">R$ 0,00</p>
             </div>
             <div style="margin: 15px 0;">
-                <label>Capacidade Mensal (Horas)</label>
-                <div style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
-                    <input type="number" id="fixCapacidade" step="1"
-                        style="width: 80px; background: #1a252f; border: 1px solid #34495e; color: white; padding: 5px; border-radius: 4px;">
-                    <button class="btn" onclick="saveCapacidade()"
-                        style="width: auto; padding: 5px 10px; font-size: 0.8em;">Set</button>
+                <label class="text-muted">Capacidade Mensal</label>
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+                    <input type="number" id="fixCapacidade" step="1" class="glass-input"
+                        style="width: 100px; padding: 8px;">
+                    <button class="btn glass-btn neon-border-cyan" onclick="saveCapacidade()"
+                        style="padding: 8px 15px;">Set</button>
                 </div>
-                <small style="color:#aaa;">Ex: 160h/mês</small>
+                <small class="text-muted" style="display: block; margin-top: 5px;">Ex: 160h/mês</small>
             </div>
             <div
-                style="margin-top: 20px; padding: 15px; background: #1a252f; border-radius: 4px; border: 1px dashed #5cb85c;">
-                <label style="color: #5cb85c;">Sugestão de Valor da Hora</label>
-                <p style="font-size: 2em; font-weight: bold; margin: 5px 0;" id="sugestaoHora">R$ 0,00</p>
-                <button class="btn" onclick="applySuggestedRate()"
-                    style="width: 100%; margin-top: 10px; background: #5cb85c;">Aplicar no Orçamento</button>
-                <small style="color:#aaa; display:block; margin-top:10px;">O valor atual é salvo nas
-                    Configurações.</small>
+                style="margin-top: 25px; padding: 20px; background: rgba(0, 255, 136, 0.05); border-radius: 12px; border: 1px dashed #00ff88;">
+                <label style="color: #00ff88; font-weight: 600;">Sugestão de Valor da Hora</label>
+                <p style="font-size: 2.2em; font-weight: 800; margin: 10px 0; color: var(--text-primary); font-family: 'JetBrains Mono';"
+                    id="sugestaoHora">R$ 0,00</p>
+                <button class="btn glass-btn" onclick="applySuggestedRate()"
+                    style="width: 100%; margin-top: 15px; background: rgba(0, 255, 136, 0.1); border: 1px solid #00ff88; color: #00ff88;">Aplicar
+                    no Orçamento</button>
             </div>
         </div>
     </div>
@@ -244,16 +246,25 @@
         document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 
-        document.getElementById('tab-' + tabName).style.display = 'block';
-        event.target.classList.add('active');
+        const tab = document.getElementById('tab-' + tabName);
+        if (tab) {
+            tab.style.display = 'block';
+            tab.classList.add('slideUpFade');
+        }
+
+        // Ativar botão selecionado
+        const btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(b => {
+            const currentTab = b.getAttribute('onclick').match(/'([^']+)'/)[1];
+            if (currentTab === tabName) {
+                b.classList.add('active');
+            }
+        });
 
         if (tabName === 'receber') loadContas('receber');
         if (tabName === 'pagar') loadContas('pagar');
         if (tabName === 'custos_fixos') loadCustosFixos();
-        if (tabName === 'rh') {
-            loadFuncionarios();
-
-        }
+        if (tabName === 'rh') loadFuncionarios();
     }
 
     // --- CONTAS ---
@@ -339,8 +350,10 @@
                 tbodyManual.appendChild(tr);
             });
 
-            // RH Costs (Salary + Provisoes)
+            // RH Costs (Salary + Provisoes) - FILTER INACTIVE
             funcs.forEach(f => {
+                if (f.status_emprego === 'Inativo') return;
+
                 // Cálculo de provisão: Salário + 1/12 (13º) + 1/12 (Férias)
                 const provisao = f.salario_base / 6; // 1/12 + 1/12 = 2/12 = 1/6
                 const custoTotal = f.salario_base + provisao;
@@ -348,9 +361,12 @@
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${f.nome}</td>
-                    <td>R$ ${f.salario_base.toFixed(2)}</td>
-                    <td>R$ ${custoTotal.toFixed(2)}</td>
+                    <td>
+                        <div style="font-weight: 600; color: var(--text-primary);">${f.nome}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">${f.cargo || '-'}</div>
+                    </td>
+                    <td style="font-family: 'JetBrains Mono'; color: var(--text-primary);">R$ ${f.salario_base.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td style="font-family: 'JetBrains Mono'; color: var(--accent-cyan);">R$ ${custoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                 `;
                 tbodyRH.appendChild(tr);
             });
@@ -427,13 +443,25 @@
             const tbody = document.getElementById('listaFunc');
             tbody.innerHTML = '';
             data.forEach(f => {
+                if (f.status_emprego === 'Inativo') return;
+
+                let statusBadge = '';
+                if (f.status_emprego === 'Ativo') {
+                    statusBadge = '<span class="status-badge" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);">Ativo</span>';
+                } else {
+                    statusBadge = '<span class="status-badge" style="background: rgba(255, 170, 0, 0.1); color: #ffaa00; border: 1px solid rgba(255, 170, 0, 0.3);">Rescisão</span>';
+                }
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${f.nome}</td>
-                    <td>${f.cargo}</td>
-                    <td>R$ ${f.salario_base.toFixed(2)}</td>
                     <td>
-                        <button onclick="gerarHolerite(${f.id})" style="padding:4px 8px; cursor:pointer;">📄 Gerar Holerite</button>
+                        <div style="font-weight: 600; color: var(--text-primary);">${f.nome}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">${f.cargo || '-'}</div>
+                    </td>
+                    <td>${statusBadge}</td>
+                    <td style="font-family: 'JetBrains Mono'; color: var(--text-primary);">R$ ${f.salario_base.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td style="text-align: center;">
+                        <button class="action-btn" onclick="gerarHolerite(${f.id})" title="📄 Prévia Holerite">📄</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
