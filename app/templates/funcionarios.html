@@ -3,69 +3,82 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/consolidado.css') }}">
 <style>
+    /* Custom styles for high-density components that need obsidian variants */
     .holerite-modal {
-        max-width: 500px !important;
+        max-width: 650px !important;
     }
 
+    /* Updated Timeline/Item styles for Obsidian */
     .holerite-item {
         display: flex;
         justify-content: space-between;
-        padding: 5px 0;
-        border-bottom: 1px dashed var(--border-color);
+        padding: 12px 0;
+        border-bottom: 1px solid var(--glass-border);
+        color: var(--text-primary);
     }
 
     .holerite-total {
-        margin-top: 15px;
-        padding-top: 10px;
-        border-top: 2px solid var(--border-color);
-        font-weight: bold;
-        font-size: 1.2em;
+        margin-top: 20px;
+        padding: 15px;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 1.3rem;
         display: flex;
         justify-content: space-between;
+        color: var(--accent-cyan);
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
     }
 
-    .badge-warning {
-        background-color: #ffca28;
-        color: #000;
-    }
-
-    /* Tabs para Modal Consolidado */
+    /* Tab styles synced with Obsidian Ethereal */
     .tab-container {
         display: flex;
-        border-bottom: 2px solid #eee;
-        margin-bottom: 20px;
-        gap: 10px;
+        border-bottom: 1px solid var(--glass-border);
+        margin-bottom: 25px;
+        gap: 15px;
+        overflow-x: auto;
+        padding-bottom: 5px;
     }
 
     .tab-btn {
-        padding: 10px 20px;
+        padding: 12px 24px;
         border: none;
         background: none;
         cursor: pointer;
-        font-weight: bold;
-        color: #666;
+        font-weight: 600;
+        color: var(--text-muted);
         border-bottom: 3px solid transparent;
-        transition: all 0.3s;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        white-space: nowrap;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+    }
+
+    .tab-btn:hover {
+        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.05);
     }
 
     .tab-btn.active {
-        color: var(--primary-color);
-        border-bottom-color: var(--primary-color);
+        color: var(--primary-neon);
+        border-bottom-color: var(--primary-neon);
+        text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
     }
 
     .tab-content {
         display: none;
-        animation: fadeIn 0.3s;
+        animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .tab-content.active {
         display: block;
     }
 
-    @keyframes fadeIn {
+    @keyframes slideUpFade {
         from {
             opacity: 0;
-            transform: translateY(5px);
+            transform: translateY(10px);
         }
 
         to {
@@ -73,36 +86,56 @@
             transform: translateY(0);
         }
     }
+
+    /* Action buttons consistency */
+    .action-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 8px;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+
+    .action-btn:hover {
+        background: var(--glass-bg);
+        border-color: var(--primary-neon);
+        transform: translateY(-2px);
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="clientes-container">
-    <div class="flex-between mb-20">
+    <div class="flex-between mb-30">
         <div>
-            <h1 style="margin:0;">Funcionários & RH</h1>
+            <h1 class="neon-text-cyan" style="margin:0; font-size: 2.5rem;">RH & Talentos</h1>
+            <p class="text-muted" style="margin-top: 5px;">Gestão de capital humano e performance</p>
         </div>
-        <div class="flex gap-10">
-            <label class="flex gap-5"
-                style="align-items: center; cursor: pointer; font-size: 0.9em; margin-right: 15px;">
-                <input type="checkbox" id="showInativos" onchange="renderTable(funcionarios)"> Mostrar Inativos
+        <div class="flex gap-15">
+            <label class="flex gap-10"
+                style="align-items: center; cursor: pointer; font-size: 0.95em; color: var(--text-muted); background: var(--glass-bg); padding: 8px 15px; border-radius: 20px; border: 1px solid var(--glass-border);">
+                <input type="checkbox" id="showInativos" onchange="renderTable(funcionarios)"
+                    style="accent-color: var(--primary-neon);"> Mostrar Inativos
             </label>
-            <button class="btn btn-secondary" onclick="openImportModal()">📂 Importar Ponto (XLS)</button>
-            <button class="btn btn-success" onclick="bulkHolerite()">💰 Gerar Holerites do Mês</button>
-            <button class="btn btn-primary" onclick="openModal()">+ Novo Funcionário</button>
+            <button class="btn btn-secondary glass-btn" onclick="openImportModal()">📂 Importar Ponto</button>
+            <button class="btn btn-success glass-btn" onclick="bulkHolerite()"
+                style="border-color: var(--accent-cyan);">💰 Gerar Holerites</button>
+            <button class="btn btn-primary glass-btn neon-border-cyan" onclick="openModal()">+ Admitir
+                Funcionário</button>
         </div>
     </div>
 
     <!-- Tabela -->
-    <div class="card">
-        <table>
+    <div class="glass-panel" style="padding: 0; overflow: hidden;">
+        <table class="modern-table">
             <thead>
                 <tr>
-                    <th>Nome</th>
-                    <th>Cargo</th>
+                    <th>Colaborador</th>
+                    <th>Cargo / Função</th>
                     <th>Status</th>
-                    <th>Salário Base</th>
-                    <th>Acões</th>
+                    <th>Remuneração</th>
+                    <th style="text-align: center;">Ações Ágeis</th>
                 </tr>
             </thead>
             <tbody id="listaFuncionarios">
@@ -113,19 +146,21 @@
 
     <!-- Modal Único de Funcionário (Perfis e Ações) -->
     <div id="funcModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
-            <div class="flex-between">
-                <h2 id="modalTitle">Perfil do Funcionário</h2>
-                <button class="btn btn-secondary" onclick="closeModal()">Fechar</button>
+        <div class="modal-content glass-panel"
+            style="max-width: 900px; padding: 40px; border: 1px solid var(--glass-border);">
+            <div class="flex-between mb-30">
+                <h2 id="modalTitle" class="neon-text-cyan">Perfil do Colaborador</h2>
+                <button class="btn glass-btn" onclick="closeModal()" style="padding: 5px 15px;">&times; Sair</button>
             </div>
 
             <div class="tab-container">
-                <button class="tab-btn active" onclick="switchTab('cadastro')" id="btn-tab-cadastro">Cadastro</button>
-                <button class="tab-btn" onclick="switchTab('historico')" id="btn-tab-historico">Histórico 📜</button>
-                <button class="tab-btn" onclick="switchTab('holerite')" id="btn-tab-holerite">Holerite 💰</button>
-                <button class="tab-btn" onclick="switchTab('ponto')" id="btn-tab-ponto">Ponto 🕒</button>
-                <button class="tab-btn" onclick="switchTab('desligamento')" id="btn-tab-desligamento">Desligamento
-                    👋</button>
+                <button class="tab-btn active" onclick="switchTab('cadastro')" id="btn-tab-cadastro">👤
+                    Cadastro</button>
+                <button class="tab-btn" onclick="switchTab('historico')" id="btn-tab-historico">📜 Histórico</button>
+                <button class="tab-btn" onclick="switchTab('holerite')" id="btn-tab-holerite">💰 Holerite</button>
+                <button class="tab-btn" onclick="switchTab('ponto')" id="btn-tab-ponto">🕒 Folha de Ponto</button>
+                <button class="tab-btn" onclick="switchTab('desligamento')" id="btn-tab-desligamento"
+                    style="color: var(--danger-color);">👋 Rescisão</button>
             </div>
 
             <!-- TAB: CADASTRO -->
@@ -282,7 +317,7 @@
                 </div>
 
                 <div id="rescisaoResult"
-                    style="margin-top: 15px; background: #fffbe6; padding: 15px; border-radius: 8px; border: 1px solid #ffe58f; display:none;">
+                    style="margin-top: 15px; background: rgba(255, 150, 0, 0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255, 150, 0, 0.2); display:none; color: var(--text-primary);">
                     <!-- JS Preenche -->
                 </div>
 
@@ -300,50 +335,58 @@
     </div>
     <!-- Modal Importação Ponto -->
     <div id="importModal" class="modal">
-        <div class="modal-content">
-            <h2>Importar Arquivo de Ponto</h2>
-            <p>Selecione o arquivo XLS exportado do relógio.</p>
-            <input type="file" id="pontoFile" accept=".xls,.xlsx">
+        <div class="modal-content glass-panel"
+            style="max-width: 500px; padding: 35px; border: 1px solid var(--glass-border);">
+            <h2 class="neon-text-cyan mb-20">Importação Biométrica</h2>
+            <p class="text-muted mb-20">Selecione o arquivo XLS exportado do relógio para processamento automático.</p>
 
-            <div id="importLog"
-                style="margin-top:10px; max-height: 100px; overflow-y: auto; background: #eee; padding: 5px; display: none; font-size: 0.8em;">
+            <div class="form-group mb-20">
+                <input type="file" id="pontoFile" accept=".xls,.xlsx" class="glass-input" style="padding: 15px;">
             </div>
 
-            <div class="form-actions">
-                <button class="btn btn-secondary"
-                    onclick="document.getElementById('importModal').classList.remove('show')">Fechar</button>
-                <button class="btn btn-primary" onclick="uploadPonto()">Processar Arquivo</button>
+            <div id="importLog"
+                style="margin-top:15px; max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; display: none; font-size: 0.85em; color: var(--accent-cyan); border: 1px solid var(--glass-border);">
+            </div>
+
+            <div class="form-actions mt-30">
+                <button class="btn glass-btn"
+                    onclick="document.getElementById('importModal').classList.remove('show')">Cancelar</button>
+                <button class="btn btn-primary glass-btn neon-border-cyan" onclick="uploadPonto()">Processar
+                    Dados</button>
             </div>
         </div>
     </div>
 
     <!-- Modal Vale -->
     <div id="valeModal" class="modal">
-        <div class="modal-content">
-            <h2>Lançar Vale / Adiantamento</h2>
-            <h4 id="valeFuncNome" style="margin-top: 5px; color: #666;"></h4>
-            <form onsubmit="saveVale(event)">
+        <div class="modal-content glass-panel"
+            style="max-width: 500px; padding: 35px; border: 1px solid var(--glass-border);">
+            <h2 class="neon-text-magenta">Adiantamento de Salário</h2>
+            <h4 id="valeFuncNome" style="margin-top: 5px; color: var(--text-muted); font-weight: 400;"></h4>
+            <form onsubmit="saveVale(event)" class="mt-25">
                 <input type="hidden" id="valeFuncId">
 
                 <div class="form-group">
-                    <label>Valor (R$)</label>
-                    <input type="number" step="0.01" id="valeValor" required>
+                    <label>Valor do Vale (R$)</label>
+                    <input type="number" step="0.01" id="valeValor" class="glass-input" required placeholder="0,00">
                 </div>
 
                 <div class="form-group">
-                    <label>Data</label>
-                    <input type="date" id="valeData" required>
+                    <label>Data de Liberação</label>
+                    <input type="date" id="valeData" class="glass-input" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Descrição</label>
-                    <input type="text" id="valeDesc" required>
+                    <label>Observação / Descritivo</label>
+                    <input type="text" id="valeDesc" class="glass-input" required
+                        placeholder="Ex: Adiantamento emergencial">
                 </div>
 
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary"
-                        onclick="document.getElementById('valeModal').classList.remove('show')">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Lançar no Financeiro</button>
+                <div class="form-actions" style="margin-top: 30px;">
+                    <button type="button" class="btn glass-btn"
+                        onclick="document.getElementById('valeModal').classList.remove('show')">Voltar</button>
+                    <button type="submit" class="btn btn-primary glass-btn neon-border-magenta"
+                        style="background: rgba(255, 0, 255, 0.1);">Registrar Vale</button>
                 </div>
             </form>
         </div>
@@ -368,26 +411,34 @@
             tbody.innerHTML = '';
 
             data.forEach(f => {
-                // Filtro de inativos (Demitidos no mês atual continuam aparecendo)
                 const isDemitidoRecente = f.status_emprego === 'Demitido (Mês Atual)';
                 if (!showInativos && f.status_emprego === 'Inativo') return;
 
-                let statusClass = 'badge-secondary';
-                if (f.status_emprego === 'Ativo') statusClass = 'badge-success';
-                if (f.status_emprego === 'Inativo') statusClass = 'badge-danger';
-                if (isDemitidoRecente) statusClass = 'badge-warning';
+                let statusBadge = '';
+                if (f.status_emprego === 'Ativo') {
+                    statusBadge = '<span class="status-badge" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);">Ativo</span>';
+                } else if (f.status_emprego === 'Inativo') {
+                    statusBadge = '<span class="status-badge" style="background: rgba(255, 68, 68, 0.1); color: #ff4444; border: 1px solid rgba(255, 68, 68, 0.3);">Inativo</span>';
+                } else {
+                    statusBadge = '<span class="status-badge" style="background: rgba(255, 170, 0, 0.1); color: #ffaa00; border: 1px solid rgba(255, 170, 0, 0.3);">Rescisão</span>';
+                }
 
                 const isInactive = f.status_emprego === 'Inativo';
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                <td>${f.nome} <br><small style="color:#aaa;">${f.nome_ponto || ''}</small></td>
-                <td>${f.cargo || '-'}</td>
-                <td><span class="badge ${statusClass}">${f.status_emprego}</span></td>
-                <td>R$ ${parseFloat(f.salario_base).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                <td>
+                    <div style="font-weight: 600; color: var(--text-primary);">${f.nome}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">${f.nome_ponto || 'Sem ID Biométrico'}</div>
+                </td>
+                <td><span class="text-muted">${f.cargo || '-'}</span></td>
+                <td>${statusBadge}</td>
+                <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--accent-cyan);">R$ ${parseFloat(f.salario_base).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                 <td style="text-align: center;">
-                    ${!isInactive ? `<button class="action-btn" onclick="openValeModal(${f.id}, '${f.nome}')" title="Lançar Vale" style="color: #e67e22;">💸</button>` : `<span class="action-btn" title="Funcionário Inativo" style="opacity: 0.3; cursor: not-allowed; filter: grayscale(1);">💸</span>`}
-                    <button class="action-btn" onclick="openModal(${f.id})" title="Perfil / Editar">✏️</button>
+                    <div class="flex gap-10" style="justify-content: center;">
+                    ${!isInactive ? `<button class="action-btn" onclick="openValeModal(${f.id}, '${f.nome}')" title="Lançar Vale" style="color: #ffaa00;">💸</button>` : `<span class="action-btn" title="Inativo" style="opacity: 0.2; cursor: not-allowed;">💸</span>`}
+                    <button class="action-btn" onclick="openModal(${id = f.id})" title="Perfil / Gestão" style="color: var(--primary-neon);">⚙️</button>
+                    </div>
                 </td>
             `;
                 tbody.appendChild(tr);
@@ -640,14 +691,16 @@
                     }
                     data.forEach(p => {
                         const tr = document.createElement('tr');
-                        tr.style.borderBottom = '1px solid #eee';
+                        tr.style.borderBottom = '1px solid var(--glass-border)';
                         tr.innerHTML = `
-                        <td style="padding:8px;">${p.data_contratacao}</td>
-                        <td style="padding:8px;">${p.data_demissao || '<span style="color:green">Ativo</span>'}</td>
-                        <td style="padding:8px;">${p.motivo_saida || '-'}</td>
-                        <td style="padding:8px;">
-                            <button class="action-btn" onclick="editPeriod(${p.id})">✏️</button>
-                            <button class="action-btn" onclick="deletePeriod(${p.id})" style="color:red">🗑️</button>
+                        <td style="padding:12px; color: var(--text-primary);">${p.data_contratacao}</td>
+                        <td style="padding:12px;">${p.data_demissao ? `<span style="color:var(--danger-color)">${p.data_demissao}</span>` : '<span style="color:var(--primary-neon); font-weight: 600;">Vigente</span>'}</td>
+                        <td style="padding:12px; font-style: italic; color: var(--text-muted);">${p.motivo_saida || '-'}</td>
+                        <td style="padding:12px; text-align: center;">
+                            <div class="flex gap-10" style="justify-content: center;">
+                                <button class="action-btn" onclick="editPeriod(${p.id})">✏️</button>
+                                <button class="action-btn" onclick="deletePeriod(${p.id})" style="color:var(--danger-color)">🗑️</button>
+                            </div>
                         </td>
                     `;
                         tbody.appendChild(tr);
@@ -732,19 +785,21 @@
                     }
 
                     data.forEach(r => {
-                        const d = new Date(r.data + 'T12:00:00'); // Safe parse
+                        const d = new Date(r.data + 'T12:00:00');
                         const dia = d.getDate();
                         const semana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'][d.getDay()];
 
                         const tr = document.createElement('tr');
-                        tr.style.borderBottom = '1px solid #eee';
+                        tr.style.borderBottom = '1px solid var(--glass-border)';
                         tr.innerHTML = `
-                    <td style="padding:5px;"><b>${dia}</b> <small>${semana}</small></td>
-                    <td style="padding:5px; color: green;">${r.entrada_1 || '-'}</td>
-                    <td style="padding:5px; color: orange;">${r.saida_1 || '-'}</td>
-                    <td style="padding:5px; color: green;">${r.entrada_2 || '-'}</td>
-                    <td style="padding:5px; color: orange;">${r.saida_2 || '-'}</td>
-                    <td style="padding:5px;">${r.status || ''}</td>
+                    <td style="padding:10px; color: var(--text-primary);"><b>${dia}</b> <small style="color: var(--text-muted)">${semana}</small></td>
+                    <td style="padding:10px; color: #00ff88; font-family: 'JetBrains Mono';">${r.entrada_1 || '-'}</td>
+                    <td style="padding:10px; color: #ffaa00; font-family: 'JetBrains Mono';">${r.saida_1 || '-'}</td>
+                    <td style="padding:10px; color: #00ff88; font-family: 'JetBrains Mono';">${r.entrada_2 || '-'}</td>
+                    <td style="padding:10px; color: #ffaa00; font-family: 'JetBrains Mono';">${r.saida_2 || '-'}</td>
+                    <td style="padding:10px;">
+                        <span style="font-size: 0.8rem; background: rgba(0,243,255,0.1); color: var(--primary-neon); padding: 2px 8px; border-radius: 4px;">${r.status || 'OK'}</span>
+                    </td>
                  `;
                         tbody.appendChild(tr);
                     });
@@ -785,48 +840,49 @@
                     }
 
                     const html = `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:15px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid ${statusColor};">
-                        <span>Status: <b>${data.status_pagamento}</b></span>
-                        ${data.pago_em ? `<span>Pago em: ${data.pago_em}</span>` : ''}
+                    <div style="display:flex; justify-content:space-between; margin-bottom:20px; padding:15px; background: rgba(255,255,255,0.03); border-radius:12px; border: 1px solid var(--glass-border); border-left: 4px solid ${statusColor};">
+                        <span>Status de Pagamento: <b style="color: ${statusColor}">${data.status_pagamento}</b></span>
+                        ${data.pago_em ? `<span class="text-muted">Processado em: ${data.pago_em}</span>` : ''}
                     </div>
-                    <div style="text-align:center; margin-bottom:10px; font-weight:bold;">
-                        ${data.funcionario} - ${data.referencia}
+                    <div style="text-align:center; margin-bottom:25px;">
+                        <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary);">${data.funcionario}</div>
+                        <div class="text-muted">${data.referencia}</div>
                     </div>
                     <div class="holerite-item">
-                        <span>Salário Base</span>
-                        <span>R$ ${data.salario_base.toFixed(2)}</span>
+                        <span>Provento: Salário Base</span>
+                        <span style="font-family: 'JetBrains Mono';">R$ ${data.salario_base.toFixed(2)}</span>
                     </div>
-                    <div class="holerite-item" style="color: var(--danger-color);">
-                        <span>INSS (${(data.inss_percent * 100).toFixed(1)}%)</span>
-                        <span>- R$ ${data.inss_val.toFixed(2)}</span>
+                    <div class="holerite-item" style="color: #ff4444;">
+                        <span>Desconto: INSS (${(data.inss_percent * 100).toFixed(1)}%)</span>
+                        <span style="font-family: 'JetBrains Mono';">- R$ ${data.inss_val.toFixed(2)}</span>
                     </div>
                     ${data.vales_val > 0 ? `
-                    <div class="holerite-item" style="color: var(--danger-color);">
-                        <span>Adiantamentos (Vales) do Mês</span>
-                        <span>- R$ ${data.vales_val.toFixed(2)}</span>
+                    <div class="holerite-item" style="color: #ffaa00;">
+                        <span>Desconto: Adiantamentos (Vales)</span>
+                        <span style="font-family: 'JetBrains Mono';">- R$ ${data.vales_val.toFixed(2)}</span>
                     </div>` : ''}
                     ${data.saldo_devedor_anterior > 0 ? `
-                        <div class="holerite-item" style="color: #c0392b; font-weight: bold;">
-                            <span>Dívida de Meses Anteriores 🚩</span>
-                            <span>- R$ ${data.saldo_devedor_anterior.toFixed(2)}</span>
+                        <div class="holerite-item" style="color: #ff4444; font-weight: bold;">
+                            <span>Débito: Pendência de Meses Anteriores 🚩</span>
+                            <span style="font-family: 'JetBrains Mono';">- R$ ${data.saldo_devedor_anterior.toFixed(2)}</span>
                         </div>` : ''}
                     ${data.outros_descontos.map(d => `
-                        <div class="holerite-item" style="color: var(--danger-color);">
-                            <span>${d.tipo}</span>
-                            <span>- R$ ${d.valor.toFixed(2)}</span>
+                        <div class="holerite-item" style="color: #ff4444;">
+                            <span>Desconto: ${d.tipo}</span>
+                            <span style="font-family: 'JetBrains Mono';">- R$ ${d.valor.toFixed(2)}</span>
                         </div>
                     `).join('')}
-                    <div class="holerite-item" style="color: var(--info-color); border-bottom: none;">
-                        <span>FGTS (Provisão)</span>
-                        <span>(R$ ${data.fgts_val.toFixed(2)})</span>
+                    <div class="holerite-item" style="color: var(--accent-cyan); border-bottom: none; opacity: 0.7;">
+                        <span>Informativo: FGTS (Provisão)</span>
+                        <span style="font-family: 'JetBrains Mono';">(R$ ${data.fgts_val.toFixed(2)})</span>
                     </div>
                     <div class="holerite-total">
-                        <span>Líquido a Receber</span>
-                        <span style="color: var(--success-color);">R$ ${data.liquido.toFixed(2)}</span>
+                        <span style="font-size: 1rem; color: var(--text-muted);">Total Líquido</span>
+                        <span style="color: var(--primary-neon);">R$ ${data.liquido.toFixed(2)}</span>
                     </div>
                     ${data.excedente_para_proximo > 0 ? `
-                    <div style="margin-top:10px; color:#e74c3c; font-size:0.85em; text-align:right;">
-                        * Excedente de R$ ${data.excedente_para_proximo.toFixed(2)} acumulado para o próximo mês.
+                    <div style="margin-top:15px; color:#ff4444; font-size:0.85em; text-align:right; font-style: italic;">
+                        * Excedente de R$ ${data.excedente_para_proximo.toFixed(2)} será retido para o próximo ciclo.
                     </div>` : ''}
                 `;
                     document.getElementById('holeriteContent').innerHTML = html;
