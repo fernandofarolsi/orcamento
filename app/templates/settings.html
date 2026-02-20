@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="flex-between mb-20">
-    <h1>Configurações do Sistema</h1>
+    <h1>Configurações do <span onclick="openSeiyaModal()" style="cursor: default;">S</span>istema</h1>
 </div>
 
 <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -111,6 +111,19 @@
         <button class="btn" onclick="openCamilaModal()"
             style="width: auto; padding: 10px 20px; background: #333; border: 1px solid #555;">
             🤖 Configurar IA
+        </button>
+    </div>
+
+    <!-- CATEGORIAS DE ESTOQUE (CARD SUMMARY) -->
+    <div
+        style="background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); grid-column: span 2; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin:0; color: #4fc3f7;">Categorias de Estoque</h3>
+            <p style="color:#aaa; font-size: 0.9em; margin: 5px 0 0 0;">Crie ou remova categorias do seu catálogo.</p>
+        </div>
+        <button class="btn" onclick="openCategoriasModal()"
+            style="width: auto; padding: 10px 20px; background: #333; border: 1px solid #555;">
+            🗂️ Gerenciar Categorias
         </button>
     </div>
 </div>
@@ -532,6 +545,70 @@
             <button class="btn" onclick="saveCamilaSettings()" style="padding: 10px 30px;">
                 💾 Salvar Configurações
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- CATEGORIAS MODAL -->
+<div id="categoriasModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center;">
+    <div
+        style="background: #1e1e1e; width: 90%; max-width: 600px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; display: flex; flex-direction: column;">
+
+        <div
+            style="padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #252526; border-radius: 8px 8px 0 0;">
+            <h3 style="margin: 0; color: #fff;">Categorias de Estoque</h3>
+            <button class="btn btn-secondary" onclick="closeCategoriasModal()" style="padding: 5px 10px;">✕
+                Fechar</button>
+        </div>
+
+        <div style="padding: 30px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="novaCategoria" class="form-control" placeholder="Ex: Fitas de Borda"
+                    style="flex: 1;">
+                <button class="btn btn-primary" onclick="addCategoria()">+ Adicionar</button>
+            </div>
+
+            <div id="listaCategorias"
+                style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+
+        <div
+            style="padding: 20px; border-top: 1px solid #333; display: flex; justify-content: flex-end; gap: 10px; background: #252526; border-radius: 0 0 8px 8px;">
+            <button class="btn btn-secondary" onclick="closeCategoriasModal()">Fechar e Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- SEIYA MODAL (EASTER EGG) -->
+<div id="seiyaModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div
+        style="background: #111; width: 90%; max-width: 450px; border-radius: 12px; box-shadow: 0 0 40px rgba(255,255,255,0.1); border: 1px solid #333; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+
+        <button onclick="closeSeiyaModal()"
+            style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">✕</button>
+
+        <div style="padding: 0; text-align: center; background: #000;">
+            <!-- O usuário precisará salvar a foto do Seiya como 'seiya.jpg' na pasta /static/img/ ou /static/, vamos presumir /static/seiya.jpg -->
+            <img src="/static/seiya.jpg" alt="Seiya"
+                style="width: 100%; max-height: 400px; object-fit: contain; display: block; filter: grayscale(20%); transition: filter 0.5s ease;"
+                onmouseover="this.style.filter='grayscale(0%)'" onmouseout="this.style.filter='grayscale(20%)'">
+        </div>
+
+        <div style="padding: 25px; text-align: center;">
+            <h2 style="margin: 0 0 5px 0; color: #fff; font-size: 28px; font-weight: 300; letter-spacing: 2px;">Seiya
+            </h2>
+            <div style="color: #888; font-size: 14px; margin-bottom: 20px; letter-spacing: 1px;">
+                <span style="display: inline-block; padding: 2px 10px; border-radius: 12px; background: #222;">🐾 13 Ago
+                    2022 — 27 Jan 2026 💫</span>
+            </div>
+            <p style="color: #ccc; font-size: 15px; line-height: 1.6; font-style: italic; margin: 0;">
+                "O código pode mudar, as telas podem se transformar, mas você sempre estará eternizado nas fundações
+                desse sistema, pertinho de mim."
+            </p>
         </div>
     </div>
 </div>
@@ -1001,6 +1078,93 @@
                     if (res.success) loadUsers();
                 });
         }
+    }
+
+    // --- CATEGORY MANAGEMENT JS ---
+    let currentCategorias = [];
+
+    function openCategoriasModal() {
+        document.getElementById('categoriasModal').style.display = 'flex';
+        loadCategorias();
+    }
+
+    function closeCategoriasModal() {
+        document.getElementById('categoriasModal').style.display = 'none';
+    }
+
+    function loadCategorias() {
+        fetch('/api/system/metadata')
+            .then(r => r.json())
+            .then(data => {
+                currentCategorias = data.estoque.categorias || [];
+                renderCategorias();
+            });
+    }
+
+    function renderCategorias() {
+        const list = document.getElementById('listaCategorias');
+        list.innerHTML = '';
+        currentCategorias.forEach((cat, index) => {
+            const div = document.createElement('div');
+            div.style.display = 'flex';
+            div.style.justifyContent = 'space-between';
+            div.style.alignItems = 'center';
+            div.style.background = '#2a2a2a';
+            div.style.padding = '10px 15px';
+            div.style.borderRadius = '4px';
+            div.innerHTML = `
+                <span style="color: #fff;">${cat}</span>
+                <button class="btn btn-secondary" onclick="deleteCategoria(${index})" style="padding: 5px 10px; color: #ef5350;">🗑️ Remover</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function addCategoria() {
+        const input = document.getElementById('novaCategoria');
+        const val = input.value.trim();
+        if (!val) return;
+
+        if (currentCategorias.includes(val)) {
+            alert("Categoria já existe!");
+            return;
+        }
+
+        currentCategorias.push(val);
+        input.value = '';
+        saveCategorias();
+    }
+
+    function deleteCategoria(index) {
+        if (!confirm("Tem certeza que deseja remover esta categoria? Itens de estoque com ela manterão o texto salvo, mas ela não aparecerá mais nas listas suspensas.")) return;
+        currentCategorias.splice(index, 1);
+        saveCategorias();
+    }
+
+    function saveCategorias() {
+        const body = {
+            categorias_estoque: JSON.stringify(currentCategorias)
+        };
+        fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(res => {
+            if (res.success) {
+                renderCategorias();
+            } else {
+                alert("Erro ao salvar categorias!");
+            }
+        });
+    }
+
+    // --- SEIYA EASTER EGG ---
+    function openSeiyaModal() {
+        document.getElementById('seiyaModal').style.display = 'flex';
+    }
+
+    function closeSeiyaModal() {
+        document.getElementById('seiyaModal').style.display = 'none';
     }
 
     // Mark active nav

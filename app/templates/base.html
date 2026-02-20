@@ -74,6 +74,15 @@
       <a href="/estoque" class="{{ 'active' if request.endpoint == 'estoque' else '' }}" title="Estoque">
         <i class="fas fa-boxes"></i>
       </a>
+      <a href="/catalogo" class="{{ 'active' if request.endpoint == 'catalogo' else '' }}" title="Catálogo">
+        <i class="fas fa-book"></i>
+      </a>
+      <!--
+      <a href="/discovery" class="{{ 'active' if request.endpoint == 'discovery' else '' }}"
+        title="Descoberta de Móveis">
+        <i class="fas fa-magic"></i>
+      </a>
+      -->
       <a href="/financeiro" class="{{ 'active' if request.endpoint == 'financeiro' else '' }}" title="Financeiro">
         <i class="fas fa-wallet"></i>
       </a>
@@ -119,6 +128,12 @@
       <i class="fas fa-wallet"></i>
       <span>Financ.</span>
     </a>
+    <!--
+    <a href="/discovery" class="tab-link {{ 'active' if request.endpoint == 'discovery' else '' }}">
+      <i class="fas fa-magic"></i>
+      <span>Descoberta</span>
+    </a>
+    -->
     <a href="/settings" class="tab-link {{ 'active' if request.endpoint == 'settings' else '' }}">
       <i class="fas fa-bars"></i>
       <span>Mais</span>

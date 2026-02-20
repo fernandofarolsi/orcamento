@@ -1,8 +1,11 @@
-from flask import Blueprint, render_template, request, jsonify, flash
+from flask import Blueprint, render_template, request, jsonify, flash, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.database import get_db, log_audit
+from app.services.promob_service import PromobService
+from app.services.discovery_service import DiscoveryService
 from datetime import datetime
 import json
+import os
 
 bp = Blueprint('orcamentos', __name__)
 
@@ -324,3 +327,138 @@ def gerar_proposta(orc_id):
             groups = []
 
     return render_template('proposta_print.html', orcamento=orc, data_hoje=data_hoje, prop_numero=prop_numero, groups=groups)
+
+@bp.route('/api/orcamentos/import-promob', methods=['POST'])
+@jwt_required()
+def api_orcamentos_import_promob():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'error': 'Nenhum arquivo enviado'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'success': False, 'error': 'Arquivo sem nome'}), 400
+    
+    if file:
+        filename = datetime.now().strftime('%Y%m%d%H%M%S_') + file.filename
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        db = get_db()
+        raw_data = PromobService.extract_data(filepath)
+        if not raw_data:
+            return jsonify({'success': False, 'error': 'Falha ao processar arquivo Promob'}), 500
+            
+        mapped_data = PromobService.map_data(db, raw_data)
+        
+        # Cleanup uploaded file (optional, depends on policy)
+        # os.remove(filepath)
+        
+        return jsonify({'success': True, 'data': mapped_data})
+
+@bp.route('/api/promob/save-mapping', methods=['POST'])
+@jwt_required()
+def api_promob_save_mapping():
+    user_id = get_jwt_identity()
+    data = request.json
+    promob_name = data.get('promob_name')
+    target_type = data.get('target_type') # 'material' or 'item'
+    target_id = data.get('target_id')
+    
+    if not promob_name or not target_type or target_id is None:
+        return jsonify({'success': False, 'error': 'Dados incompletos'}), 400
+        
+    db = get_db()
+    try:
+        db.execute('''
+            INSERT INTO promob_mappings (promob_name, target_type, target_id)
+            VALUES (?, ?, ?)
+            ON CONFLICT(promob_name) DO UPDATE SET target_type=excluded.target_type, target_id=excluded.target_id
+        ''', (promob_name, target_type, int(target_id)))
+        db.commit()
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    
+    log_audit(user_id, 'PROMOB_MAPPING_SAVE', f"Mapped {promob_name} to {target_type} #{target_id}")
+    return jsonify({'success': True})
+
+@bp.route('/discovery')
+@jwt_required()
+def discovery():
+    return render_template('discovery.html')
+
+@bp.route('/api/promob/discovery', methods=['GET'])
+@jwt_required()
+def api_promob_discovery():
+    db = get_db()
+    train_dir = os.path.join(current_app.root_path, '..', 'treino')
+    limit = request.args.get('limit', 50, type=int)
+    
+    # Use DiscoveryService
+    results = DiscoveryService.get_suggested_items(db, train_dir, limit=limit)
+    return jsonify({'success': True, 'results': results})
+
+@bp.route('/api/promob/discovery/register', methods=['POST'])
+@jwt_required()
+def api_promob_discovery_register():
+    user_id = get_jwt_identity()
+    data = request.json
+    db = get_db()
+    
+    # Required fields
+    name = data.get('name')
+    L = float(data.get('L', 0))
+    A = float(data.get('A', 0))
+    P = float(data.get('P', 0))
+    category = data.get('category', 'Geral')
+    
+    # Materials and Hardware
+    mdf_id = data.get('mdf_id') # ID from estoque
+    fita_id = data.get('fita_id') # ID from estoque
+    puxador_id = data.get('puxador_id')
+    num_puxadores = int(data.get('num_puxadores', 0))
+    num_dobradicas = int(data.get('num_dobradicas', 0))
+    dobradica_id = data.get('dobradica_id')
+    
+    cur = db.cursor()
+    # 1. Create Catalog Item
+    cur.execute('''
+        INSERT INTO itens_catalogo (nome, dims_padrao, categoria)
+        VALUES (?, ?, ?)
+    ''', (name, f"{L}x{A}x{P}", category))
+    cat_id = cur.lastrowid
+    
+    # 2. Add Insumos
+    # MDF (Area calculation)
+    if mdf_id:
+        mdf_qty = ((L*A*2) + (L*P*2) + (A*P*2)) / 1000000.0
+        cur.execute('INSERT INTO catalogo_insumos (catalogo_id, estoque_id, quantidade, tipo_calculo) VALUES (?, ?, ?, ?)',
+                    (cat_id, mdf_id, round(mdf_qty, 3), 'area'))
+                    
+    # Fita de Borda (4 sides calculation)
+    if fita_id:
+        fita_qty = DiscoveryService.calculate_edge_banding_4_sides(L, A, P)
+        cur.execute('INSERT INTO catalogo_insumos (catalogo_id, estoque_id, quantidade, tipo_calculo) VALUES (?, ?, ?, ?)',
+                    (cat_id, fita_id, fita_qty, 'perimetro'))
+                    
+    # Hardware
+    if puxador_id and num_puxadores > 0:
+        cur.execute('INSERT INTO catalogo_insumos (catalogo_id, estoque_id, quantidade, tipo_calculo) VALUES (?, ?, ?, ?)',
+                    (cat_id, puxador_id, num_puxadores, 'fixo'))
+    if dobradica_id and num_dobradicas > 0:
+        cur.execute('INSERT INTO catalogo_insumos (catalogo_id, estoque_id, quantidade, tipo_calculo) VALUES (?, ?, ?, ?)',
+                    (cat_id, dobradica_id, num_dobradicas, 'fixo'))
+
+    # 3. Create Promob Mapping
+    cur.execute('''
+        INSERT INTO promob_mappings (promob_name, target_type, target_id)
+        VALUES (?, ?, ?)
+        ON CONFLICT(promob_name) DO UPDATE SET target_type=excluded.target_type, target_id=excluded.target_id
+    ''', (name, 'item', cat_id))
+
+    # 4. Mark as reviewed in discovery patterns
+    cur.execute('UPDATE discovered_patterns SET is_reviewed = 1 WHERE name = ?', (name,))
+    
+    db.commit()
+    log_audit(user_id, 'DISCOVERY_REGISTER', f"Registered {name} from discovery")
+    
+    return jsonify({'success': True, 'id': cat_id})

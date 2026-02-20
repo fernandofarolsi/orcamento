@@ -20,6 +20,12 @@
                 <i class="fas fa-history"></i> Ver Histórico
             </a>
             {% endif %}
+            <button class="btn" onclick="document.getElementById('promobFileInput').click()"
+                style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: #6f42c1;">
+                <i class="fas fa-file-import"></i> Importar Promob
+            </button>
+            <input type="file" id="promobFileInput" style="display: none;" onchange="handlePromobUpload(this)"
+                accept=".promob,.bak">
             <button class="btn" onclick="openModal()"
                 style="display: flex; align-items: center; gap: 8px; padding: 8px 16px;">
                 <i class="fas fa-plus"></i> Novo Orçamento
@@ -430,6 +436,26 @@
     </div>
 </div>
 
+<!-- Modal Mapeamento Promob -->
+<div id="promobMappingModal" class="modal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1001; justify-content: center; align-items: center;">
+    <div class="glass-panel" style="width: 700px; max-height: 80vh; overflow-y: auto; padding: 30px;">
+        <h2 style="color: var(--primary-neon);">Mapear Itens do Promob</h2>
+        <p style="color: #ccc; font-size: 0.9em;">Os itens abaixo não foram reconhecidos. Mapeie-os para o catálogo ou
+            estoque para continuar.</p>
+
+        <div id="mappingList" style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+            <!-- Mappings will be injected here -->
+        </div>
+
+        <div style="margin-top: 30px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="btn" onclick="document.getElementById('promobMappingModal').style.display='none'"
+                style="background: #666;">Cancelar</button>
+            <button class="btn" onclick="processMappedPromob()" style="padding: 10px 30px;">Concluir Importação</button>
+        </div>
+    </div>
+</div>
+
 
 <!-- Modal Cadastro Rápido de Cliente (Moved) -->
 <div id="quickClienteModal" class="modal">
@@ -485,6 +511,183 @@
         });
     }
 
+    // --- PROMOB IMPORT LOGIC ---
+    let currentPromobData = null;
+
+    async function handlePromobUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        showToast("Processando Promob... Isso pode levar alguns segundos.", 5000);
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/api/orcamentos/import-promob', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                currentPromobData = data.data;
+                if (currentPromobData.unknowns && currentPromobData.unknowns.length > 0) {
+                    showMappingModal(currentPromobData.unknowns);
+                } else {
+                    finalizePromobImport();
+                }
+            } else {
+                alert("Erro ao importar: " + data.error);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Erro na comunicação com o servidor.");
+        } finally {
+            input.value = ''; // Reset input
+        }
+    }
+
+    function showMappingModal(unknowns) {
+        const modal = document.getElementById('promobMappingModal');
+        const list = document.getElementById('mappingList');
+        list.innerHTML = '';
+
+        unknowns.forEach((unk, idx) => {
+            const div = document.createElement('div');
+            div.className = 'glass-panel';
+            div.style.padding = '15px';
+            div.style.display = 'grid';
+            div.style.gridTemplateColumns = '1fr 2fr';
+            div.style.gap = '15px';
+            div.style.alignItems = 'center';
+
+            const typeLabel = unk.type === 'item' ? 'Módulo' : 'Material';
+
+            div.innerHTML = `
+                <div>
+                    <strong style="color: var(--primary-neon);">${typeLabel}:</strong><br>
+                    <span style="font-size: 0.9em;">${unk.name}</span>
+                </div>
+                <div>
+                    <select id="mapping_select_${idx}" style="width: 100%;" onchange="updateInternalMapping(${idx}, '${unk.name}', '${unk.type}')">
+                        <option value="">Selecione no nosso catálogo/estoque...</option>
+                        ${unk.type === 'item' ? getCatalogOptions() : getStockOptions()}
+                    </select>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+
+        modal.style.display = 'flex';
+    }
+
+    function getCatalogOptions() {
+        return catalogoData.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+    }
+
+    function getStockOptions() {
+        return estoqueData.map(e => `<option value="${e.id}">${e.nome}</option>`).join('');
+    }
+
+    let tempMappings = {};
+
+    function updateInternalMapping(idx, promobName, type) {
+        const val = document.getElementById(`mapping_select_${idx}`).value;
+        if (val) {
+            tempMappings[promobName] = { type, targetId: val };
+        }
+    }
+
+    async function processMappedPromob() {
+        // Save new mappings to server (Learning)
+        const promises = Object.entries(tempMappings).map(([name, data]) => {
+            return fetch('/api/promob/save-mapping', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    promob_name: name,
+                    target_type: data.type,
+                    target_id: data.targetId
+                })
+            });
+        });
+
+        await Promise.all(promises);
+
+        // Update local data with temporary mappings
+        currentPromobData.items.forEach(item => {
+            if (!item.catalogo_id && tempMappings[item.raw_name]) {
+                item.catalogo_id = parseInt(tempMappings[item.raw_name].targetId);
+            }
+        });
+
+        currentPromobData.materials.forEach(mat => {
+            if (!mat.estoque_id && tempMappings[mat.raw_name]) {
+                mat.estoque_id = parseInt(tempMappings[mat.raw_name].targetId);
+            }
+        });
+
+        document.getElementById('promobMappingModal').style.display = 'none';
+        finalizePromobImport();
+    }
+
+    function finalizePromobImport() {
+        const data = currentPromobData;
+        if (!data) return;
+
+        openModal(); // Reset modal
+
+        // Set Client if found
+        if (data.client) {
+            // Find existing client or just set text for now
+            // For now, let's look in the select
+            const clientSelect = document.getElementById('clientId');
+            let found = false;
+            for (let opt of clientSelect.options) {
+                if (opt.text.toLowerCase().includes(data.client.nome.toLowerCase())) {
+                    clientSelect.value = opt.value;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                showToast("Cliente " + data.client.nome + " não encontrado no sistema. Cadastre-o manualmente.");
+            }
+        }
+
+        // Convert Items to Tabs/Ambientes
+        // Group by some heuristic or just put everything in one tab if simple
+        // For now, let's put all items in the first tab
+        const firstTab = budgetTabs[0];
+        firstTab.name = "Importado do Promob";
+
+        data.items.forEach(item => {
+            if (item.catalogo_id) {
+                // Find catalog item details
+                const catItem = catalogoData.find(c => c.id == item.catalogo_id);
+                if (catItem) {
+                    firstTab.items.push({
+                        catalogo_id: item.catalogo_id,
+                        nome: catItem.nome,
+                        L: item.L,
+                        A: item.A,
+                        P: item.P,
+                        complex: 1.0,
+                        acessorios: [],
+                        custo: 0, // Will be calculated
+                        descricao: item.raw_name
+                    });
+                }
+            }
+        });
+
+        updateGrandTotal();
+        switchTab(firstTab.id);
+        switchModalStep('projeto');
+        showToast("Importação concluída com sucesso!");
+    }
+
     // Load Catalogs
     fetch('/api/catalogo').then(r => r.json()).then(data => {
         catalogoData = data;
@@ -495,6 +698,11 @@
             opt.textContent = `${item.nome}`;
             sel.appendChild(opt);
         });
+    });
+
+    let estoqueData = [];
+    fetch('/api/estoque').then(r => r.json()).then(data => {
+        estoqueData = data;
     });
 
     // Load Accessories form Stock

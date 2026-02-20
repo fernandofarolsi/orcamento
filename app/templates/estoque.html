@@ -164,15 +164,7 @@
         <div class="form-group">
             <label>Categoria</label>
             <select id="itemCategoria" onchange="autoFillArea(this.value)">
-                <option value="MDF">MDF</option>
-                <option value="Compensado">Compensado</option>
-                <option value="Fórmica">Fórmica</option>
-                <option value="Vidro">Vidro</option>
-                <option value="Espelho">Espelho</option>
-                <option value="Ferragem">Ferragem</option>
-                <option value="Acessório">Acessório</option>
-                <option value="Iluminação">Iluminação</option>
-                <option value="Outro">Outro</option>
+                <!-- Preenchido via JS (Metadata API) -->
             </select>
         </div>
 
@@ -467,9 +459,24 @@
     // function loadEstoque() { ... }
 
     // Initial load
-    // Initial load
     loadEstoque();
     loadGroups();
+
+    // Load Dynamic Categories
+    fetch('/api/system/metadata')
+        .then(r => r.json())
+        .then(data => {
+            const selectCategoria = document.getElementById('itemCategoria');
+            selectCategoria.innerHTML = '';
+            const categorias = data.estoque.categorias || [];
+            categorias.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.innerText = cat;
+                selectCategoria.appendChild(opt);
+            });
+        })
+        .catch(err => console.error("Erro ao carregar categorias:", err));
 
     // Fetch scraping status
     fetch('/api/settings').then(r => r.json()).then(data => {

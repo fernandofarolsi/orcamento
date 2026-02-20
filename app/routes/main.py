@@ -23,13 +23,36 @@ def api_system_metadata():
     """
     Returns system-wide enums and valid values for dropdowns/agents.
     """
+    from app.database import get_db
+    import json
+    
+    db = get_db()
+    cat_setting = db.execute("SELECT value FROM settings WHERE key = 'categorias_estoque'").fetchone()
+    
+    categorias_estoque = [
+        'MDF', 'Compensado', 'Fórmica', 'Vidro', 'Espelho', 
+        'Ferragem', 'Acessório', 'Iluminação', 'Outro'
+    ]
+    
+    if cat_setting and cat_setting['value']:
+        try:
+            categorias_estoque = json.loads(cat_setting['value'])
+        except:
+            pass
+            
+    # Load unidades de medida dynamically as well (future proofing)
+    und_setting = db.execute("SELECT value FROM settings WHERE key = 'unidades_estoque'").fetchone()
+    unidades_estoque = ['Unidade', 'Metro', 'Quilo', 'Litro', 'Chapa']
+    if und_setting and und_setting['value']:
+        try:
+            unidades_estoque = json.loads(und_setting['value'])
+        except:
+            pass
+
     metadata = {
         'estoque': {
-            'categorias': [
-                'MDF', 'Compensado', 'Fórmica', 'Vidro', 'Espelho', 
-                'Ferragem', 'Acessório', 'Iluminação', 'Outro'
-            ],
-            'unidades': ['Unidade', 'Metro', 'Quilo', 'Litro', 'Chapa']
+            'categorias': categorias_estoque,
+            'unidades': unidades_estoque
         },
         'orcamentos': {
             'status': ['proposta', 'aprovado', 'producao', 'concluido', 'entregue']

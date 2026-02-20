@@ -370,6 +370,11 @@ textarea {
     outline: none !important;
 }
 
+option {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+}
+
 input:focus,
 select:focus,
 textarea:focus {
